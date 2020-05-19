@@ -60,7 +60,7 @@ class FileReader
     }
 
     /**
-     * Close the file resource
+     * Close the file resource.
      */
     protected function close(): void
     {
