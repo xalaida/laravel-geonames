@@ -11,23 +11,33 @@ use Illuminate\Support\Str;
 trait Uuid
 {
     /**
-     * Generate uuid during the model creating.
+     * Boot the uuid trait.
      *
      * @return void
      */
     public static function bootUuid(): void
     {
         self::creating(static function (self $model) {
-            $model->generateId();
+            $model->setKey();
         });
     }
 
     /**
-     * Generate the ID.
+     * Generate a key.
+     *
+     * @return string
      */
-    public function generateId(): void
+    public static function generateKey(): string
     {
-        $this->{$this->getKeyName()} = Str::uuid()->toString();
+        return Str::uuid()->toString();
+    }
+
+    /**
+     * Set the model key.
+     */
+    protected function setKey(): void
+    {
+        $this->setAttribute($this->getKeyName(), static::generateKey());
     }
 
     /**
