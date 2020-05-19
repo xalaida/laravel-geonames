@@ -19,6 +19,25 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->bootMigrations();
+        $this->bootCommands();
+    }
+
+    /**
+     * Boot any package migrations.
+     */
+    private function bootMigrations(): void
+    {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+    }
+
+    /**
+     * Boot any package console commands.
+     */
+    private function bootCommands(): void
+    {
+        $this->commands([
+            Console\ImportContinentsCommand::class,
+        ]);
     }
 }
