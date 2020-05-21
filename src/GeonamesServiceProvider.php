@@ -39,6 +39,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->commands([
             Console\Import\ContinentsCommand::class,
             Console\Import\CountriesCommand::class,
+            Console\Import\TimezonesCommand::class,
             Console\Generate\CountriesResourceCommand::class,
         ]);
     }
