@@ -61,7 +61,7 @@ class GeonamesParser
      */
     private function isHeadRow(array $line): bool
     {
-        return array_keys($line)[0] !== array_values($line)[0];
+        return array_keys($line)[0] === array_values($line)[0];
     }
 
     /**
