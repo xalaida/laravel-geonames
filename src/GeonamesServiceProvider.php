@@ -37,7 +37,9 @@ class GeonamesServiceProvider extends ServiceProvider
     private function bootCommands(): void
     {
         $this->commands([
-            Console\ImportContinentsCommand::class,
+            Console\Import\ContinentsCommand::class,
+            Console\Import\CountriesCommand::class,
+            Console\Generate\CountriesResourceCommand::class,
         ]);
     }
 }

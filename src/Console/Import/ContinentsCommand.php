@@ -1,18 +1,18 @@
 <?php
 
-namespace Nevadskiy\Geonames\Console;
+namespace Nevadskiy\Geonames\Console\Import;
 
 use Illuminate\Console\Command;
 use Nevadskiy\Geonames\Models\Continent;
 
-class ImportContinentsCommand extends Command
+class ContinentsCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'geonames:continents:import';
+    protected $signature = 'geonames:import:continents';
 
     /**
      * The console command description.
@@ -40,7 +40,7 @@ class ImportContinentsCommand extends Command
      */
     private function getContinentsList(): array
     {
-        return require __DIR__ . '/../../resources/data/continents.php';
+        return require __DIR__ . '/../../../resources/data/continents.php';
     }
 
     /**

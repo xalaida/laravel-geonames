@@ -45,4 +45,14 @@ class Continent extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Get the slug source key name.
+     *
+     * @return string
+     */
+    public function getSlugSourceKeyName(): string
+    {
+        return 'code';
+    }
 }
