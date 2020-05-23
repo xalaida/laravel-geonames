@@ -26,6 +26,8 @@ class TimezonesCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @param TimezonesParser $parser
      */
     public function handle(TimezonesParser $parser): void
     {
@@ -46,7 +48,7 @@ class TimezonesCommand extends Command
             'name' => $timezone['TimeZoneId'],
             'offset_gmt' => $timezone['GMT offset 1. Jan 2020'],
             'offset_dst' => $timezone['DST offset 1. Jul 2020'],
-            'offset_raw' => $timezone,
+            'offset_raw' => $timezone['rawOffset (independant of DST)'],
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

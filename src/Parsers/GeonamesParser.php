@@ -8,7 +8,7 @@ class GeonamesParser
 {
     public function each(): ?\Generator
     {
-        $reader = FileReader::make(__DIR__.'/../../data/allCountries.txt');
+        $reader = FileReader::make(__DIR__.'/../../data/UA.txt');
 
         foreach ($reader->line() as $i => $rawLine) {
             if (! $rawLine) {
@@ -69,6 +69,30 @@ class GeonamesParser
      * @return array
      */
     private function parseLine(string $line): array
+    {
+        $mappedLine = $this->mapLine($line);
+
+        foreach ($mappedLine as $key => $value) {
+            $mappedLine[$key] = $this->transformValue($value);
+        }
+
+        return $mappedLine;
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function transformValue($value)
+    {
+        return is_string($value) && $value === '' ? null : $value;
+    }
+
+    /**
+     * @param string $line
+     * @return array
+     */
+    private function mapLine(string $line): array
     {
         return array_combine($this->fieldsMapping(), explode("\t", $line));
     }

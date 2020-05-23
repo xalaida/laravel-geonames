@@ -17,8 +17,6 @@ use Nevadskiy\Geonames\Support\Uuid;
  * @property string name
  * @property string name_official
  * @property string capital
- * @property int area
- * @property int population
  * @property string continent_id
  * @property string tld
  * @property string currency_code
@@ -30,6 +28,8 @@ use Nevadskiy\Geonames\Support\Uuid;
  * @property string neighbours
  * @property float latitude
  * @property float longitude
+ * @property int area
+ * @property int population
  * @property int dem
  * @property string feature_code
  * @property int geoname_id

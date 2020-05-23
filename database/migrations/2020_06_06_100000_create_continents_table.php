@@ -19,7 +19,7 @@ class CreateContinentsTable extends Migration
             $table->string('code', 2);
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->integer('population')->unsigned();
+            $table->bigInteger('population')->unsigned();
             $table->smallInteger('dem')->comment('Digital elevation model, srtm3 or gtopo30.');
             $table->integer('geoname_id')->unsigned()->index()->comment('Geonames database identifier.');
             $table->timestamps();

@@ -25,8 +25,6 @@ class CreateCountriesTable extends Migration
             $table->string('name');
             $table->string('name_official');
             $table->string('capital'); // TODO: extract into separate table using foreign key
-            $table->smallInteger('area')->unsigned()->comment('In square kilometers.');
-            $table->integer('population')->unsigned();
             $table->uuid('continent_id');
             $table->string('tld');
             $table->string('currency_code'); // TODO: can be refactored using separate
@@ -38,6 +36,8 @@ class CreateCountriesTable extends Migration
             $table->string('neighbours'); // TODO: can be refactored using separate table
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
+            $table->float('area')->unsigned()->comment('In square kilometers.');
+            $table->bigInteger('population')->unsigned();
             $table->smallInteger('dem')->comment('Digital elevation model, srtm3 or gtopo30.');
             $table->string('feature_code');
             $table->integer('geoname_id')->unsigned()->index();

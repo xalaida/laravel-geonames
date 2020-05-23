@@ -21,6 +21,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->bootMigrations();
         $this->bootCommands();
+        $this->publishMigrations();
     }
 
     /**
@@ -40,7 +41,19 @@ class GeonamesServiceProvider extends ServiceProvider
             Console\Import\ContinentsCommand::class,
             Console\Import\CountriesCommand::class,
             Console\Import\TimezonesCommand::class,
+            Console\Import\CitiesCommand::class,
+            Console\InstallCommand::class,
             Console\Generate\CountriesResourceCommand::class,
         ]);
+    }
+
+    /**
+     * Boot the package migrations publisher.
+     */
+    private function publishMigrations(): void
+    {
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'geoname-migrations');
     }
 }
