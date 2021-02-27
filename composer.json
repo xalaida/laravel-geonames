@@ -1,0 +1,44 @@
+{
+    "name": "nevadskiy/laravel-geonames",
+    "description": "The package allows integrating geonames database with a Laravel application.",
+    "license": "MIT",
+    "keywords": ["geonames", "geo", "database", "countries", "cities", "laravel"],
+    "authors": [
+        {
+            "name": "Nevadskiy",
+            "email": "nevadskiy@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "laravel/framework": "^7.0|^8.0",
+        "nevadskiy/laravel-translatable": "^0.7",
+        "nevadskiy/laravel-uuid": "^0.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "orchestra/testbench": "^5.0|^6.0",
+        "friendsofphp/php-cs-fixer": "^2.16"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nevadskiy\\Geonames\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nevadskiy\\Geonames\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nevadskiy\\Geonames\\GeonamesServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "fix": "php-cs-fixer fix"
+    }
+}
