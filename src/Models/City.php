@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
-use Nevadskiy\Translatable\HasTranslations;
 
 /**
  * @property string id
  * @property string name
  * @property string country_id
+ * @property string division_id
  * @property float latitude
  * @property float longitude
  * @property string|null timezone_id
@@ -33,15 +33,6 @@ class City extends Model
      * @var string
      */
     public const TABLE = 'cities';
-
-    /**
-     * The attributes that can be translatable.
-     *
-     * @var array
-     */
-    protected $translatable = [
-        'name',
-    ];
 
     /**
      * Get the timezone instance.

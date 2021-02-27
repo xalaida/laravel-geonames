@@ -15,6 +15,7 @@ use Nevadskiy\Geonames\Support\Eloquent\Model;
  * @property integer|null population
  * @property integer|null elevation
  * @property integer|null dem
+ * @property string code
  * @property string feature_code
  * @property int geoname_id
  * @property Carbon modified_at
