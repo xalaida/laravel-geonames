@@ -146,9 +146,7 @@ class FileDownloader implements Downloader
      */
     protected function getTargetPath(string $url, string $directory, string $name = null): string
     {
-        return realpath(
-            rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ($name ?: basename($url))
-        );
+        return rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ($name ?: basename($url));
     }
 
     /**
@@ -182,18 +180,24 @@ class FileDownloader implements Downloader
      */
     protected function openTargetResource(string $path)
     {
+        $directory = dirname($path);
+
+        if (! mkdir($directory, 0755, true) && !is_dir($directory)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
+        }
+
         return $this->openFileResource($path, 'wb+');
     }
 
     /**
      * Open resource of the source file.
      *
-     * @param string $file
+     * @param string $path
      * @return resource
      */
-    protected function openSourceResource(string $file)
+    protected function openSourceResource(string $path)
     {
-        return $this->openFileResource($file, 'r');
+        return $this->openFileResource($path, 'r');
     }
 
     /**
