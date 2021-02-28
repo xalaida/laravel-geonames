@@ -13,7 +13,7 @@ use Nevadskiy\Geonames\Support\Eloquent\Model;
  * @property float longitude
  * @property string|null timezone_id
  * @property integer|null population
- * @property integer|null elevation
+ * @property integer|null elevation TODO: check if it uses somewhere (or there are entities with not null value)
  * @property integer|null dem
  * @property string code
  * @property string feature_code
