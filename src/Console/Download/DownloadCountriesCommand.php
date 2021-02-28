@@ -29,15 +29,41 @@ class DownloadCountriesCommand extends Command
     {
         // TODO: probably rename into download dataset, or something like that since it is not only countries
 
-        // TODO: parameters.
-        $url = 'http://download.geonames.org/export/dump/UA.zip';
-        $directory = config('geonames.directory');
+        $this->unzip($unzipper, $this->download($downloader));
+    }
 
-        $path = $downloader->enableProgressBar($this->getOutput())->update()->download($url, $directory);
+    /**
+     * Download the geonames resource dataset.
+     *
+     * @param ConsoleFileDownloader $downloader
+     * @return string
+     */
+    private function download(ConsoleFileDownloader $downloader): string
+    {
+        return $downloader->enableProgressBar($this->getOutput())
+            ->update()
+            ->download($this->getUrl(), config('geonames.directory'));
+    }
 
+    /**
+     * Unzip the downloaded resource.
+     *
+     * @param Unzipper $unzipper
+     * @param string $path
+     */
+    private function unzip(Unzipper $unzipper, string $path): void
+    {
         // TODO: refactor unzipper as downloader decorator
         $unzipper->extractIntoDirectory()->unzip($path);
+    }
 
-        $this->info('Countries resource have been downloaded.');
+    /**
+     * Get the geonames resource URL.
+     *
+     * @return string
+     */
+    private function getUrl(): string
+    {
+        return 'http://download.geonames.org/export/dump/allCountries.zip';
     }
 }
