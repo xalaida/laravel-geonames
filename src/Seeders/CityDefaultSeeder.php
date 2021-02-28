@@ -69,7 +69,7 @@ class CityDefaultSeeder implements CitySeeder
     {
         return $city['feature class'] === self::FEATURE_CLASS
             && in_array($city['feature code'], self::FEATURE_CODES, true)
-            && (int) $city['population'] > 1000;
+            && (int) $city['population'] > 1000; // TODO: make population configurable
     }
 
     /**
