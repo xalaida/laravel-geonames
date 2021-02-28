@@ -22,7 +22,7 @@ class FileDownloader implements Downloader
      *
      * @var bool
      */
-    protected $overrideFiles = false;
+    protected $overwriteFiles = false;
 
     /**
      * Indicates if the downloader should update existing files if size is different.
@@ -72,11 +72,21 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Force downloading if the file already exists.
+     * Enable overwriting files if a file already exists.
      */
     public function force(): self
     {
-        $this->overrideFiles = true;
+        $this->overwriteFiles = true;
+
+        return $this;
+    }
+
+    /**
+     * Enable updating files if a file already exists with different size.
+     */
+    public function update(): self
+    {
+        $this->updateFiles = true;
 
         return $this;
     }
@@ -88,8 +98,8 @@ class FileDownloader implements Downloader
     {
         $path = $this->getTargetPath($url, $directory, $name);
 
-        if ($this->overrideFiles || ! file_exists($path)) {
-            // TODO log: file not exists or override enabled, start downloading
+        if ($this->overwriteFiles || ! file_exists($path)) {
+            // TODO log: file not exists or overwrite enabled, start downloading
             return $this->performDownload($url, $path, $this->getFileSizeByUrl($url));
         }
 

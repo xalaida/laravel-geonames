@@ -7,23 +7,12 @@ use Illuminate\Console\OutputStyle;
 class ConsoleFileDownloader extends FileDownloader
 {
     /**
-     * ConsoleFileDownloader constructor.
+     * Enable the console progress bar.
      *
      * @param OutputStyle $output
-     * @param int $bufferSize
+     * @return ConsoleFileDownloader
      */
-    public function __construct(OutputStyle $output, int $bufferSize = 1024 * 1024)
-    {
-        parent::__construct($bufferSize);
-        $this->attachConsoleProgressBar($output);
-    }
-
-    /**
-     * Attach the console progress bar.
-     *
-     * @param OutputStyle $output
-     */
-    protected function attachConsoleProgressBar(OutputStyle $output): void
+    public function enableProgressBar(OutputStyle $output): self
     {
         $this->onReady(function (int $steps, string $url) use ($output) {
             $progress = $output->createProgressBar($steps);
@@ -39,5 +28,7 @@ class ConsoleFileDownloader extends FileDownloader
                 $output->writeln("<info>File Downloaded:</info> {$path}");
             });
         });
+
+        return $this;
     }
 }
