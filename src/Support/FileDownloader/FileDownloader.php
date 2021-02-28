@@ -141,7 +141,6 @@ class FileDownloader implements Downloader
 
         $this->closeResource($sourceResource);
         $this->closeResource($targetResource);
-        clearstatcache($targetPath);
 
         return $targetPath;
     }
@@ -179,7 +178,10 @@ class FileDownloader implements Downloader
     private function getLocalFileSize(string $path): int
     {
         // TODO: test if path is invalid
-        return filesize($path);
+        $size = filesize($path);
+        clearstatcache($path);
+
+        return $size;
     }
 
     /**
