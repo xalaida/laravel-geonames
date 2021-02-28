@@ -63,4 +63,14 @@ return [
         Nevadskiy\Geonames\Seeders\CitySeeder::class => Nevadskiy\Geonames\Seeders\CityDefaultSeeder::class,
         Nevadskiy\Geonames\Seeders\Translations\TranslationSeeder::class => Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder::class,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Geonames resources URL
+    |--------------------------------------------------------------------------
+    |
+    | The URL with all geonames resources.
+    |
+    */
+    'resources_url' => 'http://download.geonames.org/export/dump/',
 ];
