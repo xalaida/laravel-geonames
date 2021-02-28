@@ -196,7 +196,7 @@ class FileDownloader implements Downloader
 
         // TODO: probably insert .gitignore in the directory
 
-        if (! mkdir($directory, 0755, true) && !is_dir($directory)) {
+        if (! is_dir($directory) && ! mkdir($directory, 0755, true)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
         }
 
