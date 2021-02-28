@@ -27,6 +27,8 @@ class DownloadCountriesCommand extends Command
      */
     public function handle(ConsoleFileDownloader $downloader, Unzipper $unzipper): void
     {
+        // TODO: probably rename into download dataset, or something like that since it is not only countries
+
         // TODO: parameters.
         $url = 'http://download.geonames.org/export/dump/UA.zip';
         $directory = config('geonames.directory');
