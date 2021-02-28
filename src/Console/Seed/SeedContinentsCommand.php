@@ -81,7 +81,7 @@ class SeedContinentsCommand extends Command
      */
     public function getOptionSourcePath(): string
     {
-        $path = app_path($this->option('source'));
+        $path = base_path($this->option('source'));
 
         if (! file_exists($path)) {
             throw new RuntimeException("File does not exist {$path}.");
