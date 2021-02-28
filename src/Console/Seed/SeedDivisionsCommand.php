@@ -49,8 +49,11 @@ class SeedDivisionsCommand extends Command
      */
     private function truncate(): void
     {
+        // TODO: add production warning
+
         if ($this->option('truncate')) {
             Division::query()->truncate();
+            $this->info('Divisions table has been truncated.');
         }
     }
 

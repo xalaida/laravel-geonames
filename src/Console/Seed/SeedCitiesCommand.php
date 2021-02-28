@@ -51,6 +51,7 @@ class SeedCitiesCommand extends Command
     {
         if ($this->option('truncate')) {
             City::query()->truncate();
+            $this->info('Cities table has been truncated.');
         }
     }
 

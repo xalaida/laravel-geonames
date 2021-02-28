@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Console\Seed;
 
 use Illuminate\Console\Command;
+use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Seeders\ContinentSeeder;
 use RuntimeException;
 
@@ -13,7 +14,7 @@ class SeedContinentsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:seed:continents {--source=}';
+    protected $signature = 'geonames:seed:continents {--source=} {--truncate}';
 
     /**
      * The console command description.
@@ -29,11 +30,26 @@ class SeedContinentsCommand extends Command
     {
         $this->info('Start seeding continents.');
 
+        $this->truncate();
+
         foreach ($this->continents() as $id => $continent) {
             $seeder->seed($continent, $id);
         }
 
         $this->info('Continents have been successfully seeded.');
+    }
+
+    /**
+     * Truncate a table if option is specified.
+     */
+    private function truncate(): void
+    {
+        // TODO: add production warning
+
+        if ($this->option('truncate')) {
+            Continent::query()->truncate();
+            $this->info('Continents table has been truncated.');
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Console\Seed;
 
 use Illuminate\Console\Command;
+use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Seeders\CountrySeeder;
 use RuntimeException;
 
@@ -13,7 +14,7 @@ class SeedCountriesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:seed:countries {--source=}';
+    protected $signature = 'geonames:seed:countries {--source=} {--truncate}';
 
     /**
      * The console command description.
@@ -29,11 +30,26 @@ class SeedCountriesCommand extends Command
     {
         $this->info('Start seeding countries.');
 
+        $this->truncate();
+
         foreach ($this->countries() as $id => $country) {
             $seeder->seed($country, $id);
         }
 
         $this->info('Countries have been successfully seeded.');
+    }
+
+    /**
+     * Truncate a table if option is specified.
+     */
+    private function truncate(): void
+    {
+        // TODO: add production warning
+
+        if ($this->option('truncate')) {
+            Country::query()->truncate();
+            $this->info('Countries table has been truncated.');
+        }
     }
 
     /**
