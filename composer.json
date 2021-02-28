@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": "^7.3",
+        "ext-zip": "*",
         "laravel/framework": "^7.0|^8.0",
         "nevadskiy/laravel-translatable": "^0.7",
         "nevadskiy/laravel-uuid": "^0.6"
