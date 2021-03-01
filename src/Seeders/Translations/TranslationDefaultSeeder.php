@@ -15,6 +15,20 @@ use Nevadskiy\Translatable\Models\Translation;
 class TranslationDefaultSeeder implements TranslationSeeder
 {
     /**
+     * The languages array.
+     *
+     * @var array|string[]
+     */
+    protected $languages;
+
+    /**
+     * Indicates if nullable languages should be seeded.
+     *
+     * @var bool
+     */
+    private $nullableLanguage;
+
+    /**
      * Continent translation mapper.
      *
      * @var ContinentTranslationMapper
@@ -43,13 +57,6 @@ class TranslationDefaultSeeder implements TranslationSeeder
     protected $divisionTranslationMapper;
 
     /**
-     * The languages array.
-     *
-     * @var array|string[]
-     */
-    protected $languages;
-
-    /**
      * A batch of source translations.
      *
      * @var Batch
@@ -71,7 +78,8 @@ class TranslationDefaultSeeder implements TranslationSeeder
         CountryTranslationMapper $countryTranslationMapper,
         CityTranslationMapper $cityTranslationMapper,
         DivisionTranslationMapper $divisionTranslationMapper,
-        array $languages = ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn']
+        array $languages,
+        bool $nullableLanguage
     )
     {
         $this->continentTranslationMapper = $continentTranslationMapper;
@@ -79,6 +87,7 @@ class TranslationDefaultSeeder implements TranslationSeeder
         $this->cityTranslationMapper = $cityTranslationMapper;
         $this->divisionTranslationMapper = $divisionTranslationMapper;
         $this->languages = $languages;
+        $this->nullableLanguage = $nullableLanguage;
         $this->sourceTranslations = $this->makeSourceTranslationsBatch();
         $this->preparedTranslations = $this->makePreparedTranslationsBatch();
     }
@@ -114,7 +123,7 @@ class TranslationDefaultSeeder implements TranslationSeeder
      */
     protected function shouldSeed(array $translation): bool
     {
-        return is_null($translation['isolanguage'])
+        return (is_null($translation['isolanguage']) && $this->nullableLanguage)
             || in_array($translation['isolanguage'], $this->languages, true);
     }
 

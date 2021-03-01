@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
+use Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
@@ -27,6 +28,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerFileReader();
         $this->registerSeeders();
         $this->registerIgnitionFixer();
+        $this->registerTranslationSeeder();
     }
 
     /**
@@ -76,6 +78,24 @@ class GeonamesServiceProvider extends ServiceProvider
         if (class_exists(QueryRecorder::class)) {
             $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
         }
+    }
+
+    /**
+     * Register ignition memory limit fixer.
+     */
+    private function registerTranslationSeeder(): void
+    {
+        $this->app->when(TranslationDefaultSeeder::class)
+            ->needs('$nullableLanguage')
+            ->give(function () {
+                return $this->app['config']['geonames']['filters']['nullable_language'];
+            });
+
+        $this->app->when(TranslationDefaultSeeder::class)
+            ->needs('$languages')
+            ->give(function () {
+                return $this->app['config']['geonames']['filters']['languages'];
+            });
     }
 
     /**

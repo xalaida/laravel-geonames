@@ -61,6 +61,10 @@ return [
 
         'min_population' => 0,
 
+        'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
+
+        'nullable_language' => true,
+
     ],
 
     /*
