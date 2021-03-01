@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
+use Nevadskiy\Geonames\Seeders\CityDefaultSeeder;
 use Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
@@ -27,8 +28,9 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerFileReader();
         $this->registerSeeders();
-        $this->registerIgnitionFixer();
+        $this->registerCitySeeder();
         $this->registerTranslationSeeder();
+        $this->registerIgnitionFixer();
     }
 
     /**
@@ -71,17 +73,19 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register ignition memory limit fixer.
+     * Register a city seeder.
      */
-    private function registerIgnitionFixer(): void
+    private function registerCitySeeder(): void
     {
-        if (class_exists(QueryRecorder::class)) {
-            $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
-        }
+        $this->app->when(CityDefaultSeeder::class)
+            ->needs('$minPopulation')
+            ->give(function () {
+                return $this->app['config']['geonames']['filters']['min_population'];
+            });
     }
 
     /**
-     * Register ignition memory limit fixer.
+     * Register a translation seeder.
      */
     private function registerTranslationSeeder(): void
     {
@@ -96,6 +100,16 @@ class GeonamesServiceProvider extends ServiceProvider
             ->give(function () {
                 return $this->app['config']['geonames']['filters']['languages'];
             });
+    }
+
+    /**
+     * Register ignition memory limit fixer.
+     */
+    private function registerIgnitionFixer(): void
+    {
+        if (class_exists(QueryRecorder::class)) {
+            $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
+        }
     }
 
     /**
