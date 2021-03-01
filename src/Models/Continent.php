@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Translatable\HasTranslations;
 
 /**
  * @property string id
@@ -25,6 +26,8 @@ use Nevadskiy\Geonames\Support\Eloquent\Model;
  */
 class Continent extends Model
 {
+    use HasTranslations;
+
     /**
      * The table associated with the model.
      *
@@ -39,6 +42,15 @@ class Continent extends Model
      */
     protected $casts = [
         'modified_at' => 'date',
+    ];
+
+    /**
+     * The attributes that can be translatable.
+     *
+     * @var array
+     */
+    protected $translatable = [
+        'name',
     ];
 
     /**

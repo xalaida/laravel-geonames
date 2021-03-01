@@ -6,6 +6,7 @@ use Carbon\CarbonTimeZone;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Translatable\HasTranslations;
 
 /**
  * @property string id
@@ -39,6 +40,8 @@ use Nevadskiy\Geonames\Support\Eloquent\Model;
  */
 class Country extends Model
 {
+    use HasTranslations;
+
     /**
      * The table associated with the model.
      *
@@ -53,6 +56,15 @@ class Country extends Model
      */
     protected $casts = [
         'modified_at' => 'date',
+    ];
+
+    /**
+     * The attributes that can be translatable.
+     *
+     * @var array
+     */
+    protected $translatable = [
+        'name',
     ];
 
     /**

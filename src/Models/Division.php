@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Models;
 
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Translatable\HasTranslations;
 
 /**
  * @property string id
@@ -24,6 +25,8 @@ use Nevadskiy\Geonames\Support\Eloquent\Model;
  */
 class Division extends Model
 {
+    use HasTranslations;
+
     /**
      * The table associated with the model.
      *
@@ -38,5 +41,14 @@ class Division extends Model
      */
     protected $casts = [
         'modified_at' => 'date',
+    ];
+
+    /**
+     * The attributes that can be translatable.
+     *
+     * @var array
+     */
+    protected $translatable = [
+        'name',
     ];
 }
