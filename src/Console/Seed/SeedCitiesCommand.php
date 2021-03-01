@@ -4,6 +4,8 @@ namespace Nevadskiy\Geonames\Console\Seed;
 
 use Generator;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Seeders\CitySeeder;
@@ -28,13 +30,14 @@ class SeedCitiesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(CitySeeder $seeder, GeonamesParser $parser): void
+    public function handle(Dispatcher $dispatcher, CitySeeder $seeder, GeonamesParser $parser): void
     {
         $this->info('Start seeding cities. It may take some time.');
 
         $this->truncate();
 
-        $this->prepareLongRunningCommand();
+        $dispatcher->dispatch(new GeonamesCommandReady());
+
         $this->setUpProgressBar($parser);
 
         foreach ($this->cities($parser) as $id => $city) {
@@ -49,19 +52,11 @@ class SeedCitiesCommand extends Command
      */
     private function truncate(): void
     {
+        // TODO: add production warning
+
         if ($this->option('truncate')) {
             City::query()->truncate();
             $this->info('Cities table has been truncated.');
-        }
-    }
-
-    /**
-     * If app has registered flare package which come out of the box with laravel, you may encounter a memory leak.
-     */
-    private function prepareLongRunningCommand(): void
-    {
-        if (config()->has('flare')) {
-            config(['flare.reporting.report_query_bindings' => false]);
         }
     }
 

@@ -2,8 +2,12 @@
 
 namespace Nevadskiy\Geonames;
 
+use Facade\Ignition\QueryRecorder\QueryRecorder;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use Nevadskiy\Geonames\Events\GeonamesCommandReady;
+use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
@@ -22,6 +26,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerFileReader();
         $this->registerSeeders();
+        $this->registerIgnitionFixer();
     }
 
     /**
@@ -64,6 +69,16 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register ignition memory limit fixer.
+     */
+    private function registerIgnitionFixer(): void
+    {
+        if (class_exists(QueryRecorder::class)) {
+            $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
+        }
+    }
+
+    /**
      * Boot any module commands.
      */
     private function bootCommands(): void
@@ -71,6 +86,7 @@ class GeonamesServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Console\Download\DownloadCountriesCommand::class,
+                Console\Download\DownloadTranslationsCommand::class,
                 Console\Seed\SeedContinentsCommand::class,
                 Console\Seed\SeedCountriesCommand::class,
                 Console\Seed\SeedDivisionsCommand::class,
