@@ -43,10 +43,18 @@ class CityDefaultSeeder implements CitySeeder
     protected $batch;
 
     /**
+     * Indicates the minimal population for being seeded.
+     *
+     * @var int
+     */
+    private $minPopulation;
+
+    /**
      * Make a new seeder instance.
      */
-    public function __construct(int $batchSize = 1000)
+    public function __construct(int $batchSize = 1000, int $minPopulation = 0)
     {
+        $this->minPopulation = $minPopulation;
         $this->countries = $this->getCountries();
         $this->divisions = $this->getDivisions();
         $this->batch = $this->makeBatch($batchSize);
@@ -69,7 +77,7 @@ class CityDefaultSeeder implements CitySeeder
     {
         return $city['feature class'] === self::FEATURE_CLASS
             && in_array($city['feature code'], self::FEATURE_CODES, true)
-            && (int) $city['population'] > 1000; // TODO: make population configurable
+            && (int) $city['population'] > $this->minPopulation;
     }
 
     /**
