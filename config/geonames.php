@@ -32,15 +32,16 @@ return [
     |
     | Filenames of the geonames resources.
     | More info: http://download.geonames.org/export/dump/
+    | TODO: refactor
     |
     */
     'files' => [
 
         'country_info' => 'countryInfo.txt',
 
-        'all_countries' => 'allCountries.txt',
+        'all_countries' => 'allCountries/allCountries.txt',
 
-        'alternate_names' => 'alternateNames.txt',
+        'alternate_names' => 'alternateNames/alternateNames.txt',
 
         'countries' => 'countries.php',
 
