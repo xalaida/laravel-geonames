@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Console\Seed;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Console\Seed\Traits\Truncate;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Seeders\ContinentSeeder;
@@ -11,6 +12,8 @@ use RuntimeException;
 
 class SeedContinentsCommand extends Command
 {
+    use Truncate;
+
     /**
      * The name and signature of the console command.
      *
@@ -34,7 +37,7 @@ class SeedContinentsCommand extends Command
 
         $dispatcher->dispatch(new GeonamesCommandReady());
 
-        $this->truncate();
+        $this->truncateAttempt();
 
         foreach ($this->continents() as $id => $continent) {
             $seeder->seed($continent, $id);
@@ -44,16 +47,11 @@ class SeedContinentsCommand extends Command
     }
 
     /**
-     * Truncate a table if option is specified.
+     * Get a table name to be truncated.
      */
-    private function truncate(): void
+    protected function getTableToTruncate(): string
     {
-        // TODO: add production warning
-
-        if ($this->option('truncate')) {
-            Continent::query()->truncate();
-            $this->info('Continents table has been truncated.');
-        }
+        return Continent::TABLE;
     }
 
     /**

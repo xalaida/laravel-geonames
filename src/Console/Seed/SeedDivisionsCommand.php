@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Console\Seed;
 use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Console\Seed\Traits\Truncate;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
@@ -13,6 +14,8 @@ use RuntimeException;
 
 class SeedDivisionsCommand extends Command
 {
+    use Truncate;
+
     /**
      * The name and signature of the console command.
      *
@@ -36,7 +39,7 @@ class SeedDivisionsCommand extends Command
 
         $dispatcher->dispatch(new GeonamesCommandReady());
 
-        $this->truncate();
+        $this->truncateAttempt();
 
         $this->setUpProgressBar($parser);
 
@@ -48,16 +51,11 @@ class SeedDivisionsCommand extends Command
     }
 
     /**
-     * Truncate a table if option is specified.
+     * Get a table name to be truncated.
      */
-    private function truncate(): void
+    protected function getTableToTruncate(): string
     {
-        // TODO: add production warning
-
-        if ($this->option('truncate')) {
-            Division::query()->truncate();
-            $this->info('Divisions table has been truncated.');
-        }
+        return Division::TABLE;
     }
 
     /**
