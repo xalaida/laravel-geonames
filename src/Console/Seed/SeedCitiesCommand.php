@@ -34,9 +34,9 @@ class SeedCitiesCommand extends Command
     {
         $this->info('Start seeding cities. It may take some time.');
 
-        $this->truncate();
-
         $dispatcher->dispatch(new GeonamesCommandReady());
+
+        $this->truncate();
 
         $this->setUpProgressBar($parser);
 

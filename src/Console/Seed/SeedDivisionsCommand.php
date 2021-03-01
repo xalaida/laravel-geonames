@@ -4,6 +4,8 @@ namespace Nevadskiy\Geonames\Console\Seed;
 
 use Generator;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Seeders\DivisionSeeder;
@@ -28,13 +30,14 @@ class SeedDivisionsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(GeonamesParser $parser, DivisionSeeder $seeder): void
+    public function handle(Dispatcher $dispatcher, GeonamesParser $parser, DivisionSeeder $seeder): void
     {
         $this->info('Start seeding divisions. It may take some time.');
 
+        $dispatcher->dispatch(new GeonamesCommandReady());
+
         $this->truncate();
 
-        $this->prepareLongRunningCommand();
         $this->setUpProgressBar($parser);
 
         foreach ($this->divisions($parser) as $id => $division) {
@@ -54,16 +57,6 @@ class SeedDivisionsCommand extends Command
         if ($this->option('truncate')) {
             Division::query()->truncate();
             $this->info('Divisions table has been truncated.');
-        }
-    }
-
-    /**
-     * If app has registered flare package which come out of the box with laravel, you may encounter a memory leak.
-     */
-    private function prepareLongRunningCommand(): void
-    {
-        if (config()->has('flare')) {
-            config(['flare.reporting.report_query_bindings' => false]);
         }
     }
 

@@ -3,6 +3,8 @@
 namespace Nevadskiy\Geonames\Console\Seed;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Seeders\CountrySeeder;
 use RuntimeException;
@@ -26,9 +28,11 @@ class SeedCountriesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(CountrySeeder $seeder): void
+    public function handle(Dispatcher $dispatcher, CountrySeeder $seeder): void
     {
         $this->info('Start seeding countries.');
+
+        $dispatcher->dispatch(new GeonamesCommandReady());
 
         $this->truncate();
 
