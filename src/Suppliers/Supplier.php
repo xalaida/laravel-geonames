@@ -10,9 +10,9 @@ interface Supplier
     public function insert(array $data, int $id): bool;
 
     /**
-     * Attempt to update a geonames data by the given id if exists or insert a new one and return true on success.
+     * Attempt to modify a geonames data by the given id and return true on success.
      */
-    public function updateOrInsert(array $data, int $id): bool;
+    public function modify(array $data, int $id): bool;
 
     /**
      * Attempt to delete a geonames data by the given id and return true if success.
