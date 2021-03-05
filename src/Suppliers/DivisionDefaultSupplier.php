@@ -49,7 +49,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     /**
      * @inheritDoc
      */
-    protected function shouldSupply(array $data): bool
+    protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true);
@@ -78,7 +78,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     /**
      * @inheritDoc
      */
-    protected function updateModel(Model $model, array $data): bool
+    protected function updateModel(Model $model, array $data, int $id): bool
     {
         return $model->update($this->mapUpdateFields($data));
     }

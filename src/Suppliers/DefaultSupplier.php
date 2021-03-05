@@ -13,7 +13,7 @@ abstract class DefaultSupplier implements Supplier
      */
     public function insert(int $id, array $data): bool
     {
-        if (! $this->shouldSupply($data)) {
+        if (! $this->shouldSupply($data, $id)) {
             return false;
         }
 
@@ -31,11 +31,11 @@ abstract class DefaultSupplier implements Supplier
             return $this->insert($id, $data);
         }
 
-        if (! $this->shouldSupply($data)) {
+        if (! $this->shouldSupply($data, $id)) {
             return $this->deleteModel($model);
         }
 
-        return $this->updateModel($model, $data);
+        return $this->updateModel($model, $data, $id);
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class DefaultSupplier implements Supplier
     /**
      * Determine if the given data should be supplied.
      */
-    abstract protected function shouldSupply(array $data): bool;
+    abstract protected function shouldSupply(array $data, int $id): bool;
 
     /**
      * Insert the item into database.
@@ -81,7 +81,7 @@ abstract class DefaultSupplier implements Supplier
      * @param array $data
      * @return bool
      */
-    abstract protected function updateModel(Model $model, array $data): bool;
+    abstract protected function updateModel(Model $model, array $data, int $id): bool;
 
     /**
      * Delete the given model from the database.
