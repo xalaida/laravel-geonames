@@ -2,7 +2,7 @@
 
 namespace Nevadskiy\Geonames\Suppliers;
 
-use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Models\City;
@@ -10,7 +10,7 @@ use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
-class CityDefaultSupplier implements CitySupplier
+class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 {
     /**
      * The city feature class.
@@ -62,50 +62,6 @@ class CityDefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
-     */
-    public function insert(array $data, int $id): bool
-    {
-        if (! $this->shouldSupply($data)) {
-            return false;
-        }
-
-        return $this->performInsert($data, $id);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function modify(array $data, int $id): bool
-    {
-        $city = $this->findCity($id);
-
-        if (! $city) {
-            return $this->insert($data, $id);
-        }
-
-        if (! $this->shouldSupply($data)) {
-            return $this->deleteCity($city);
-        }
-
-        return $this->updateCity($city, $data);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function delete(array $data, int $id): bool
-    {
-        $city = $this->findCity($id);
-
-        if (! $city) {
-            return false;
-        }
-
-        return $this->deleteCity($city);
-    }
-
-    /**
      * Determine if the given data should be supplied.
      */
     protected function shouldSupply(array $data): bool
@@ -113,6 +69,16 @@ class CityDefaultSupplier implements CitySupplier
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
             && (int) $data['population'] > $this->minPopulation;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function findModel(int $id): ?Model
+    {
+        return City::query()
+            ->where('geoname_id', $id)
+            ->first();
     }
 
     /**
@@ -130,40 +96,19 @@ class CityDefaultSupplier implements CitySupplier
     }
 
     /**
-     * Find a city by the given geonames' id.
-     *
-     * @param int $id
-     * @return City|null
+     * @inheritDoc
      */
-    private function findCity(int $id): ?City
+    protected function updateModel(Model $model, array $data): bool
     {
-        return City::query()
-            ->where('geoname_id', $id)
-            ->first();
+        return $model->update($this->mapUpdateFields($data));
     }
 
     /**
-     * Update the city with the given data.
-     *
-     * @param City $city
-     * @param array $data
-     * @return bool
+     * @inheritDoc
      */
-    private function updateCity(City $city, array $data): bool
+    protected function deleteModel(Model $model): bool
     {
-        return $city->update($this->mapUpdateFields($data));
-    }
-
-    /**
-     * Delete the given city from the database.
-     *
-     * @param City $city
-     * @return bool
-     * @throws Exception
-     */
-    private function deleteCity(City $city): bool
-    {
-        return $city->delete();
+        return $model->delete();
     }
 
     /**
@@ -207,6 +152,19 @@ class CityDefaultSupplier implements CitySupplier
     }
 
     /**
+     * Make a batch instance for better inserting performance.
+     *
+     * @param int $batchSize
+     * @return Batch
+     */
+    protected function makeInsertBatch(int $batchSize): Batch
+    {
+        return new Batch(static function (array $cities) {
+            DB::table(City::TABLE)->insert($cities);
+        }, $batchSize);
+    }
+
+    /**
      * Get countries collection grouped by code.
      */
     protected function getCountries(): Collection
@@ -220,19 +178,6 @@ class CityDefaultSupplier implements CitySupplier
     protected function getDivisions(): Collection
     {
         return Division::all()->groupBy(['country_id', 'code']);
-    }
-
-    /**
-     * Make a batch instance for better inserting performance.
-     *
-     * @param int $batchSize
-     * @return Batch
-     */
-    protected function makeInsertBatch(int $batchSize): Batch
-    {
-        return new Batch(static function (array $cities) {
-            DB::table(City::TABLE)->insert($cities);
-        }, $batchSize);
     }
 
     /**
