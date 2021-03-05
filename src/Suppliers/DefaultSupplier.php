@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Models\Continent;
 
-abstract class DefaultSupplier
+abstract class DefaultSupplier implements Supplier
 {
     /**
      * @inheritDoc
