@@ -62,7 +62,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * Determine if the given data should be supplied.
+     * @inheritDoc
      */
     protected function shouldSupply(array $data): bool
     {
@@ -74,25 +74,21 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * @inheritDoc
      */
-    protected function findModel(int $id): ?Model
-    {
-        return City::query()
-            ->where('geoname_id', $id)
-            ->first();
-    }
-
-    /**
-     * Perform the inserting process.
-     *
-     * @param array $data
-     * @param int $id
-     * @return bool
-     */
     protected function performInsert(array $data, int $id): bool
     {
         $this->insertBatch->push($this->mapInsetFields($data, $id));
 
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function findModel(int $id): ?Model
+    {
+        return City::query()
+            ->where('geoname_id', $id)
+            ->first();
     }
 
     /**
