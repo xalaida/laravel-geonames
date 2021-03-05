@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Suppliers;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Models\Continent;
 
-class ContinentDefaultSeeder extends DefaultSupplier implements ContinentSupplier
+class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSupplier
 {
     /**
      * Feature class of a continent.
