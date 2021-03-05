@@ -1,14 +1,15 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders;
+namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
-class DivisionDefaultSeeder implements DivisionSeeder
+class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplier
 {
     /**
      * The division feature class.
@@ -48,33 +49,74 @@ class DivisionDefaultSeeder implements DivisionSeeder
     /**
      * @inheritDoc
      */
-    public function seed(array $division, int $id): void
+    protected function shouldSupply(array $data): bool
     {
-        if ($this->shouldSeed($division)) {
-            $this->batch->push($this->mapFields($division, $id));
-        }
+        return $data['feature class'] === self::FEATURE_CLASS
+            && in_array($data['feature code'], self::FEATURE_CODES, true);
     }
 
     /**
-     * Determine whether the given division data should be seeded into the database.
+     * @inheritDoc
      */
-    protected function shouldSeed(array $division): bool
+    protected function performInsert(array $data, int $id): bool
     {
-        return $division['feature class'] === self::FEATURE_CLASS
-            && in_array($division['feature code'], self::FEATURE_CODES, true);
+        $this->batch->push($this->mapInsertFields($data, $id));
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function findModel(int $id): ?Model
+    {
+        return Division::query()
+            ->where('geoname_id', $id)
+            ->first();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function updateModel(Model $model, array $data): bool
+    {
+        return $model->update($this->mapUpdateFields($data));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function deleteModel(Model $model): bool
+    {
+        return $model->delete();
     }
 
     /**
      * Map fields for the division model.
      *
-     * @param array $data
+     * @param array $division
      * @param int $id
      * @return array
      */
-    protected function mapFields(array $data, int $id): array
+    protected function mapInsertFields(array $division, int $id): array
+    {
+        return array_merge($this->mapUpdateFields($division), [
+            'id' => Division::generateId(),
+            'geoname_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /**
+     * Map update fields for the division model.
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function mapUpdateFields(array $data): array
     {
         return [
-            'id' => Division::generateId(),
             'name' => $data['asciiname'] ?: $data['name'],
             'country_id' => $this->countries[$data['country code']]->id,
             'latitude' => $data['latitude'],
@@ -85,10 +127,7 @@ class DivisionDefaultSeeder implements DivisionSeeder
             'dem' => $data['dem'],
             'code' => $data['admin1 code'],
             'feature_code' => $data['feature code'],
-            'geoname_id' => $id,
             'modified_at' => $data['modification date'],
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 
@@ -108,8 +147,8 @@ class DivisionDefaultSeeder implements DivisionSeeder
      */
     protected function makeBatch(int $batchSize): Batch
     {
-        return new Batch(static function (array $cities) {
-            DB::table(Division::TABLE)->insert($cities);
+        return new Batch(static function (array $divisions) {
+            DB::table(Division::TABLE)->insert($divisions);
         }, $batchSize);
     }
 }
