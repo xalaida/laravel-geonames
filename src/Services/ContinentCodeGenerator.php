@@ -8,9 +8,6 @@ class ContinentCodeGenerator
 {
     /**
      * Generate a slug for the given continent.
-     *
-     * @param Continent $continent
-     * @return string
      */
     public function generate(Continent $continent): string
     {
@@ -31,8 +28,6 @@ class ContinentCodeGenerator
 
     /**
      * Get an abbreviation of the continent.
-     *
-     * @param Continent $continent
      */
     private function getAbbreviation(Continent $continent): string
     {
