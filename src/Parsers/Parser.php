@@ -6,6 +6,7 @@ use Generator;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 use Nevadskiy\Geonames\Support\Traits\Events;
 
+// TODO: probably refactor to allow using as a class with API: new Parser(['field1', 'field2', 'field3'])
 abstract class Parser
 {
     use Events;
