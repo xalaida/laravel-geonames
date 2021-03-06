@@ -198,6 +198,8 @@ class DailyUpdateCommand extends Command
         }
 
         $this->countrySupplier->init();
+        // TODO: add countryInfo resource.
+        // $this->countrySupplier->setCountryInfos('');
         foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
             if ($this->countrySupplier->modify($id, $data)) {
                 $this->info('Country has been modified: '. $id);
