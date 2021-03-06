@@ -49,6 +49,13 @@ return [
 
     ],
 
+    'tables' => [
+        Nevadskiy\Geonames\Models\Continent::TABLE,
+        Nevadskiy\Geonames\Models\Country::TABLE,
+        Nevadskiy\Geonames\Models\Division::TABLE,
+        Nevadskiy\Geonames\Models\City::TABLE,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Seeding filters.
@@ -59,7 +66,18 @@ return [
     */
     'filters' => [
 
+        'continents' => true,
+
+        'countries' => true,
+
+        // TODO: add possibility to remove divisions without cities
+        'divisions' => true,
+
+        'cities' => true,
+
         'min_population' => 0,
+
+        'translations' => true,
 
         'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
 
@@ -75,7 +93,7 @@ return [
     | Override it when you are going to use custom migrations.
     |
     */
-    'seeders' => [
+    'suppliers' => [
         Nevadskiy\Geonames\Suppliers\ContinentSupplier::class => Nevadskiy\Geonames\Suppliers\ContinentDefaultSupplier::class,
         Nevadskiy\Geonames\Suppliers\CountrySupplier::class => Nevadskiy\Geonames\Suppliers\CountryDefaultSupplier::class,
         Nevadskiy\Geonames\Suppliers\DivisionSupplier::class => Nevadskiy\Geonames\Suppliers\DivisionDefaultSupplier::class,
