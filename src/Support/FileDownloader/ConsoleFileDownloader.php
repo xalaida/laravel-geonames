@@ -20,7 +20,7 @@ class ConsoleFileDownloader extends FileDownloader
      * @param OutputStyle $output
      * @return ConsoleFileDownloader
      */
-    public function enableProgressBar(OutputStyle $output): self
+    public function withProgressBar(OutputStyle $output): self
     {
         $this->onReady(function (int $steps, string $url) use ($output) {
             $this->progress = $output->createProgressBar($steps);
