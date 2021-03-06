@@ -187,10 +187,6 @@ class DailyUpdateCommand extends Command
     {
         $modificationsPath = $this->downloadModifications($previousDate);
 
-        // TODO: download country info
-        $countryInfoPath = $this->downloadCountryInfoFile();
-        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
-
         $this->continentSupplier->init();
         foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
             if ($this->continentSupplier->modify($id, $data)) {
@@ -198,9 +194,13 @@ class DailyUpdateCommand extends Command
             }
         }
 
+        // TODO: download country info
+        $countryInfoPath = $this->downloadCountryInfoFile();
+        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
+
+
         $this->countrySupplier->init();
-        // TODO: add countryInfo resource.
-        // $this->countrySupplier->setCountryInfos('');
+
         foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
             if ($this->countrySupplier->modify($id, $data)) {
                 $this->info('Country has been modified: '. $id);
