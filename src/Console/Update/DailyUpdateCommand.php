@@ -3,14 +3,18 @@
 namespace Nevadskiy\Geonames\Console\Update;
 
 use Carbon\Carbon;
-use Carbon\CarbonTimeZone;
 use DateTimeInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
+use Nevadskiy\Geonames\Parsers\CountryInfoParser;
+use Nevadskiy\Geonames\Parsers\DeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
+use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
+use Nevadskiy\Geonames\Suppliers\CountrySupplier;
+use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
 use Nevadskiy\Geonames\Support\FileDownloader\ConsoleFileDownloader;
 
 class DailyUpdateCommand extends Command
@@ -44,11 +48,46 @@ class DailyUpdateCommand extends Command
     protected $dispatcher;
 
     /**
+     * The geonames country info parser instance.
+     *
+     * @var CountryInfoParser
+     */
+    protected $countryInfoParser;
+
+    /**
      * The geonames parser instance.
      *
      * @var GeonamesParser
      */
     protected $geonamesParser;
+
+    /**
+     * The deletes parser instance.
+     *
+     * @var DeletesParser
+     */
+    protected $deletesParser;
+
+    /**
+     * The continent supplier instance.
+     *
+     * @var ContinentSupplier
+     */
+    protected $continentSupplier;
+
+    /**
+     * The country supplier instance.
+     *
+     * @var CountrySupplier
+     */
+    protected $countrySupplier;
+
+    /**
+     * The division supplier instance.
+     *
+     * @var DivisionSupplier
+     */
+    protected $divisionSupplier;
 
     /**
      * The city supplier instance.
@@ -63,18 +102,23 @@ class DailyUpdateCommand extends Command
     public function handle(
         ConsoleFileDownloader $downloader,
         Dispatcher $dispatcher,
+        CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
+        DeletesParser $deletesParser,
+        ContinentSupplier $continentSupplier,
+        CountrySupplier $countrySupplier,
+        DivisionSupplier $divisionSupplier,
         CitySupplier $citySupplier
     ): void
     {
-        $this->init($downloader, $dispatcher, $geonamesParser, $citySupplier);
+        $this->init($downloader, $dispatcher, $countryInfoParser, $geonamesParser, $deletesParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+
         // TODO: refactor with service container configure
         $this->setUpDownloader($downloader);
 
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         $this->info('Start geonames daily updating.');
-
 
         $date = $this->getPreviousDate();
 
@@ -84,6 +128,8 @@ class DailyUpdateCommand extends Command
         $this->modify($date);
         $this->delete($date);
 
+        // TODO: need to process the file 4 times to avoid FOREIGN KEY CONSTRAINT error in the case when new city is added, but division in not exists yet.
+
         // TODO: remove the line when code will be ready
         DB::rollBack();
 
@@ -92,22 +138,27 @@ class DailyUpdateCommand extends Command
 
     /**
      * Init the command instance with all required services.
-     *
-     * @param ConsoleFileDownloader $downloader
-     * @param Dispatcher $dispatcher
-     * @param GeonamesParser $geonamesParser
-     * @param CitySupplier $citySupplier
      */
     private function init(
         ConsoleFileDownloader $downloader,
         Dispatcher $dispatcher,
+        CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
+        DeletesParser $deletesParser,
+        ContinentSupplier $continentSupplier,
+        CountrySupplier $countrySupplier,
+        DivisionSupplier $divisionSupplier,
         CitySupplier $citySupplier
     ): void
     {
         $this->downloader = $downloader;
         $this->dispatcher = $dispatcher;
+        $this->countryInfoParser = $countryInfoParser;
         $this->geonamesParser = $geonamesParser;
+        $this->deletesParser = $deletesParser;
+        $this->continentSupplier = $continentSupplier;
+        $this->countrySupplier = $countrySupplier;
+        $this->divisionSupplier = $divisionSupplier;
         $this->citySupplier = $citySupplier;
     }
 
@@ -137,9 +188,34 @@ class DailyUpdateCommand extends Command
     {
         $modificationsPath = $this->downloadModifications($previousDate);
 
+        // TODO: download countryInfo and update using it.
+
+        $this->continentSupplier->init();
         foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-            $this->citySupplier->modify($data, $id);
-            // TODO: add other suppliers... and complete them with update method...
+            if ($this->continentSupplier->modify($id, $data)) {
+                $this->info('Continent has been modified: '. $id);
+            }
+        }
+
+        $this->countrySupplier->init();
+        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+            if ($this->countrySupplier->modify($id, $data)) {
+                $this->info('Country has been modified: '. $id);
+            }
+        }
+
+        $this->divisionSupplier->init();
+        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+            if ($this->divisionSupplier->modify($id, $data)) {
+                $this->info('Division has been modified: '. $id);
+            }
+        }
+
+        $this->citySupplier->init();
+        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+            if ($this->citySupplier->modify($id, $data)) {
+                $this->info('City has been modified: '. $id);
+            }
         }
 
         // TODO: delete modifications file.
@@ -152,9 +228,28 @@ class DailyUpdateCommand extends Command
     {
         $deletesPath = $this->downloadDeletes($previousDate);
 
-        foreach ($this->geonamesParser->forEach($deletesPath) as $id => $data) {
-            $this->citySupplier->delete($data, $id);
-            // TODO: add other suppliers... and complete them with update method...
+        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+            if ($this->continentSupplier->delete($id, $data)) {
+                $this->info('Continent has been deleted: '. $id);
+            }
+        }
+
+        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+            if ($this->countrySupplier->delete($id, $data)) {
+                $this->info('Country has been deleted: '. $id);
+            }
+        }
+
+        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+            if ($this->divisionSupplier->delete($id, $data)) {
+                $this->info('Division has been deleted: '. $id);
+            }
+        }
+
+        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+            if ($this->citySupplier->delete($id, $data)) {
+                $this->info('City has been deleted: '. $id);
+            }
         }
 
         // TODO: delete deletes file.
