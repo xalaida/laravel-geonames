@@ -191,7 +191,7 @@ class InsertCommand extends Command
      */
     private function setUpDownloader(ConsoleFileDownloader $downloader): void
     {
-        $downloader->enableProgressBar($this->getOutput())->update();
+        $downloader->withProgressBar($this->getOutput())->update();
     }
 
     /**
@@ -201,7 +201,7 @@ class InsertCommand extends Command
     {
         // TODO: download country info
         $countryInfoPath = $this->downloadCountryInfoFile();
-        $this->countrySupplier->setCountryInfos($this->getCountryInfos($countryInfoPath));
+        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
 
         // TODO: download specific geonames [ allCountries.zip, US.zip, cities500.zip, etc.]
         $geonamesZipPath = $this->downloadGeonamesFile();
@@ -298,17 +298,6 @@ class InsertCommand extends Command
     private function getGeonamesUrl(): string
     {
         return "http://download.geonames.org/export/dump/allCountries.zip";
-    }
-
-    /**
-     * Get the country infos.
-     *
-     * @param string $path
-     * @return array
-     */
-    private function getCountryInfos(string $path): array
-    {
-        return iterator_to_array($this->countryInfoParser->forEach($path));
     }
 
     /**

@@ -113,7 +113,6 @@ class DailyUpdateCommand extends Command
     {
         $this->init($downloader, $dispatcher, $countryInfoParser, $geonamesParser, $deletesParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
 
-        // TODO: refactor with service container configure
         $this->setUpDownloader($downloader);
 
         $this->dispatcher->dispatch(new GeonamesCommandReady());
@@ -170,7 +169,7 @@ class DailyUpdateCommand extends Command
      */
     private function setUpDownloader(ConsoleFileDownloader $downloader): void
     {
-        $downloader->enableProgressBar($this->getOutput())->update();
+        $downloader->withProgressBar($this->getOutput())->update();
     }
 
     /**
@@ -188,7 +187,9 @@ class DailyUpdateCommand extends Command
     {
         $modificationsPath = $this->downloadModifications($previousDate);
 
-        // TODO: download countryInfo and update using it.
+        // TODO: download country info
+        $countryInfoPath = $this->downloadCountryInfoFile();
+        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
 
         $this->continentSupplier->init();
         foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
@@ -280,6 +281,16 @@ class DailyUpdateCommand extends Command
     }
 
     /**
+     * Download geonames' country info file.
+     *
+     * @return string
+     */
+    private function downloadCountryInfoFile(): string
+    {
+        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
+    }
+
+    /**
      * Get the URL of the geonames' daily modifications file.
      *
      * @param DateTimeInterface $date
@@ -299,5 +310,15 @@ class DailyUpdateCommand extends Command
     private function getDeletesUrlByDate(DateTimeInterface $date): string
     {
         return "http://download.geonames.org/export/dump/deletes-{$date->format('Y-m-d')}.txt";
+    }
+
+    /**
+     * Get the URL of the geonames' country info file.
+     *
+     * @return string
+     */
+    private function getCountryInfoUrl(): string
+    {
+        return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
 }
