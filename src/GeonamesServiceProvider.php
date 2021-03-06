@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
-use Nevadskiy\Geonames\Seeders\CityDefaultSeeder;
-use Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder;
+use Nevadskiy\Geonames\Suppliers\CityDefaultSupplier;
+use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
@@ -27,9 +27,9 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->registerConfig();
         $this->registerFileReader();
-        $this->registerSeeders();
-        $this->registerCitySeeder();
-        $this->registerTranslationSeeder();
+        $this->registerSuppliers();
+        $this->registerDefaultCitySupplier();
+        $this->registerDefaultTranslationSupplier();
         $this->registerIgnitionFixer();
     }
 
@@ -63,21 +63,21 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any module seeders.
+     * Register any module suppliers.
      */
-    private function registerSeeders(): void
+    private function registerSuppliers(): void
     {
-        foreach ($this->app['config']['geonames']['seeders'] as $seeder => $implementation) {
-            $this->app->bind($seeder, $implementation);
+        foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
+            $this->app->bind($supplier, $implementation);
         }
     }
 
     /**
-     * Register a city seeder.
+     * Register the default city supplier.
      */
-    private function registerCitySeeder(): void
+    private function registerDefaultCitySupplier(): void
     {
-        $this->app->when(CityDefaultSeeder::class)
+        $this->app->when(CityDefaultSupplier::class)
             ->needs('$minPopulation')
             ->give(function () {
                 return $this->app['config']['geonames']['filters']['min_population'];
@@ -85,9 +85,9 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register a translation seeder.
+     * Register the default translation supplier.
      */
-    private function registerTranslationSeeder(): void
+    private function registerDefaultTranslationSupplier(): void
     {
         $this->app->when(TranslationDefaultSeeder::class)
             ->needs('$nullableLanguage')
@@ -127,6 +127,8 @@ class GeonamesServiceProvider extends ServiceProvider
                 Console\Seed\SeedCitiesCommand::class,
                 Console\Seed\SeedTranslationsCommand::class,
                 Console\Seed\SeedCommand::class,
+                Console\Insert\InsertCommand::class,
+                Console\Update\DailyUpdateCommand::class,
             ]);
         }
     }
