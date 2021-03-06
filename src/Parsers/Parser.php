@@ -187,6 +187,17 @@ abstract class Parser
     }
 
     /**
+     * Get all rows of the file by the given path.
+     *
+     * @param string $path
+     * @return array
+     */
+    public function all(string $path): array
+    {
+        return iterator_to_array($this->forEach($path));
+    }
+
+    /**
      * Returns the lines count if the setting is enabled or null.
      *
      * @param string $path
