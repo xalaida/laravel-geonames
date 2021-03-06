@@ -69,18 +69,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default geonames seeders
+    | Default geonames suppliers
     |--------------------------------------------------------------------------
     |
     | Override it when you are going to use custom migrations.
     |
     */
     'seeders' => [
-        Nevadskiy\Geonames\Seeders\ContinentSeeder::class => Nevadskiy\Geonames\Seeders\ContinentDefaultSeeder::class,
-        Nevadskiy\Geonames\Seeders\CountrySeeder::class => Nevadskiy\Geonames\Seeders\CountryDefaultSeeder::class,
-        Nevadskiy\Geonames\Seeders\DivisionSeeder::class => Nevadskiy\Geonames\Seeders\DivisionDefaultSeeder::class,
-        Nevadskiy\Geonames\Seeders\CitySeeder::class => Nevadskiy\Geonames\Seeders\CityDefaultSeeder::class,
-        Nevadskiy\Geonames\Seeders\Translations\TranslationSeeder::class => Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder::class,
+        Nevadskiy\Geonames\Suppliers\ContinentSupplier::class => Nevadskiy\Geonames\Suppliers\ContinentDefaultSupplier::class,
+        Nevadskiy\Geonames\Suppliers\CountrySupplier::class => Nevadskiy\Geonames\Suppliers\CountryDefaultSupplier::class,
+        Nevadskiy\Geonames\Suppliers\DivisionSupplier::class => Nevadskiy\Geonames\Suppliers\DivisionDefaultSupplier::class,
+        Nevadskiy\Geonames\Suppliers\CitySupplier::class => Nevadskiy\Geonames\Suppliers\CityDefaultSupplier::class,
+        Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier::class => Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder::class,
     ],
 
     /*
