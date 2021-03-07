@@ -108,14 +108,11 @@ class InsertCommand extends Command
     ): void
     {
         $this->init($downloader, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
-        $this->setUpDownloader($downloader);
-
-        $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         $this->info('Start inserting geonames dataset.');
+        $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         $this->truncateAttempt();
-
         $this->insert();
 
         $this->info('Geonames dataset has been successfully inserted.');
@@ -162,7 +159,7 @@ class InsertCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->downloader = $downloader;
+        $this->downloader = $this->setUpDownloader($downloader);
         $this->dispatcher = $dispatcher;
         $this->geonamesParser = $geonamesParser;
         $this->continentSupplier = $continentSupplier;
@@ -177,13 +174,15 @@ class InsertCommand extends Command
      *
      * @param ConsoleDownloader $downloader
      */
-    private function setUpDownloader(ConsoleDownloader $downloader): void
+    private function setUpDownloader(ConsoleDownloader $downloader): ConsoleDownloader
     {
         $downloader->withProgressBar($this->getOutput());
 
         if ($this->option('update-files')) {
             $downloader->update();
         }
+
+        return $downloader;
     }
 
     /**
