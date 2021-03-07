@@ -29,8 +29,9 @@ class Unzipper
      *
      * @param string $zipPath
      * @param string|null $directory
+     * @return string|array
      */
-    public function unzip(string $zipPath, string $directory = null): void
+    public function unzip(string $zipPath, string $directory = null)
     {
         $this->assertFileIsZipArchive($zipPath);
 
@@ -41,11 +42,29 @@ class Unzipper
 
         $fileNames = $this->getArchiveFileNames($zip);
 
+        $paths = [];
+
         foreach ($fileNames as $fileName) {
-            $this->extractFile($zip, $fileName, $directory);
+            $paths[] = $this->extractFile($zip, $fileName, $directory);
         }
 
+        // TODO: feature finding main file (same name as zip name)
+
         $zip->close();
+
+        if (count($paths) === 1) {
+            return $paths[0];
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Assert that the given file is a zip archive.
+     */
+    public function canBeUnzipped(string $path): bool
+    {
+        return substr(basename($path), -4) === '.zip';
     }
 
     /**
@@ -55,30 +74,32 @@ class Unzipper
      * @param string $fileName
      * @param string $directory
      */
-    protected function extractFile(ZipArchive $zip, string $fileName, string $directory): void
+    protected function extractFile(ZipArchive $zip, string $fileName, string $directory): string
     {
         $targetPath = $this->getFullPath($directory, $fileName);
 
         if (! file_exists($targetPath)) {
             $zip->extractTo($directory, $fileName);
         } else if ($this->getLocalFileSize($targetPath) !== $this->getZipFileSize($zip, $fileName)) {
+            // TODO: toggle using update flag
             $zip->extractTo($directory, $fileName);
         } else {
-            // log that file already extracted
+            // TODO: toggle using force flag
+            // TODO: log that file already extracted
         }
+
+        return $targetPath;
     }
 
     /**
      * Assert that the given file is a zip archive.
      *
-     * @param string $zipPath
+     * @param string $path
      */
-    protected function assertFileIsZipArchive(string $zipPath): void
+    protected function assertFileIsZipArchive(string $path): void
     {
-        $fileName = basename($zipPath);
-
-        if (!substr($fileName, -4) === '.zip') {
-            throw new RuntimeException("File {$fileName} is not zip archive");
+        if (! $this->canBeUnzipped($path)) {
+            throw new RuntimeException("File {$path} is not a zip archive.");
         }
     }
 

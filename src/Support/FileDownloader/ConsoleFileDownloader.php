@@ -5,14 +5,29 @@ namespace Nevadskiy\Geonames\Support\FileDownloader;
 use Illuminate\Console\OutputStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class ConsoleFileDownloader extends FileDownloader
+class ConsoleFileDownloader implements Downloader
 {
+    /**
+     * The decorated downloader instance.
+     *
+     * @var Downloader
+     */
+    protected $downloader;
+
     /**
      * The console progress bar.
      *
      * @var ProgressBar
      */
     protected $progress;
+
+    /**
+     * ConsoleFileDownloader constructor.
+     */
+    public function __construct(Downloader $downloader)
+    {
+        $this->downloader = $downloader;
+    }
 
     /**
      * Enable the console progress bar.
@@ -39,5 +54,37 @@ class ConsoleFileDownloader extends FileDownloader
         });
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function download(string $url, string $directory, string $name = null)
+    {
+        return $this->downloader->download($url, $directory, $name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function onReady(callable $callback): void
+    {
+        $this->downloader->onReady($callback);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function onStep(callable $callback): void
+    {
+        $this->downloader->onStep($callback);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function onFinish(callable $callback): void
+    {
+        $this->downloader->onFinish($callback);
     }
 }

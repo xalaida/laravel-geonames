@@ -10,6 +10,9 @@ use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Suppliers\CityDefaultSupplier;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
+use Nevadskiy\Geonames\Support\FileDownloader\Downloader;
+use Nevadskiy\Geonames\Support\FileDownloader\FileDownloader;
+use Nevadskiy\Geonames\Support\FileDownloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
@@ -26,6 +29,7 @@ class GeonamesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerConfig();
+        $this->registerDownloader();
         $this->registerFileReader();
         $this->registerSuppliers();
         $this->registerDefaultCitySupplier();
@@ -52,6 +56,18 @@ class GeonamesServiceProvider extends ServiceProvider
     private function registerConfig(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/geonames.php', self::PACKAGE);
+    }
+
+    /**
+     * Register the downloader.
+     */
+    private function registerDownloader(): void
+    {
+        $this->app->bind(Downloader::class, FileDownloader::class);
+
+        $this->app->extend(Downloader::class, function (Downloader $downloader) {
+            return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
+        });
     }
 
     /**
