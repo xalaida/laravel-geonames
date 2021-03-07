@@ -119,14 +119,8 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\Download\DownloadCountriesCommand::class,
                 Console\Download\DownloadTranslationsCommand::class,
-                Console\Seed\SeedContinentsCommand::class,
-                Console\Seed\SeedCountriesCommand::class,
-                Console\Seed\SeedDivisionsCommand::class,
-                Console\Seed\SeedCitiesCommand::class,
                 Console\Seed\SeedTranslationsCommand::class,
-                Console\Seed\SeedCommand::class,
                 Console\Insert\InsertCommand::class,
                 Console\Update\DailyUpdateCommand::class,
             ]);
