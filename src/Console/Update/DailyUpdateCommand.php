@@ -15,7 +15,7 @@ use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
 use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
-use Nevadskiy\Geonames\Support\FileDownloader\ConsoleFileDownloader;
+use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 
 class DailyUpdateCommand extends Command
 {
@@ -36,7 +36,7 @@ class DailyUpdateCommand extends Command
     /**
      * The downloader instance.
      *
-     * @var ConsoleFileDownloader
+     * @var ConsoleDownloader
      */
     protected $downloader;
 
@@ -100,7 +100,7 @@ class DailyUpdateCommand extends Command
      * Execute the console command.
      */
     public function handle(
-        ConsoleFileDownloader $downloader,
+        ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
@@ -113,11 +113,8 @@ class DailyUpdateCommand extends Command
     {
         $this->init($downloader, $dispatcher, $countryInfoParser, $geonamesParser, $deletesParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
 
-        $this->setUpDownloader($downloader);
-
-        $this->dispatcher->dispatch(new GeonamesCommandReady());
-
         $this->info('Start geonames daily updating.');
+        $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         $date = $this->getPreviousDate();
 
@@ -139,7 +136,7 @@ class DailyUpdateCommand extends Command
      * Init the command instance with all required services.
      */
     private function init(
-        ConsoleFileDownloader $downloader,
+        ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
@@ -150,7 +147,7 @@ class DailyUpdateCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->downloader = $downloader;
+        $this->downloader = $this->setUpDownloader($downloader);
         $this->dispatcher = $dispatcher;
         $this->countryInfoParser = $countryInfoParser;
         $this->geonamesParser = $geonamesParser;
@@ -163,13 +160,12 @@ class DailyUpdateCommand extends Command
 
     /**
      * Set up the console downloader.
-     * TODO: refactor downloader to pass into command already set up (configure in the service provider)
      *
-     * @param ConsoleFileDownloader $downloader
+     * @param ConsoleDownloader $downloader
      */
-    private function setUpDownloader(ConsoleFileDownloader $downloader): void
+    private function setUpDownloader(ConsoleDownloader $downloader): ConsoleDownloader
     {
-        $downloader->withProgressBar($this->getOutput())->update();
+        return $downloader->withProgressBar($this->getOutput());
     }
 
     /**
