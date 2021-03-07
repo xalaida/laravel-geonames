@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Geonames\Support\FileDownloader;
+namespace Nevadskiy\Geonames\Support\Downloader;
 
 use Nevadskiy\Geonames\Support\Unzipper\Unzipper;
 
@@ -46,6 +46,22 @@ class UnzipperDownloader implements Downloader
         }
 
         return $path;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function force(): Downloader
+    {
+        return $this->downloader->force();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(): Downloader
+    {
+        return $this->downloader->update();
     }
 
     /**

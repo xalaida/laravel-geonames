@@ -1,12 +1,12 @@
 <?php
 
-namespace Nevadskiy\Geonames\Support\FileDownloader;
+namespace Nevadskiy\Geonames\Support\Downloader;
 
 use Illuminate\Support\Facades\Http;
 use Nevadskiy\Geonames\Support\Traits\Events;
 use RuntimeException;
 
-class FileDownloader implements Downloader
+class BaseDownloader implements Downloader
 {
     use Events;
 
@@ -42,9 +42,7 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Add the given callback to ready event.
-     *
-     * @param callable $callback
+     * @inheritDoc
      */
     public function onReady(callable $callback): void
     {
@@ -52,9 +50,7 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Add the given callback to step event.
-     *
-     * @param callable $callback
+     * @inheritDoc
      */
     public function onStep(callable $callback): void
     {
@@ -62,9 +58,7 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Add the given callback to finish event.
-     *
-     * @param callable $callback
+     * @inheritDoc
      */
     public function onFinish(callable $callback): void
     {
@@ -72,9 +66,9 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Enable overwriting files if a file already exists.
+     * @inheritDoc
      */
-    public function force(): self
+    public function force(): Downloader
     {
         $this->overwriteFiles = true;
 
@@ -82,9 +76,9 @@ class FileDownloader implements Downloader
     }
 
     /**
-     * Enable updating files if a file already exists with different size.
+     * @inheritDoc
      */
-    public function update(): self
+    public function update(): Downloader
     {
         $this->updateFiles = true;
 

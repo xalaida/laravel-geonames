@@ -1,11 +1,11 @@
 <?php
 
-namespace Nevadskiy\Geonames\Support\FileDownloader;
+namespace Nevadskiy\Geonames\Support\Downloader;
 
 use Illuminate\Console\OutputStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class ConsoleFileDownloader implements Downloader
+class ConsoleDownloader implements Downloader
 {
     /**
      * The decorated downloader instance.
@@ -33,7 +33,7 @@ class ConsoleFileDownloader implements Downloader
      * Enable the console progress bar.
      *
      * @param OutputStyle $output
-     * @return ConsoleFileDownloader
+     * @return ConsoleDownloader
      */
     public function withProgressBar(OutputStyle $output): self
     {
@@ -62,6 +62,22 @@ class ConsoleFileDownloader implements Downloader
     public function download(string $url, string $directory, string $name = null)
     {
         return $this->downloader->download($url, $directory, $name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function force(): Downloader
+    {
+        return $this->downloader->force();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(): Downloader
+    {
+        return $this->downloader->update();
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Geonames\Support\FileDownloader;
+namespace Nevadskiy\Geonames\Support\Downloader;
 
 interface Downloader
 {
@@ -13,6 +13,16 @@ interface Downloader
      * @return string|array
      */
     public function download(string $url, string $directory, string $name = null);
+
+    /**
+     * Enable overwriting files if a file already exists.
+     */
+    public function force(): Downloader;
+
+    /**
+     * Enable updating files if a file already exists with different size.
+     */
+    public function update(): Downloader;
 
     /**
      * Add the given callback to ready event.
