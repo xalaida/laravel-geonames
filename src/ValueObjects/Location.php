@@ -6,13 +6,17 @@ class Location
 {
     /**
      * The latitude value of the location.
+     *
+     * @var float
      */
-    private float $latitude;
+    private $latitude;
 
     /**
      * The longitude value of the location.
+     *
+     * @var float
      */
-    private float $longitude;
+    private $longitude;
 
     /**
      * Make a new location instance.
