@@ -190,9 +190,8 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $this->fetchCountryInfo();
+        // TODO: refactor.
 
-        // TODO: download specific geonames [ allCountries.zip, US.zip, cities500.zip, etc.]
         $geonamesPath = $this->downloadGeonamesFile();
 
         $this->setUpProgressBar();
@@ -204,6 +203,7 @@ class InsertCommand extends Command
         }
 
         $this->info('Start processing countries');
+        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
         $this->countrySupplier->init();
         foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
             $this->countrySupplier->insert($id, $data);
@@ -262,6 +262,26 @@ class InsertCommand extends Command
         return "http://download.geonames.org/export/dump/allCountries.zip";
     }
 
+    /**
+     * Download geonames' country info file.
+     *
+     * @return string
+     */
+    private function downloadCountryInfoFile(): string
+    {
+        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
+    }
+
+    /**
+     * Get the URL of the geonames' country info file.
+     *
+     * @return string
+     */
+    private function getCountryInfoUrl(): string
+    {
+        return "http://download.geonames.org/export/dump/countryInfo.txt";
+    }
+
     // TODO: add concrete sources to insert from.
 //    /**
 //     * Get cities source path.
@@ -300,34 +320,4 @@ class InsertCommand extends Command
 //
 //        return $path;
 //    }
-
-    /**
-     * Fetch the country info file.
-     */
-    private function fetchCountryInfo(): void
-    {
-        $this->countrySupplier->setCountryInfos(
-            $this->countryInfoParser->all($this->downloadCountryInfoFile())
-        );
-    }
-
-    /**
-     * Download geonames' country info file.
-     *
-     * @return string
-     */
-    private function downloadCountryInfoFile(): string
-    {
-        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
-    }
-
-    /**
-     * Get the URL of the geonames' country info file.
-     *
-     * @return string
-     */
-    private function getCountryInfoUrl(): string
-    {
-        return "http://download.geonames.org/export/dump/countryInfo.txt";
-    }
 }
