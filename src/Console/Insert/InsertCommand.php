@@ -17,8 +17,7 @@ use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
 use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
-use Nevadskiy\Geonames\Support\FileDownloader\ConsoleFileDownloader;
-use Nevadskiy\Geonames\Support\Unzipper\Unzipper;
+use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 
 class InsertCommand extends Command
 {
@@ -29,7 +28,7 @@ class InsertCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:insert {--truncate}';
+    protected $signature = 'geonames:insert {--truncate} {--update-files}';
 
     /**
      * The console command description.
@@ -41,16 +40,9 @@ class InsertCommand extends Command
     /**
      * The downloader instance.
      *
-     * @var ConsoleFileDownloader
+     * @var ConsoleDownloader
      */
     protected $downloader;
-
-    /**
-     * The unzipper instance.
-     *
-     * @var Unzipper
-     */
-    protected $unzipper;
 
     /**
      * The dispatcher instance.
@@ -105,8 +97,7 @@ class InsertCommand extends Command
      * Execute the console command.
      */
     public function handle(
-        ConsoleFileDownloader $downloader,
-        Unzipper $unzipper,
+        ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
@@ -116,7 +107,7 @@ class InsertCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->init($downloader, $unzipper, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->init($downloader, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
         $this->setUpDownloader($downloader);
 
         $this->dispatcher->dispatch(new GeonamesCommandReady());
@@ -161,8 +152,7 @@ class InsertCommand extends Command
      * Init the command instance with all required services.
      */
     private function init(
-        ConsoleFileDownloader $downloader,
-        Unzipper $unzipper,
+        ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
@@ -173,7 +163,6 @@ class InsertCommand extends Command
     ): void
     {
         $this->downloader = $downloader;
-        $this->unzipper = $unzipper;
         $this->dispatcher = $dispatcher;
         $this->geonamesParser = $geonamesParser;
         $this->continentSupplier = $continentSupplier;
@@ -185,33 +174,27 @@ class InsertCommand extends Command
 
     /**
      * Set up the console downloader.
-     * TODO: refactor downloader to pass into command already set up (configure in the service provider)
      *
-     * @param ConsoleFileDownloader $downloader
+     * @param ConsoleDownloader $downloader
      */
-    private function setUpDownloader(ConsoleFileDownloader $downloader): void
+    private function setUpDownloader(ConsoleDownloader $downloader): void
     {
-        $downloader->withProgressBar($this->getOutput())->update();
+        $downloader->withProgressBar($this->getOutput());
+
+        if ($this->option('update-files')) {
+            $downloader->update();
+        }
     }
 
     /**
-     * Modify changed items according to a geonames' resource.
+     * Insert the geonames dataset.
      */
     private function insert(): void
     {
-        // TODO: download country info
-        $countryInfoPath = $this->downloadCountryInfoFile();
-        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
+        $this->fetchCountryInfo();
 
         // TODO: download specific geonames [ allCountries.zip, US.zip, cities500.zip, etc.]
-        $geonamesZipPath = $this->downloadGeonamesFile();
-
-        // TODO: make it works
-        // $geonamesPath = $this->unzip($geonamesZipPath);
-
-        // TODO: remove after patching unzipper
-        $this->unzip($geonamesZipPath);
-        $geonamesPath = storage_path('/meta/geonames/allCountries/allCountries.txt');
+        $geonamesPath = $this->downloadGeonamesFile();
 
         $this->setUpProgressBar();
 
@@ -261,33 +244,13 @@ class InsertCommand extends Command
     }
 
     /**
-     * Download geonames' country info file.
-     *
-     * @return string
-     */
-    private function downloadCountryInfoFile(): string
-    {
-        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
-    }
-
-    /**
      * Download geonames' geonames file.
      *
-     * @return string
+     * @return string|array
      */
-    private function downloadGeonamesFile(): string
+    private function downloadGeonamesFile()
     {
         return $this->downloader->download($this->getGeonamesUrl(), config('geonames.directory'));
-    }
-
-    /**
-     * Get the URL of the geonames' country info file.
-     *
-     * @return string
-     */
-    private function getCountryInfoUrl(): string
-    {
-        return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
 
     /**
@@ -300,14 +263,72 @@ class InsertCommand extends Command
         return "http://download.geonames.org/export/dump/allCountries.zip";
     }
 
+    // TODO: add concrete sources to insert from.
+//    /**
+//     * Get cities source path.
+//     */
+//    protected function getCitiesSourcePath(): string
+//    {
+//        if ($this->hasOptionSourcePath()) {
+//            return $this->getOptionSourcePath();
+//        }
+//
+//        return config('geonames.directory') . DIRECTORY_SEPARATOR . config('geonames.files.all_countries');
+//    }
+//
+//    /**
+//     * Determine whether the command has given source option.
+//     *
+//     * @return bool
+//     */
+//    protected function hasOptionSourcePath(): bool
+//    {
+//        return (bool) $this->option('source');
+//    }
+//
+//    /**
+//     * Get source path from the command option.
+//     *
+//     * @return string
+//     */
+//    protected function getOptionSourcePath(): string
+//    {
+//        $path = base_path($this->option('source'));
+//
+//        if (! file_exists($path)) {
+//            throw new RuntimeException("File does not exist {$path}.");
+//        }
+//
+//        return $path;
+//    }
+
     /**
-     * Unzip a resource by the given path.
-     *
-     * @param string $path
+     * Fetch the country info file.
      */
-    private function unzip(string $path): void
+    private function fetchCountryInfo(): void
     {
-        // TODO: refactor unzipper as downloader decorator
-        $this->unzipper->extractIntoDirectory()->unzip($path);
+        $this->countrySupplier->setCountryInfos(
+            $this->countryInfoParser->all($this->downloadCountryInfoFile())
+        );
+    }
+
+    /**
+     * Download geonames' country info file.
+     *
+     * @return string
+     */
+    private function downloadCountryInfoFile(): string
+    {
+        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
+    }
+
+    /**
+     * Get the URL of the geonames' country info file.
+     *
+     * @return string
+     */
+    private function getCountryInfoUrl(): string
+    {
+        return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
 }
