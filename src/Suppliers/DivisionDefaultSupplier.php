@@ -51,10 +51,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     public function init(): void
     {
         parent::init();
-
-        if (config('geonames.tables.countries')) {
-            $this->countries = $this->getCountries();
-        }
+        $this->countries = $this->getCountries();
     }
 
     /**

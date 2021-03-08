@@ -38,10 +38,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     public function init(): void
     {
         parent::init();
-
-        if (config('geonames.tables.continents')) {
-            $this->continents = $this->getContinents();
-        }
+        $this->continents = $this->getContinents();
     }
 
     /**

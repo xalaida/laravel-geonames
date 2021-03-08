@@ -65,14 +65,8 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     public function init(): void
     {
         parent::init();
-
-        if (config('geonames.tables.countries')) {
-            $this->countries = $this->getCountries();
-        }
-
-        if (config('geonames.tables.divisions')) {
-            $this->divisions = $this->getDivisions();
-        }
+        $this->countries = $this->getCountries();
+        $this->divisions = $this->getDivisions();
     }
 
     /**
@@ -145,7 +139,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Map fields for the city model.
      *
-     * @param array $city
+     * @param array $data
      * @return array
      */
     protected function mapUpdateFields(array $data): array
@@ -201,23 +195,23 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Get a country ID by the given city data.
      *
-     * @param array $city
+     * @param array $data
      * @return string
      */
-    protected function getCountryId(array $city): string
+    protected function getCountryId(array $data): string
     {
-        return $this->countries[$city['country code']]->id;
+        return $this->countries[$data['country code']]->id;
     }
 
     /**
      * Get a division ID by the given city data.
      *
-     * @param array $city
+     * @param array $data
      * @return string
      */
-    protected function getDivisionId(array $city): ?string
+    protected function getDivisionId(array $data): ?string
     {
-        return $this->divisions[$this->getCountryId($city)][$city['admin1 code']][0]->id ?? null;
+        return $this->divisions[$this->getCountryId($data)][$data['admin1 code']][0]->id ?? null;
     }
 
     /**
