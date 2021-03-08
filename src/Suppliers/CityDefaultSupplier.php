@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
@@ -21,34 +22,49 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     public const FEATURE_CODES = ['PPL', 'PPLC', 'PPLA', 'PPLA2', 'PPLA3', 'PPLX', 'PPLG'];
 
     /**
-     * Indicates the minimal population for being seeded.
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
+    /**
+     * Indicates the countries array that is allowed for insertion.
+     *
+     * @var array|string[]
+     */
+    private $countries;
+
+    /**
+     * Indicates the minimal population that is allowed.
      *
      * @var int
      */
-    private $minPopulation;
+    private $population;
 
     /**
-     * The countries collection.
+     * The available countries collection.
      *
      * @var Collection
      */
-    protected $countries;
+    protected $availableCountries;
 
     /**
-     * The divisions collection.
+     * The available divisions collection.
      *
      * @var Collection
      */
-    protected $divisions;
+    protected $availableDivisions;
 
     /**
      * Make a new supplier instance.
      */
-    public function __construct(int $batchSize = 1000, int $minPopulation = 0)
+    public function __construct(Geonames $geonames, array $countries, int $population = 0, int $batchSize = 1000)
     {
         parent::__construct($batchSize);
-
-        $this->minPopulation = $minPopulation;
+        $this->geonames = $geonames;
+        $this->countries = $countries;
+        $this->population = $population;
     }
 
     /**
@@ -57,8 +73,14 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     public function init(): void
     {
         parent::init();
-        $this->countries = $this->getCountries();
-        $this->divisions = $this->getDivisions();
+
+        if ($this->geonames->shouldSupplyCountries()) {
+            $this->availableCountries = $this->getCountries();
+        }
+
+        if ($this->geonames->shouldSupplyDivisions()) {
+            $this->availableDivisions = $this->getDivisions();
+        }
     }
 
     /**
@@ -76,7 +98,8 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && (int) $data['population'] >= $this->minPopulation;
+            && (int) $data['population'] >= $this->population
+            && ($this->countries === ['*'] || in_array($data['country code'], $this->countries, true));
     }
 
     /**
@@ -140,7 +163,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      */
     protected function getCountryId(array $data): string
     {
-        return $this->countries[$data['country code']]->id;
+        return $this->availableCountries[$data['country code']]->id;
     }
 
     /**
@@ -151,6 +174,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      */
     protected function getDivisionId(array $data): ?string
     {
-        return $this->divisions[$this->getCountryId($data)][$data['admin1 code']][0]->id ?? null;
+        return $this->availableDivisions[$this->getCountryId($data)][$data['admin1 code']][0]->id ?? null;
     }
 }

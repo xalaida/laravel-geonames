@@ -8,10 +8,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
-use Nevadskiy\Geonames\Models\City;
-use Nevadskiy\Geonames\Models\Continent;
-use Nevadskiy\Geonames\Models\Country;
-use Nevadskiy\Geonames\Models\Division;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
@@ -37,6 +34,13 @@ class InsertCommand extends Command
      * @var string
      */
     protected $description = 'Insert geonames dataset in the database.';
+
+    /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    protected $geonames;
 
     /**
      * The downloader instance.
@@ -98,6 +102,7 @@ class InsertCommand extends Command
      * Execute the console command.
      */
     public function handle(
+        Geonames $geonames,
         ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
@@ -108,7 +113,7 @@ class InsertCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->init($downloader, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->init($geonames, $downloader, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
 
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
@@ -140,7 +145,7 @@ class InsertCommand extends Command
      */
     private function performTruncate(): void
     {
-        foreach ([Continent::TABLE, Country::TABLE, Division::TABLE, City::TABLE] as $table) {
+        foreach (app(Geonames::class)->supply() as $table) {
             DB::table($table)->truncate();
             $this->info("Table {$table} has been truncated.");
         }
@@ -150,6 +155,7 @@ class InsertCommand extends Command
      * Init the command instance with all required services.
      */
     private function init(
+        Geonames $geonames,
         ConsoleDownloader $downloader,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
@@ -160,6 +166,7 @@ class InsertCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
+        $this->geonames = $geonames;
         $this->downloader = $this->setUpDownloader($downloader);
         $this->dispatcher = $dispatcher;
         $this->geonamesParser = $geonamesParser;
@@ -196,34 +203,42 @@ class InsertCommand extends Command
 
         $this->setUpProgressBar();
 
-        $this->info('Start processing continents');
-        $this->continentSupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->continentSupplier->insert($id, $data);
+        if ($this->geonames->shouldSupplyContinents()) {
+            $this->info('Start processing continents');
+            $this->continentSupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->continentSupplier->insert($id, $data);
+            }
+            $this->continentSupplier->commit();
         }
-        $this->continentSupplier->commit();
 
-        $this->info('Start processing countries');
-        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
-        $this->countrySupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->countrySupplier->insert($id, $data);
+        if ($this->geonames->shouldSupplyCountries()) {
+            $this->info('Start processing countries');
+            $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
+            $this->countrySupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->countrySupplier->insert($id, $data);
+            }
+            $this->countrySupplier->commit();
         }
-        $this->countrySupplier->commit();
 
-        $this->info('Start processing divisions');
-        $this->divisionSupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->divisionSupplier->insert($id, $data);
+        if ($this->geonames->shouldSupplyDivisions()) {
+            $this->info('Start processing divisions');
+            $this->divisionSupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->divisionSupplier->insert($id, $data);
+            }
+            $this->divisionSupplier->commit();
         }
-        $this->divisionSupplier->commit();
 
-        $this->info('Start processing cities');
-        $this->citySupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->citySupplier->insert($id, $data);
+        if ($this->geonames->shouldSupplyCities()) {
+            $this->info('Start processing cities');
+            $this->citySupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->citySupplier->insert($id, $data);
+            }
+            $this->citySupplier->commit();
         }
-        $this->citySupplier->commit();
     }
 
     /**
@@ -273,7 +288,7 @@ class InsertCommand extends Command
      */
     private function getGeonamesUrl(): string
     {
-        return "http://download.geonames.org/export/dump/UA.zip";
+        return "http://download.geonames.org/export/dump/allCountries.zip";
     }
 
     /**
@@ -295,43 +310,4 @@ class InsertCommand extends Command
     {
         return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
-
-    // TODO: add concrete sources to insert from.
-//    /**
-//     * Get cities source path.
-//     */
-//    protected function getCitiesSourcePath(): string
-//    {
-//        if ($this->hasOptionSourcePath()) {
-//            return $this->getOptionSourcePath();
-//        }
-//
-//        return config('geonames.directory') . DIRECTORY_SEPARATOR . config('geonames.files.all_countries');
-//    }
-//
-//    /**
-//     * Determine whether the command has given source option.
-//     *
-//     * @return bool
-//     */
-//    protected function hasOptionSourcePath(): bool
-//    {
-//        return (bool) $this->option('source');
-//    }
-//
-//    /**
-//     * Get source path from the command option.
-//     *
-//     * @return string
-//     */
-//    protected function getOptionSourcePath(): string
-//    {
-//        $path = base_path($this->option('source'));
-//
-//        if (! file_exists($path)) {
-//            throw new RuntimeException("File does not exist {$path}.");
-//        }
-//
-//        return $path;
-//    }
 }

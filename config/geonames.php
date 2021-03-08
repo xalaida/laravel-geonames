@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Default package boot settings
@@ -25,39 +26,60 @@ return [
     */
     'directory' => storage_path('meta/geonames'),
 
+//    /*
+//    |--------------------------------------------------------------------------
+//    | Geonames files
+//    |--------------------------------------------------------------------------
+//    |
+//    | Filenames of the geonames resources.
+//    | More info: http://download.geonames.org/export/dump/
+//    | TODO: refactor
+//    |
+//    */
+//    'files' => [
+//
+//        'country_info' => 'countryInfo.txt',
+//
+//        'all_countries' => 'allCountries/allCountries.txt',
+//
+//        'alternate_names' => 'alternateNames/alternateNames.txt',
+//
+//        'countries' => 'countries.php',
+//
+//        'continents' => 'continents.php',
+//
+//    ],
+
     /*
     |--------------------------------------------------------------------------
-    | Geonames files
+    | Geonames source.
     |--------------------------------------------------------------------------
     |
-    | Filenames of the geonames resources.
-    | More info: http://download.geonames.org/export/dump/
-    | TODO: refactor
+    | TODO: add description
     |
     */
-    'files' => [
 
-        'country_info' => 'countryInfo.txt',
+    'source' => Nevadskiy\Geonames\Services\DownloadService::SOURCE_ALL_COUNTRIES,
 
-        'all_countries' => 'allCountries/allCountries.txt',
-
-        'alternate_names' => 'alternateNames/alternateNames.txt',
-
-        'countries' => 'countries.php',
-
-        'continents' => 'continents.php',
-
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Geonames tables.
+    |--------------------------------------------------------------------------
+    |
+    | Specify tables that will be used in the application.
+    | By default, there are 4 tables enabled.
+    |
+    */
 
     'tables' => [
 
-        'continents' => false,
+        'continents' => true,
 
         'countries' => false,
 
         'divisions' => false,
 
-        'cities' => true,
+        'cities' => false,
 
     ],
 
@@ -69,20 +91,113 @@ return [
     | Specify filters for geonames data seeding.
     |
     */
+
     'filters' => [
 
+        'countries' => ['*'],
 
-        'country' => 'UA',
-
-        'min_population' => 500,
-
-        'translations' => true,
-
-        'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
-
-        'nullable_language' => true,
+        'population' => 0,
 
     ],
+
+
+    'CASES' => [
+        1 => [
+            'config' => [
+                'source' => 'all_countries',
+                'filters' => [
+                    'countries' => ['UA'],
+                    'population' => 0,
+                ],
+                'tables' => [
+                    'continents' => true,
+                    'countries' => true,
+                    'divisions' => true,
+                    'cities' => true,
+                ],
+            ],
+            'assert' => [
+                'file' => 'all_countries',
+                'tables' => ['countries', 'divisions', 'cities'],
+                'data' => ['1 country UA', '27 UA divisions', 'All UA cities']
+            ]
+        ],
+        2 => [
+            'config' => [
+                'source' => 'single_country.zip',
+                'filters' => [
+                    'countries' => ['UA'],
+                    'population' => 500,
+                ],
+                'tables' => [
+                    'continents' => true,
+                    'countries' => true,
+                    'divisions' => true,
+                    'cities' => true,
+                ],
+            ],
+            'assert' => [
+                'file' => 'UA.zip',
+                'tables' => ['countries', 'divisions', 'cities'],
+                'data' => ['1 country UA', '27 UA divisions', 'All UA cities']
+            ]
+        ],
+        3 => [
+            'config' => [
+                'source' => 'single_country.zip',
+                'filters' => [
+                    'countries' => ['UA', 'PL'],
+                    'population' => 500,
+                ],
+                'tables' => [
+                    'continents' => true,
+                    'countries' => true,
+                    'divisions' => true,
+                    'cities' => true,
+                ],
+            ],
+            'assert' => [
+                'file' => 'UA.zip, PL.zip',
+                'tables' => ['countries', 'divisions', 'cities'],
+                'data' => ['2 country (UA, PL)', '27 UA divisions + N PL divisions', 'All (UA, PL) cities']
+            ]
+        ],
+        4 => [
+            'config' => [
+                'source' => 'auto',
+                'filters' => [
+                    'countries' => ['UA'],
+                    'population' => 500,
+                ],
+                'tables' => [
+                    'continents' => false,
+                    'countries' => false,
+                    'divisions' => true,
+                    'cities' => true,
+                ],
+            ],
+            'assert' => [
+                'file' => 'UA.zip',
+                'tables' => ['divisions', 'cities'],
+                'data' => ['1 country UA', '27 UA divisions', 'All UA cities']
+            ]
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Translations
+    |--------------------------------------------------------------------------
+    |
+    | TODO: add description
+    |
+    */
+
+    'translations' => true,
+
+    'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
+
+    'nullable_language' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -100,13 +215,14 @@ return [
         Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier::class => Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder::class,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Geonames resources URL
-    |--------------------------------------------------------------------------
-    |
-    | The URL with all geonames resources.
-    |
-    */
-    'resources_url' => 'http://download.geonames.org/export/dump/',
+//    /*
+//    |--------------------------------------------------------------------------
+//    | Geonames resources URL
+//    |--------------------------------------------------------------------------
+//    |
+//    | The URL with all geonames resources.
+//    |
+//    */
+//    'resources_url' => 'http://download.geonames.org/export/dump/',
+
 ];

@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Models\Continent;
+use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 
 class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSupplier
 {
@@ -16,6 +17,22 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      * Feature codes of a continent.
      */
     public const FEATURE_CODES = ['CONT'];
+
+    /**
+     * The code generator instance.
+     *
+     * @var ContinentCodeGenerator
+     */
+    private $codeGenerator;
+
+    /**
+     * ContinentDefaultSupplier constructor.
+     */
+    public function __construct(ContinentCodeGenerator $codeGenerator, int $batchSize = 1000)
+    {
+        parent::__construct($batchSize);
+        $this->codeGenerator = $codeGenerator;
+    }
 
     /**
      * @inheritDoc
@@ -54,11 +71,13 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     {
         return [
             'name' => $data['name'],
+            'code' => $this->codeGenerator->generate($data['name']),
             'latitude' => $data['latitude'],
             'longitude' => $data['longitude'],
             'timezone_id' => $data['timezone'],
             'population' => $data['population'],
             'dem' => $data['dem'],
+            'feature_code' => $data['feature code'],
             'modified_at' => $data['modification date'],
         ];
     }

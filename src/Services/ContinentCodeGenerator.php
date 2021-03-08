@@ -2,38 +2,36 @@
 
 namespace Nevadskiy\Geonames\Services;
 
-use Nevadskiy\Geonames\Models\Continent;
-
 class ContinentCodeGenerator
 {
     /**
-     * Generate a slug for the given continent.
+     * Generate a code for the given name.
      */
-    public function generate(Continent $continent): string
+    public function generate(string $name): string
     {
-        if (! str_contains($continent->name, ' ')) {
-            return $this->format($continent->name);
+        if (! str_contains($name, ' ')) {
+            return $this->format($name);
         }
 
-        return $this->format($this->getAbbreviation($continent));
+        return $this->format($this->getAbbreviation($name));
     }
 
     /**
-     * Format the given slug.
+     * Format the given name.
      */
-    private function format(string $slug): string
+    private function format(string $name): string
     {
-        return strtoupper(substr($slug, 0, 2));
+        return strtoupper(substr($name, 0, 2));
     }
 
     /**
-     * Get an abbreviation of the continent.
+     * Get an abbreviation by the given name.
      */
-    private function getAbbreviation(Continent $continent): string
+    private function getAbbreviation(string $name): string
     {
         $slug = '';
 
-        foreach (explode(' ', $continent->name) as $part) {
+        foreach (explode(' ', $name) as $part) {
             $slug .= $part[0];
         }
 

@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
+use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\CityDefaultSupplier;
+use Nevadskiy\Geonames\Suppliers;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
@@ -29,9 +31,12 @@ class GeonamesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerConfig();
+        $this->registerGeonames();
         $this->registerDownloader();
+        $this->registerDownloadService();
         $this->registerFileReader();
         $this->registerSuppliers();
+        $this->registerDefaultCountrySupplier();
         $this->registerDefaultCitySupplier();
         $this->registerDefaultTranslationSupplier();
         $this->registerIgnitionFixer();
@@ -59,6 +64,20 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the geonames.
+     */
+    private function registerGeonames(): void
+    {
+        $this->app->singleton(Geonames::class);
+
+        $this->app->when(Geonames::class)
+            ->needs('$config')
+            ->give(function () {
+                return $this->app['config']['geonames'];
+            });
+    }
+
+    /**
      * Register the downloader.
      */
     private function registerDownloader(): void
@@ -68,6 +87,18 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
         });
+    }
+
+    /**
+     * Register the download service.
+     */
+    private function registerDownloadService(): void
+    {
+        $this->app->when(DownloadService::class)
+            ->needs('$directory')
+            ->give(function () {
+                return $this->app['config']['geonames']['directory'];
+            });
     }
 
     /**
@@ -89,14 +120,32 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the default country supplier.
+     */
+    private function registerDefaultCountrySupplier(): void
+    {
+        $this->app->when(Suppliers\CountryDefaultSupplier::class)
+            ->needs('$countries')
+            ->give(function () {
+                return $this->app['config']['geonames']['filters']['countries'];
+            });
+    }
+
+    /**
      * Register the default city supplier.
      */
     private function registerDefaultCitySupplier(): void
     {
         $this->app->when(CityDefaultSupplier::class)
-            ->needs('$minPopulation')
+            ->needs('$population')
             ->give(function () {
-                return $this->app['config']['geonames']['filters']['min_population'];
+                return $this->app['config']['geonames']['filters']['population'];
+            });
+
+        $this->app->when(CityDefaultSupplier::class)
+            ->needs('$countries')
+            ->give(function () {
+                return $this->app['config']['geonames']['filters']['countries'];
             });
     }
 
@@ -148,8 +197,24 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     private function bootMigrations(): void
     {
-        if ($this->app->runningInConsole() && $this->app['config']['geonames']['default_migrations']) {
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $geonames = $this->app->make(Geonames::class);
+
+        if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
+            if ($geonames->shouldSupplyContinents()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_100000_create_continents_table.php');
+            }
+
+            if ($geonames->shouldSupplyCountries()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_200000_create_countries_table.php');
+            }
+
+            if ($geonames->shouldSupplyDivisions()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_300000_create_divisions_table.php');
+            }
+
+            if ($geonames->shouldSupplyCities()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_400000_create_cities_table.php');
+            }
         }
     }
 

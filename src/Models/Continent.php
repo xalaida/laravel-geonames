@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Models;
 
 use Carbon\CarbonTimeZone;
 use Illuminate\Support\Carbon;
-use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 use Nevadskiy\Translatable\HasTranslations;
@@ -18,7 +17,8 @@ use Nevadskiy\Translatable\HasTranslations;
  * @property float longitude
  * @property string timezone_id
  * @property int population
- * @property int dem
+ * @property integer|null dem
+ * @property string feature_code
  * @property int geoname_id
  * @property Carbon modified_at
  * @property Carbon created_at
@@ -52,16 +52,6 @@ class Continent extends Model
     protected $translatable = [
         'name',
     ];
-
-    /**
-     * @inheritDoc
-     */
-    protected static function booted(): void
-    {
-        self::creating(static function (self $continent) {
-            $continent->code = (new ContinentCodeGenerator())->generate($continent);
-        });
-    }
 
     /**
      * Get the timezone instance.

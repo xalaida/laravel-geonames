@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 
@@ -22,27 +23,34 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     ];
 
     /**
-     * Filter entities according to the given countries.
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
+    /**
+     * Indicates the countries array that is allowed for insertion.
      *
      * @var array|string[]
      */
-    private $filterCountries;
+    private $countries;
 
     /**
-     * The countries collection.
+     * The available countries collection.
      *
      * @var Collection
      */
-    protected $countries;
+    protected $availableCountries;
 
     /**
      * Make a new seeder instance.
      */
-    public function __construct(int $batchSize = 1000, array $filterCountries = ['*'])
+    public function __construct(Geonames $geonames, int $batchSize = 1000, array $countries = ['*'])
     {
         parent::__construct($batchSize);
-
-        $this->filterCountries = $filterCountries;
+        $this->geonames = $geonames;
+        $this->countries = $countries;
     }
 
     /**
@@ -51,7 +59,10 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     public function init(): void
     {
         parent::init();
-        $this->countries = $this->getCountries();
+
+        if ($this->geonames->shouldSupplyCountries()) {
+            $this->availableCountries = $this->getCountries();
+        }
     }
 
     /**
@@ -69,7 +80,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && ($this->filterCountries === ['*'] || in_array($data['country code'], $this->filterCountries, true));
+            && ($this->countries === ['*'] || in_array($data['country code'], $this->countries, true));
     }
 
     /**
@@ -93,7 +104,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
         return [
             'name' => $data['asciiname'] ?: $data['name'],
             'country_id' => function () use ($data) {
-                return $this->countries[$data['country code']]->id;
+                return $this->availableCountries[$data['country code']]->id;
             },
             'latitude' => $data['latitude'],
             'longitude' => $data['longitude'],
