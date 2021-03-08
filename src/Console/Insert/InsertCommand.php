@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Console\Insert;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\City;
@@ -139,7 +140,7 @@ class InsertCommand extends Command
      */
     private function performTruncate(): void
     {
-        foreach ([Continent::TABLE, Country::TABLE, Division::TABLE, City::TABLE] as $table) {
+        foreach (Arr::only([Continent::TABLE, Country::TABLE, Division::TABLE, City::TABLE], array_keys(array_filter(config('geonames.tables')))) as $table) {
             DB::table($table)->truncate();
             $this->info("Table {$table} has been truncated.");
         }
@@ -187,38 +188,45 @@ class InsertCommand extends Command
 
     /**
      * Insert the geonames dataset.
+     * TODO: refactor
      */
     private function insert(): void
     {
-        // TODO: refactor.
-
         $geonamesPath = $this->downloadGeonamesFile();
 
         $this->setUpProgressBar();
 
-        $this->info('Start processing continents');
-        $this->continentSupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->continentSupplier->insert($id, $data);
+        if (config('geonames.tables.continents')) {
+            $this->info('Start processing continents');
+            $this->continentSupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->continentSupplier->insert($id, $data);
+            }
         }
 
-        $this->info('Start processing countries');
-        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
-        $this->countrySupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->countrySupplier->insert($id, $data);
+        if (config('geonames.tables.countries')) {
+            $this->info('Start processing countries');
+            $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
+            $this->countrySupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->countrySupplier->insert($id, $data);
+            }
         }
 
-        $this->info('Start processing divisions');
-        $this->divisionSupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->divisionSupplier->insert($id, $data);
+        if (config('geonames.tables.divisions')) {
+            $this->info('Start processing divisions');
+            $this->divisionSupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->divisionSupplier->insert($id, $data);
+            }
         }
 
-        $this->info('Start processing cities');
-        $this->citySupplier->init();
-        foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
-            $this->citySupplier->insert($id, $data);
+        if (config('geonames.tables.cities')) {
+            $this->info('Start processing cities');
+            $this->citySupplier->init();
+            foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
+                $this->citySupplier->insert($id, $data);
+            }
         }
     }
 
