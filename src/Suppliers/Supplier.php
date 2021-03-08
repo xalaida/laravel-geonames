@@ -5,6 +5,16 @@ namespace Nevadskiy\Geonames\Suppliers;
 interface Supplier
 {
     /**
+     * Init the supplier process.
+     */
+    public function init(): void;
+
+    /**
+     * Commit the supplier process.
+     */
+    public function commit(): void;
+
+    /**
      * Attempt to insert geonames data and return true on success.
      */
     public function insert(int $id, array $data): bool;

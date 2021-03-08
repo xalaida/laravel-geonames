@@ -4,12 +4,18 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 
 class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
 {
+    /**
+     * Countries to be inserted.
+     *
+     * @var array|string[]
+     */
+    private $countries;
+
     /**
      * The country information list.
      *
@@ -27,8 +33,11 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     /**
      * Make a new seeder instance.
      */
-    public function __construct(array $countryInfos = [])
+    public function __construct(int $batchSize = 1000, array $countries = ['*'], array $countryInfos = [])
     {
+        parent::__construct($batchSize);
+
+        $this->countries = $countries;
         $this->countryInfos = $countryInfos;
     }
 
@@ -52,89 +61,40 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     /**
      * @inheritDoc
      */
+    protected function getModel(): Model
+    {
+        return resolve(Country::class);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function shouldSupply(array $data, int $id): bool
     {
-        return isset($this->countryInfos[$id]);
+        if (! isset($this->countryInfos[$id])) {
+            return false;
+        }
+
+        return $this->countries === ['*'] || in_array($this->countryInfos[$id]['ISO'], $this->countries, true);
     }
 
     /**
      * @inheritDoc
      */
-    protected function performInsert(array $data, int $id): bool
+    protected function mapInsertFields(array $data, int $id): array
     {
-        Country::query()->create(
-            $this->resolveValues($this->mapInsertFields($data, $id))
-        );
-
-        return true;
+        return array_merge($this->mapUpdateFields($data, $id), [
+            'id' => Country::generateId(),
+            'geoname_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
      * @inheritDoc
      */
-    protected function findModel(int $id): ?Model
-    {
-        return Country::query()
-            ->where('geoname_id', $id)
-            ->first();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function updateModel(Model $model, array $data, int $id): bool
-    {
-        return $model->update(
-            $this->resolveValues($this->mapUpdateFields($data, $id))
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function deleteModel(Model $model): bool
-    {
-        return $model->delete();
-    }
-
-    /**
-     * Map insert for the country model.
-     *
-     * @param array $data
-     * @return array
-     */
-    private function mapInsertFields(array $data, int $id): array
-    {
-        return $this->mapFields($data, $id);
-    }
-
-    /**
-     * Map update fields for the country model.
-     *
-     * @param array $data
-     * @return array
-     */
-    private function mapUpdateFields(array $data, int $id): array
-    {
-        return Arr::except($this->mapFields($data, $id), ['geoname_id']);
-    }
-
-    /**
-     * Get continents collection grouped by code.
-     */
-    protected function getContinents(): Collection
-    {
-        return Continent::all()->keyBy('code');
-    }
-
-    /**
-     * Map all fields for the country model.
-     *
-     * @param array $data
-     * @param int $id
-     * @return array
-     */
-    private function mapFields(array $data, int $id): array
+    protected function mapUpdateFields(array $data, int $id): array
     {
         return array_merge(
             $this->mapCountryInfoFields($this->countryInfos[$id]),
@@ -159,7 +119,6 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             'population' => $data['population'],
             'dem' => $data['dem'],
             'feature_code' => $data['feature code'],
-            'geoname_id' => $id,
             'modified_at' => $data['modification date'],
         ];
     }
@@ -191,15 +150,14 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             'neighbours' => $data['neighbours'],
             'area' => $data['Area(in sq km)'],
             'fips' => $data['fips'],
-            'geoname_id' => $data['geonameid'],
         ];
     }
 
     /**
-     * @inheritDoc
+     * Get continents collection grouped by code.
      */
-    protected function getTableName(): string
+    protected function getContinents(): Collection
     {
-        return Country::TABLE;
+        return Continent::all()->keyBy('code');
     }
 }

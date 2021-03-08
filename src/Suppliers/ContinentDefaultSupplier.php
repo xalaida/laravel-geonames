@@ -20,6 +20,14 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     /**
      * @inheritDoc
      */
+    protected function getModel(): Model
+    {
+        return resolve(Continent::class);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
@@ -29,64 +37,20 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     /**
      * @inheritDoc
      */
-    protected function performInsert(array $data, int $id): bool
+    protected function mapInsertFields(array $data, int $id): array
     {
-        Continent::query()->create(
-            $this->resolveValues($this->mapInsertFields($data, $id))
-        );
-
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function findModel(int $id): ?Model
-    {
-        return Continent::query()
-            ->where('geoname_id', $id)
-            ->first();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function updateModel(Model $model, array $data, int $id): bool
-    {
-        return $model->update(
-            $this->resolveValues($this->mapUpdateFields($data))
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function deleteModel(Model $model): bool
-    {
-        return $model->delete();
-    }
-
-    /**
-     * Map insert fields for the continent model.
-     *
-     * @param array $data
-     * @param int $id
-     * @return array
-     */
-    private function mapInsertFields(array $data, int $id): array
-    {
-        return array_merge($this->mapUpdateFields($data), [
+        return array_merge($this->mapUpdateFields($data, $id), [
+            'id' => Continent::generateId(),
             'geoname_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     /**
-     * Map update fields for the continent model.
-     *
-     * @param array $data
-     * @return array
+     * @inheritDoc
      */
-    private function mapUpdateFields(array $data): array
+    protected function mapUpdateFields(array $data, int $id): array
     {
         return [
             'name' => $data['name'],
@@ -97,13 +61,5 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
             'dem' => $data['dem'],
             'modified_at' => $data['modification date'],
         ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function getTableName(): string
-    {
-        return Continent::TABLE;
     }
 }

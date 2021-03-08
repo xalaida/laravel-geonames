@@ -5,8 +5,8 @@ namespace Nevadskiy\Geonames\Console\Insert;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Continent;
@@ -201,6 +201,7 @@ class InsertCommand extends Command
         foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
             $this->continentSupplier->insert($id, $data);
         }
+        $this->continentSupplier->commit();
 
         $this->info('Start processing countries');
         $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
@@ -208,18 +209,21 @@ class InsertCommand extends Command
         foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
             $this->countrySupplier->insert($id, $data);
         }
+        $this->countrySupplier->commit();
 
         $this->info('Start processing divisions');
         $this->divisionSupplier->init();
         foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
             $this->divisionSupplier->insert($id, $data);
         }
+        $this->divisionSupplier->commit();
 
         $this->info('Start processing cities');
         $this->citySupplier->init();
         foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
             $this->citySupplier->insert($id, $data);
         }
+        $this->citySupplier->commit();
     }
 
     /**
@@ -243,13 +247,23 @@ class InsertCommand extends Command
     }
 
     /**
-     * Download geonames' geonames file.
+     * Download geonames file.
      *
      * @return string|array
      */
     private function downloadGeonamesFile()
     {
-        return $this->downloader->download($this->getGeonamesUrl(), config('geonames.directory'));
+        $path = $this->downloader->download($this->getGeonamesUrl(), config('geonames.directory'));
+
+        if (is_array($path)) {
+            $paths = array_filter($path, function ($path) {
+                return ! Str::contains($path, 'readme.txt');
+            });
+
+            return reset($paths);
+        }
+
+        return $path;
     }
 
     /**
@@ -259,7 +273,7 @@ class InsertCommand extends Command
      */
     private function getGeonamesUrl(): string
     {
-        return "http://download.geonames.org/export/dump/allCountries.zip";
+        return "http://download.geonames.org/export/dump/UA.zip";
     }
 
     /**

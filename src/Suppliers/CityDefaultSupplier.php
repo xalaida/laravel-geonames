@@ -4,11 +4,9 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Support\Batch\Batch;
 
 class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 {
@@ -44,19 +42,13 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     protected $divisions;
 
     /**
-     * Insert cities batch to reduce queries amount to be performed.
-     *
-     * @var Batch
-     */
-    protected $insertBatch;
-
-    /**
      * Make a new supplier instance.
      */
     public function __construct(int $batchSize = 1000, int $minPopulation = 0)
     {
+        parent::__construct($batchSize);
+
         $this->minPopulation = $minPopulation;
-        $this->insertBatch = $this->makeInsertBatch($batchSize);
     }
 
     /**
@@ -72,6 +64,14 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * @inheritDoc
      */
+    protected function getModel(): Model
+    {
+        return resolve(City::class);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
@@ -82,53 +82,9 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * @inheritDoc
      */
-    protected function performInsert(array $data, int $id): bool
+    protected function mapInsertFields(array $data, int $id): array
     {
-        $this->insertBatch->push(
-            $this->resolveValues($this->mapInsetFields($data, $id))
-        );
-
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function findModel(int $id): ?Model
-    {
-        return City::query()
-            ->where('geoname_id', $id)
-            ->first();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function updateModel(Model $model, array $data, int $id): bool
-    {
-        return $model->update(
-            $this->resolveValues($this->mapUpdateFields($data))
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function deleteModel(Model $model): bool
-    {
-        return $model->delete();
-    }
-
-    /**
-     * Map fields for the city model.
-     *
-     * @param array $data
-     * @param int $id
-     * @return array
-     */
-    protected function mapInsetFields(array $data, int $id): array
-    {
-        return array_merge($this->mapUpdateFields($data), [
+        return array_merge($this->mapUpdateFields($data, $id), [
             'id' => City::generateId(),
             'geoname_id' => $id,
             'created_at' => now(),
@@ -137,12 +93,9 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * Map fields for the city model.
-     *
-     * @param array $data
-     * @return array
+     * @inheritDoc
      */
-    protected function mapUpdateFields(array $data): array
+    protected function mapUpdateFields(array $data, int $id): array
     {
         return [
             'name' => $data['asciiname'] ?: $data['name'],
@@ -161,19 +114,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
             'feature_code' => $data['feature code'],
             'modified_at' => $data['modification date'],
         ];
-    }
-
-    /**
-     * Make a batch instance for better inserting performance.
-     *
-     * @param int $batchSize
-     * @return Batch
-     */
-    protected function makeInsertBatch(int $batchSize): Batch
-    {
-        return new Batch(static function (array $cities) {
-            DB::table(City::TABLE)->insert($cities);
-        }, $batchSize);
     }
 
     /**
@@ -212,13 +152,5 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     protected function getDivisionId(array $data): ?string
     {
         return $this->divisions[$this->getCountryId($data)][$data['admin1 code']][0]->id ?? null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function getTableName(): string
-    {
-        return City::TABLE;
     }
 }

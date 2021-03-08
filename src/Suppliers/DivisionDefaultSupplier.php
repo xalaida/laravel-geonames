@@ -4,10 +4,8 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Support\Batch\Batch;
 
 class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplier
 {
@@ -24,6 +22,13 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     ];
 
     /**
+     * Filter entities according to the given countries.
+     *
+     * @var array|string[]
+     */
+    private $filterCountries;
+
+    /**
      * The countries collection.
      *
      * @var Collection
@@ -31,18 +36,13 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     protected $countries;
 
     /**
-     * The batch for reducing amount of queries to be performed.
-     *
-     * @var Batch
-     */
-    protected $batch;
-
-    /**
      * Make a new seeder instance.
      */
-    public function __construct(int $batchSize = 1000)
+    public function __construct(int $batchSize = 1000, array $filterCountries = ['*'])
     {
-        $this->batch = $this->makeBatch($batchSize);
+        parent::__construct($batchSize);
+
+        $this->filterCountries = $filterCountries;
     }
 
     /**
@@ -57,62 +57,27 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     /**
      * @inheritDoc
      */
+    protected function getModel(): Model
+    {
+        return resolve(Division::class);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
-            && in_array($data['feature code'], self::FEATURE_CODES, true);
+            && in_array($data['feature code'], self::FEATURE_CODES, true)
+            && ($this->filterCountries === ['*'] || in_array($data['country code'], $this->filterCountries, true));
     }
 
     /**
      * @inheritDoc
      */
-    protected function performInsert(array $data, int $id): bool
+    protected function mapInsertFields(array $data, int $id): array
     {
-        $this->batch->push(
-            $this->resolveValues($this->mapInsertFields($data, $id))
-        );
-
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function findModel(int $id): ?Model
-    {
-        return Division::query()
-            ->where('geoname_id', $id)
-            ->first();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function updateModel(Model $model, array $data, int $id): bool
-    {
-        return $model->update(
-            $this->resolveValues($this->mapUpdateFields($data))
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function deleteModel(Model $model): bool
-    {
-        return $model->delete();
-    }
-
-    /**
-     * Map fields for the division model.
-     *
-     * @param array $division
-     * @param int $id
-     * @return array
-     */
-    protected function mapInsertFields(array $division, int $id): array
-    {
-        return array_merge($this->mapUpdateFields($division), [
+        return array_merge($this->mapUpdateFields($data, $id), [
             'id' => Division::generateId(),
             'geoname_id' => $id,
             'created_at' => now(),
@@ -121,12 +86,9 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * Map update fields for the division model.
-     *
-     * @param array $data
-     * @return array
+     * @inheritDoc
      */
-    protected function mapUpdateFields(array $data): array
+    protected function mapUpdateFields(array $data, int $id): array
     {
         return [
             'name' => $data['asciiname'] ?: $data['name'],
@@ -151,26 +113,5 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     protected function getCountries(): Collection
     {
         return Country::all()->keyBy('code');
-    }
-
-    /**
-     * Make a batch instance for better inserting performance.
-     *
-     * @param int $batchSize
-     * @return Batch
-     */
-    protected function makeBatch(int $batchSize): Batch
-    {
-        return new Batch(static function (array $divisions) {
-            DB::table(Division::TABLE)->insert($divisions);
-        }, $batchSize);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function getTableName(): string
-    {
-        return Division::TABLE;
     }
 }
