@@ -19,26 +19,51 @@ class Geonames
         $this->config = $config;
     }
 
+    /**
+     * Determine whether the package should use default migrations.
+     *
+     * @return bool
+     */
     public function shouldUseDefaultMigrations(): bool
     {
         return $this->config['default_migrations'];
     }
 
+    /**
+     * Determine whether the auto source is specified.
+     *
+     * @return bool
+     */
     public function isAutoSource(): bool
     {
         return $this->config['source'] === DownloadService::SOURCE_AUTO;
     }
 
+    /**
+     * Determine whether the all countries source is specified.
+     *
+     * @return bool
+     */
     public function isAllCountriesSource(): bool
     {
         return $this->config['source'] === DownloadService::SOURCE_ALL_COUNTRIES;
     }
 
+    /**
+     * Determine whether the only cities source is specified.
+     *
+     * @return bool
+     */
     public function isOnlyCitiesSource(): bool
     {
         return $this->config['source'] === DownloadService::SOURCE_AUTO;
     }
 
+    /**
+     * Determine whether the all countries is allowed to be supplied.
+     *
+     * @return bool
+     */
     public function isAllCountriesAllowed(): bool
     {
         return (array) $this->config['filters']['countries'] === ['*'];
@@ -116,6 +141,9 @@ class Geonames
         return true;
     }
 
+    /*
+     * Get the items to be supplied.
+     */
     public function supply(): array
     {
         $suppliers = [];
