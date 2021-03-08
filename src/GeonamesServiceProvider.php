@@ -12,6 +12,7 @@ use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\CityDefaultSupplier;
 use Nevadskiy\Geonames\Suppliers;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
+use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
 use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
@@ -87,6 +88,12 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
         });
+
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(Downloader::class, function (Downloader $downloader) {
+                return $this->app->make(ConsoleDownloader::class, ['downloader' => $downloader]);
+            });
+        }
     }
 
     /**

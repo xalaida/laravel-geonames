@@ -5,12 +5,12 @@ namespace Nevadskiy\Geonames\Console\Insert;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;port\Str;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
+use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
@@ -43,11 +43,11 @@ class InsertCommand extends Command
     protected $geonames;
 
     /**
-     * The downloader instance.
+     * The download service instance.
      *
-     * @var ConsoleDownloader
+     * @var DownloadService
      */
-    protected $downloader;
+    protected $downloadService;
 
     /**
      * The dispatcher instance.
@@ -103,7 +103,7 @@ class InsertCommand extends Command
      */
     public function handle(
         Geonames $geonames,
-        ConsoleDownloader $downloader,
+        DownloadService $downloadService,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
@@ -113,7 +113,7 @@ class InsertCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->init($geonames, $downloader, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->init($geonames, $downloadService, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
 
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
@@ -156,7 +156,7 @@ class InsertCommand extends Command
      */
     private function init(
         Geonames $geonames,
-        ConsoleDownloader $downloader,
+        DownloadService $downloadService,
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
@@ -167,7 +167,7 @@ class InsertCommand extends Command
     ): void
     {
         $this->geonames = $geonames;
-        $this->downloader = $this->setUpDownloader($downloader);
+        $this->downloadService = $downloadService;
         $this->dispatcher = $dispatcher;
         $this->geonamesParser = $geonamesParser;
         $this->continentSupplier = $continentSupplier;
@@ -182,15 +182,13 @@ class InsertCommand extends Command
      *
      * @param ConsoleDownloader $downloader
      */
-    private function setUpDownloader(ConsoleDownloader $downloader): ConsoleDownloader
+    private function setUpDownloader(ConsoleDownloader $downloader): void
     {
         $downloader->withProgressBar($this->getOutput());
 
         if ($this->option('update-files')) {
             $downloader->update();
         }
-
-        return $downloader;
     }
 
     /**
@@ -199,7 +197,8 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $geonamesPath = $this->downloadGeonamesFile();
+        $this->setUpDownloader($this->downloadService->getDownloader());
+        $geonamesPath = $this->downloadService->downloadGeonamesFile();
 
         $this->setUpProgressBar();
 
@@ -214,7 +213,9 @@ class InsertCommand extends Command
 
         if ($this->geonames->shouldSupplyCountries()) {
             $this->info('Start processing countries');
-            $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($this->downloadCountryInfoFile()));
+            $this->countrySupplier->setCountryInfos(
+                $this->countryInfoParser->all($this->downloadService->downloadCountryInfoFile())
+            );
             $this->countrySupplier->init();
             foreach ($this->geonamesParser->forEach($geonamesPath) as $id => $data) {
                 $this->countrySupplier->insert($id, $data);
@@ -243,6 +244,7 @@ class InsertCommand extends Command
 
     /**
      * Set up the progress bar.
+     * TODO: refactor using decorator pattern
      */
     private function setUpProgressBar(int $step = 1000): void
     {
@@ -259,55 +261,5 @@ class InsertCommand extends Command
                 $progress->finish();
                 $this->output->newLine();
             });
-    }
-
-    /**
-     * Download geonames file.
-     *
-     * @return string|array
-     */
-    private function downloadGeonamesFile()
-    {
-        $path = $this->downloader->download($this->getGeonamesUrl(), config('geonames.directory'));
-
-        if (is_array($path)) {
-            $paths = array_filter($path, function ($path) {
-                return ! Str::contains($path, 'readme.txt');
-            });
-
-            return reset($paths);
-        }
-
-        return $path;
-    }
-
-    /**
-     * Get the URL of the geonames' main file.
-     *
-     * @return string
-     */
-    private function getGeonamesUrl(): string
-    {
-        return "http://download.geonames.org/export/dump/allCountries.zip";
-    }
-
-    /**
-     * Download geonames' country info file.
-     *
-     * @return string
-     */
-    private function downloadCountryInfoFile(): string
-    {
-        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
-    }
-
-    /**
-     * Get the URL of the geonames' country info file.
-     *
-     * @return string
-     */
-    private function getCountryInfoUrl(): string
-    {
-        return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
 }
