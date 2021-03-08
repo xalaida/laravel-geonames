@@ -31,7 +31,9 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      */
     protected function performInsert(array $data, int $id): bool
     {
-        Continent::query()->create($this->mapInsertFields($data, $id));
+        Continent::query()->create(
+            $this->resolveValues($this->mapInsertFields($data, $id))
+        );
 
         return true;
     }
@@ -51,7 +53,9 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
-        return $model->update($this->mapUpdateFields($data));
+        return $model->update(
+            $this->resolveValues($this->mapUpdateFields($data))
+        );
     }
 
     /**
@@ -93,5 +97,13 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
             'dem' => $data['dem'],
             'modified_at' => $data['modification date'],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getTableName(): string
+    {
+        return Continent::TABLE;
     }
 }

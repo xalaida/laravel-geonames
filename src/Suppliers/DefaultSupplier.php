@@ -76,11 +76,11 @@ abstract class DefaultSupplier implements Supplier
      * @param array $data
      * @return array
      */
-    protected function resolveValues(array $data, array $fields): array
+    protected function resolveValues(array $data): array
     {
         $values = [];
 
-        foreach (Arr::only($data, $fields) as $attribute => $value) {
+        foreach (Arr::only($data, $this->fields) as $attribute => $value) {
               $values[$attribute] = $value instanceof Closure ? $value() : $value;
         }
 

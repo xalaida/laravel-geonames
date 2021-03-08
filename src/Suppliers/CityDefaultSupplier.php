@@ -56,9 +56,23 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     public function __construct(int $batchSize = 1000, int $minPopulation = 0)
     {
         $this->minPopulation = $minPopulation;
-        $this->countries = $this->getCountries();
-        $this->divisions = $this->getDivisions();
         $this->insertBatch = $this->makeInsertBatch($batchSize);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if (config('geonames.tables.countries')) {
+            $this->countries = $this->getCountries();
+        }
+
+        if (config('geonames.tables.divisions')) {
+            $this->divisions = $this->getDivisions();
+        }
     }
 
     /**
@@ -68,7 +82,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && (int) $data['population'] > $this->minPopulation;
+            && (int) $data['population'] >= $this->minPopulation;
     }
 
     /**
@@ -76,7 +90,9 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      */
     protected function performInsert(array $data, int $id): bool
     {
-        $this->insertBatch->push($this->mapInsetFields($data, $id));
+        $this->insertBatch->push(
+            $this->resolveValues($this->mapInsetFields($data, $id))
+        );
 
         return true;
     }
@@ -96,7 +112,9 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
-        return $model->update($this->mapUpdateFields($data));
+        return $model->update(
+            $this->resolveValues($this->mapUpdateFields($data))
+        );
     }
 
     /**
@@ -110,13 +128,13 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Map fields for the city model.
      *
-     * @param array $city
+     * @param array $data
      * @param int $id
      * @return array
      */
-    protected function mapInsetFields(array $city, int $id): array
+    protected function mapInsetFields(array $data, int $id): array
     {
-        return array_merge($this->mapUpdateFields($city), [
+        return array_merge($this->mapUpdateFields($data), [
             'id' => City::generateId(),
             'geoname_id' => $id,
             'created_at' => now(),
@@ -130,20 +148,24 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      * @param array $city
      * @return array
      */
-    protected function mapUpdateFields(array $city): array
+    protected function mapUpdateFields(array $data): array
     {
         return [
-            'name' => $city['asciiname'] ?: $city['name'],
-            'country_id' => $this->getCountryId($city),
-            'division_id' => $this->getDivisionId($city),
-            'latitude' => $city['latitude'],
-            'longitude' => $city['longitude'],
-            'timezone_id' => $city['timezone'],
-            'population' => $city['population'],
-            'elevation' => $city['elevation'],
-            'dem' => $city['dem'],
-            'feature_code' => $city['feature code'],
-            'modified_at' => $city['modification date'],
+            'name' => $data['asciiname'] ?: $data['name'],
+            'country_id' => function () use ($data) {
+                return $this->getCountryId($data);
+            },
+            'division_id' => function () use ($data) {
+                return $this->getDivisionId($data);
+            },
+            'latitude' => $data['latitude'],
+            'longitude' => $data['longitude'],
+            'timezone_id' => $data['timezone'],
+            'population' => $data['population'],
+            'elevation' => $data['elevation'],
+            'dem' => $data['dem'],
+            'feature_code' => $data['feature code'],
+            'modified_at' => $data['modification date'],
         ];
     }
 
@@ -196,5 +218,13 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     protected function getDivisionId(array $city): ?string
     {
         return $this->divisions[$this->getCountryId($city)][$city['admin1 code']][0]->id ?? null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getTableName(): string
+    {
+        return City::TABLE;
     }
 }

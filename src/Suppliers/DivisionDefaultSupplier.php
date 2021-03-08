@@ -42,8 +42,19 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
      */
     public function __construct(int $batchSize = 1000)
     {
-        $this->countries = $this->getCountries();
         $this->batch = $this->makeBatch($batchSize);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if (config('geonames.tables.countries')) {
+            $this->countries = $this->getCountries();
+        }
     }
 
     /**
@@ -60,7 +71,9 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
      */
     protected function performInsert(array $data, int $id): bool
     {
-        $this->batch->push($this->mapInsertFields($data, $id));
+        $this->batch->push(
+            $this->resolveValues($this->mapInsertFields($data, $id))
+        );
 
         return true;
     }
@@ -80,7 +93,9 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
-        return $model->update($this->mapUpdateFields($data));
+        return $model->update(
+            $this->resolveValues($this->mapUpdateFields($data))
+        );
     }
 
     /**
@@ -118,7 +133,9 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     {
         return [
             'name' => $data['asciiname'] ?: $data['name'],
-            'country_id' => $this->countries[$data['country code']]->id,
+            'country_id' => function () use ($data) {
+                return $this->countries[$data['country code']]->id;
+            },
             'latitude' => $data['latitude'],
             'longitude' => $data['longitude'],
             'timezone_id' => $data['timezone'],
@@ -150,5 +167,13 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
         return new Batch(static function (array $divisions) {
             DB::table(Division::TABLE)->insert($divisions);
         }, $batchSize);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getTableName(): string
+    {
+        return Division::TABLE;
     }
 }

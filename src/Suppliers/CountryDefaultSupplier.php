@@ -30,7 +30,18 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     public function __construct(array $countryInfos = [])
     {
         $this->countryInfos = $countryInfos;
-        $this->continents = $this->getContinents();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if (config('geonames.tables.continents')) {
+            $this->continents = $this->getContinents();
+        }
     }
 
     /**
@@ -54,7 +65,9 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
      */
     protected function performInsert(array $data, int $id): bool
     {
-        Country::query()->create($this->mapInsertFields($data, $id));
+        Country::query()->create(
+            $this->resolveValues($this->mapInsertFields($data, $id))
+        );
 
         return true;
     }
@@ -74,7 +87,9 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
-        return $model->update($this->mapUpdateFields($data, $id));
+        return $model->update(
+            $this->resolveValues($this->mapUpdateFields($data, $id))
+        );
     }
 
     /**
@@ -165,7 +180,9 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             'iso' => $data['ISO3'],
             'iso_numeric' => $data['ISO-Numeric'],
             'name' => $data['Country'],
-            'continent_id' => $this->continents[$data['Continent']]->id,
+            'continent_id' => function () use ($data) {
+                return $this->continents[$data['Continent']]->id;
+            },
             'capital' => $data['Capital'],
             'currency_code' => $data['CurrencyCode'],
             'currency_name' => $data['CurrencyName'],
@@ -179,5 +196,13 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             'fips' => $data['fips'],
             'geoname_id' => $data['geonameid'],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getTableName(): string
+    {
+        return Country::TABLE;
     }
 }
