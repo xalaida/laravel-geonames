@@ -50,10 +50,15 @@ return [
     ],
 
     'tables' => [
-        Nevadskiy\Geonames\Models\Continent::TABLE,
-        Nevadskiy\Geonames\Models\Country::TABLE,
-        Nevadskiy\Geonames\Models\Division::TABLE,
-        Nevadskiy\Geonames\Models\City::TABLE,
+
+        'continents' => false,
+
+        'countries' => false,
+
+        'divisions' => false,
+
+        'cities' => true,
+
     ],
 
     /*
@@ -66,16 +71,10 @@ return [
     */
     'filters' => [
 
-        'continents' => true,
 
-        'countries' => true,
+        'country' => 'UA',
 
-        // TODO: add possibility to remove divisions without cities
-        'divisions' => true,
-
-        'cities' => true,
-
-        'min_population' => 0,
+        'min_population' => 500,
 
         'translations' => true,
 
