@@ -2,12 +2,30 @@
 
 namespace Nevadskiy\Geonames\Suppliers;
 
+use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Models\Continent;
 
 abstract class DefaultSupplier implements Supplier
 {
+    /**
+     * Fields of the entity table.
+     *
+     * @var array
+     */
+    protected $fields;
+
+    /**
+     * Init the supplier.
+     */
+    public function init(): void
+    {
+        $this->fields = $this->getFields();
+    }
+
     /**
      * @inheritDoc
      */
@@ -53,6 +71,23 @@ abstract class DefaultSupplier implements Supplier
     }
 
     /**
+     * Resolve the attributes.
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function resolveValues(array $data, array $fields): array
+    {
+        $values = [];
+
+        foreach (Arr::only($data, $fields) as $attribute => $value) {
+              $values[$attribute] = $value instanceof Closure ? $value() : $value;
+        }
+
+        return $values;
+    }
+
+    /**
      * Determine if the given data should be supplied.
      */
     abstract protected function shouldSupply(array $data, int $id): bool;
@@ -91,4 +126,19 @@ abstract class DefaultSupplier implements Supplier
      * @throws Exception
      */
     abstract protected function deleteModel(Model $model): bool;
+
+    /**
+     * Get fields of the entity table.
+     */
+    protected function getFields(): array
+    {
+        return DB::getSchemaBuilder()->getColumnListing($this->getTableName());
+    }
+
+    /**
+     * Get table name of the entity.
+     *
+     * @return string
+     */
+    abstract protected function getTableName(): string;
 }
