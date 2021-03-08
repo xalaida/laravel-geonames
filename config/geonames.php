@@ -75,11 +75,11 @@ return [
 
         'continents' => true,
 
-        'countries' => false,
+        'countries' => true,
 
-        'divisions' => false,
+        'divisions' => true,
 
-        'cities' => false,
+        'cities' => true,
 
     ],
 
