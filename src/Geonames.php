@@ -188,6 +188,16 @@ class Geonames
     }
 
     /**
+     * Determine whether the population is allowed.
+     *
+     * @return bool
+     */
+    public function isPopulationAllowed(int $population): bool
+    {
+        return $population >= $this->getPopulation();
+    }
+
+    /**
      * Get the countries filter.
      *
      * @return array
@@ -195,5 +205,20 @@ class Geonames
     public function getCountries(): array
     {
         return $this->config['filters']['countries'];
+    }
+
+    /**
+     * Determine whether the country is allowed.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function isCountryAllowed(string $code): bool
+    {
+        if ($this->getCountries() === ['*']) {
+            return true;
+        }
+
+        return in_array($code, $this->getCountries(), true);
     }
 }

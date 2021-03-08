@@ -9,8 +9,6 @@ use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Suppliers\CityDefaultSupplier;
-use Nevadskiy\Geonames\Suppliers;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;

@@ -82,9 +82,8 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && (int) $data['population'] >= $this->geonames->getPopulation()
-            //TODO: refactor using isCountryAllowed(string $code)
-            && ($this->geonames->getCountries() === ['*'] || in_array($data['country code'], $this->geonames->getCountries(), true));
+            && $this->geonames->isPopulationAllowed($data['population'])
+            && $this->geonames->isCountryAllowed($data['country code']);
     }
 
     /**

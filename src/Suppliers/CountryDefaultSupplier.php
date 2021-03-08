@@ -77,9 +77,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             return false;
         }
 
-        //TODO: refactor using isCountryAllowed(string $code)
-        return $this->geonames->getCountries() === ['*']
-            || in_array($this->countryInfos[$id]['ISO'], $this->geonames->getCountries(), true);
+        return $this->geonames->isCountryAllowed($this->countryInfos[$id]['ISO']);
     }
 
     /**

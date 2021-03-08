@@ -30,13 +30,6 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     private $geonames;
 
     /**
-     * Indicates the countries array that is allowed for insertion.
-     *
-     * @var array|string[]
-     */
-    private $countries;
-
-    /**
      * The available countries collection.
      *
      * @var Collection
@@ -46,11 +39,10 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     /**
      * Make a new seeder instance.
      */
-    public function __construct(Geonames $geonames, int $batchSize = 1000, array $countries = ['*'])
+    public function __construct(Geonames $geonames, int $batchSize = 1000)
     {
         parent::__construct($batchSize);
         $this->geonames = $geonames;
-        $this->countries = $countries;
     }
 
     /**
@@ -80,7 +72,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && ($this->countries === ['*'] || in_array($data['country code'], $this->countries, true));
+            && $this->geonames->isCountryAllowed($data['country code']);
     }
 
     /**
