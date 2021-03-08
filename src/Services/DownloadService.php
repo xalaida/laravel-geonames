@@ -112,6 +112,10 @@ class DownloadService
             return $this->getCitiesUrl($this->geonames->getPopulation());
         }
 
+        if ($this->geonames->isSingleCountrySource()) {
+            return $this->getSingleCountryUrl($this->geonames->getCountries());
+        }
+
 //        if ($this->geonames->isAutoSource()) {
 //            // TODO: determine correct source.
 //        }
@@ -150,6 +154,20 @@ class DownloadService
     }
 
     /**
+     * Get the URL of the single country file by the given code.
+     *
+     * @return string
+     */
+    private function getSingleCountryUrl(array $code): string
+    {
+        $code = reset($code);
+
+        $this->assertCodeIsSpecified($code);
+
+        return $this->getBaseUrl() . "{$code}.zip";
+    }
+
+    /**
      * Assert that the given population is available to download.
      *
      * @param int $population
@@ -163,6 +181,16 @@ class DownloadService
                     implode(', ', $this->getPopulations()),
                 ])
             );
+        }
+    }
+
+    /**
+     * Assert that the country code is specified.
+     */
+    private function assertCodeIsSpecified(string $code): void
+    {
+        if ($code === ['*'] || $code === '*') {
+            throw new InvalidArgumentException('Specify a country code as in the geonames configuration file.');
         }
     }
 

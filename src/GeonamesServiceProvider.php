@@ -37,8 +37,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloadService();
         $this->registerFileReader();
         $this->registerSuppliers();
-        $this->registerDefaultCountrySupplier();
-        $this->registerDefaultCitySupplier();
         $this->registerDefaultTranslationSupplier();
         $this->registerIgnitionFixer();
     }
@@ -124,36 +122,6 @@ class GeonamesServiceProvider extends ServiceProvider
         foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
             $this->app->bind($supplier, $implementation);
         }
-    }
-
-    /**
-     * Register the default country supplier.
-     */
-    private function registerDefaultCountrySupplier(): void
-    {
-        $this->app->when(Suppliers\CountryDefaultSupplier::class)
-            ->needs('$countries')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['countries'];
-            });
-    }
-
-    /**
-     * Register the default city supplier.
-     */
-    private function registerDefaultCitySupplier(): void
-    {
-        $this->app->when(CityDefaultSupplier::class)
-            ->needs('$population')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['population'];
-            });
-
-        $this->app->when(CityDefaultSupplier::class)
-            ->needs('$countries')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['countries'];
-            });
     }
 
     /**

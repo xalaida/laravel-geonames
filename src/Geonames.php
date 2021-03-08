@@ -12,7 +12,7 @@ class Geonames
     private $config;
 
     /**
-     * Geonames constructor.
+     * The geonames config wrapper class.
      */
     public function __construct(array $config)
     {
@@ -56,7 +56,17 @@ class Geonames
      */
     public function isOnlyCitiesSource(): bool
     {
-        return $this->config['source'] === DownloadService::SOURCE_AUTO;
+        return $this->config['source'] === DownloadService::SOURCE_ONLY_CITIES;
+    }
+
+    /**
+     * Determine whether the single country source is specified.
+     *
+     * @return bool
+     */
+    public function isSingleCountrySource(): bool
+    {
+        return $this->config['source'] === DownloadService::SOURCE_SINGLE_COUNTRY;
     }
 
     /**
@@ -165,5 +175,25 @@ class Geonames
         }
 
         return $suppliers;
+    }
+
+    /**
+     * Get the population filter.
+     *
+     * @return int
+     */
+    public function getPopulation(): int
+    {
+        return $this->config['filters']['population'];
+    }
+
+    /**
+     * Get the countries filter.
+     *
+     * @return array
+     */
+    public function getCountries(): array
+    {
+        return $this->config['filters']['countries'];
     }
 }

@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Console\Insert;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Facades\DB;port\Str;
+use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;

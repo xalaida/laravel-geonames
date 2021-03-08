@@ -4,17 +4,18 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 
 class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
 {
     /**
-     * Countries to be inserted.
+     * The geonames instance.
      *
-     * @var array|string[]
+     * @var Geonames
      */
-    private $countries;
+    private $geonames;
 
     /**
      * The country information list.
@@ -33,12 +34,10 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     /**
      * Make a new seeder instance.
      */
-    public function __construct(int $batchSize = 1000, array $countries = ['*'], array $countryInfos = [])
+    public function __construct(Geonames $geonames, int $batchSize = 1000)
     {
         parent::__construct($batchSize);
-
-        $this->countries = $countries;
-        $this->countryInfos = $countryInfos;
+        $this->geonames = $geonames;
     }
 
     /**
@@ -47,7 +46,10 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     public function init(): void
     {
         parent::init();
-        $this->continents = $this->getContinents();
+
+        if ($this->geonames->shouldSupplyContinents()) {
+            $this->continents = $this->getContinents();
+        }
     }
 
     /**
@@ -75,7 +77,9 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
             return false;
         }
 
-        return $this->countries === ['*'] || in_array($this->countryInfos[$id]['ISO'], $this->countries, true);
+        //TODO: refactor using isCountryAllowed(string $code)
+        return $this->geonames->getCountries() === ['*']
+            || in_array($this->countryInfos[$id]['ISO'], $this->geonames->getCountries(), true);
     }
 
     /**

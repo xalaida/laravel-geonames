@@ -29,20 +29,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     private $geonames;
 
     /**
-     * Indicates the countries array that is allowed for insertion.
-     *
-     * @var array|string[]
-     */
-    private $countries;
-
-    /**
-     * Indicates the minimal population that is allowed.
-     *
-     * @var int
-     */
-    private $population;
-
-    /**
      * The available countries collection.
      *
      * @var Collection
@@ -59,12 +45,10 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Make a new supplier instance.
      */
-    public function __construct(Geonames $geonames, array $countries, int $population = 0, int $batchSize = 1000)
+    public function __construct(Geonames $geonames, int $batchSize = 1000)
     {
         parent::__construct($batchSize);
         $this->geonames = $geonames;
-        $this->countries = $countries;
-        $this->population = $population;
     }
 
     /**
@@ -98,8 +82,9 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     {
         return $data['feature class'] === self::FEATURE_CLASS
             && in_array($data['feature code'], self::FEATURE_CODES, true)
-            && (int) $data['population'] >= $this->population
-            && ($this->countries === ['*'] || in_array($data['country code'], $this->countries, true));
+            && (int) $data['population'] >= $this->geonames->getPopulation()
+            //TODO: refactor using isCountryAllowed(string $code)
+            && ($this->geonames->getCountries() === ['*'] || in_array($data['country code'], $this->geonames->getCountries(), true));
     }
 
     /**
