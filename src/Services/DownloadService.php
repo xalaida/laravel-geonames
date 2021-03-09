@@ -3,10 +3,8 @@
 namespace Nevadskiy\Geonames\Services;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Nevadskiy\Geonames\Geonames;
-use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class DownloadService
@@ -44,21 +42,21 @@ class DownloadService
      *
      * @var Downloader
      */
-    private $downloader;
+    protected $downloader;
 
     /**
      * A directory for geonames downloads.
      *
      * @var string
      */
-    private $directory;
+    protected $directory;
 
     /**
      * The geonames instance.
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * DownloadService constructor.
@@ -71,19 +69,9 @@ class DownloadService
     }
 
     /**
-     * Get the base URL for downloading geonames resources.
-     *
-     * @return string
-     */
-    public function getBaseUrl(): string
-    {
-        return 'http://download.geonames.org/export/dump/';
-    }
-
-    /**
      * Get the downloader instance.
      *
-     * @return Downloader|ConsoleDownloader
+     * @return Downloader
      */
     public function getDownloader(): Downloader
     {
@@ -100,10 +88,20 @@ class DownloadService
         $paths = [];
 
         foreach ($this->getSourceUrls() as $url) {
-            $paths[] = $this->downloadSourceFile($url);
+            $paths[] = $this->download($url);
         }
 
         return $paths;
+    }
+
+    /**
+     * Download geonames alternate names file.
+     *
+     * @return string
+     */
+    public function downloaderAlternateNames(): string
+    {
+        return $this->download($this->getAlternateNamesUrl());
     }
 
     /**
@@ -113,7 +111,7 @@ class DownloadService
      */
     public function downloadDailyModifications(): string
     {
-        return $this->downloader->download($this->getDailyModificationsUrl(), $this->directory);
+        return $this->download($this->getDailyModificationsUrl());
     }
 
     /**
@@ -123,35 +121,26 @@ class DownloadService
      */
     public function downloadDailyDeletes(): string
     {
-        return $this->downloader->download($this->getDailyDeletesUrl(), $this->directory);
+        return $this->download($this->getDailyDeletesUrl());
     }
 
     /**
-     * Download geonames source file by the given URL.
-     *
-     * @return string
-     */
-    protected function downloadSourceFile(string $url): string
-    {
-        $path = $this->downloader->download($url, $this->directory);
-
-        if (is_array($path)) {
-            $paths = array_filter($path, static function ($path) {
-                return ! Str::contains($path, 'readme.txt');
-            });
-
-            return reset($paths);
-        }
-
-        return $path;
-    }
-
-    /**
-     * Download geonames country info source file.
+     * Download geonames country info file.
      */
     public function downloadCountryInfoFile(): string
     {
-        return $this->downloader->download($this->getCountryInfoUrl(), $this->directory);
+        return $this->download($this->getCountryInfoUrl());
+    }
+
+    /**
+     * Perform the downloading process.
+     *
+     * @param string $url
+     * @return array|string
+     */
+    protected function download(string $url)
+    {
+        return $this->downloader->download($url, $this->directory);
     }
 
     /**
@@ -159,7 +148,7 @@ class DownloadService
      *
      * @return array
      */
-    private function getSourceUrls(): array
+    protected function getSourceUrls(): array
     {
         if ($this->geonames->isOnlyCitiesSource()) {
             return [$this->getCitiesUrl($this->geonames->getPopulation())];
@@ -173,31 +162,11 @@ class DownloadService
     }
 
     /**
-     * Get the country info resource URL.
-     *
-     * @return string
-     */
-    private function getCountryInfoUrl(): string
-    {
-        return "{$this->getBaseUrl()}countryInfo.txt";
-    }
-
-    /**
-     * Get the all countries geonames resource URL.
-     *
-     * @return string
-     */
-    protected function getAllCountriesUrl(): string
-    {
-        return "{$this->getBaseUrl()}allCountries.zip";
-    }
-
-    /**
      * Get the URL of the cities file with the given population.
      *
      * @return string
      */
-    private function getCitiesUrl(int $population): string
+    protected function getCitiesUrl(int $population): string
     {
         $this->assertAvailablePopulation($population);
 
@@ -209,7 +178,7 @@ class DownloadService
      *
      * @return array
      */
-    private function getSingleCountryUrls(array $countries): array
+    protected function getSingleCountryUrls(array $countries): array
     {
         $this->assertCountryIsSpecified($countries);
 
@@ -223,13 +192,51 @@ class DownloadService
     }
 
     /**
+     * Get the country info resource URL.
+     *
+     * @return string
+     */
+    protected function getCountryInfoUrl(): string
+    {
+        return "{$this->getBaseUrl()}countryInfo.txt";
+    }
+
+    /**
+     * Get the geonames alternate names resource URL.
+     *
+     * @return string
+     */
+    protected function getAlternateNamesUrl(): string
+    {
+        return "{$this->getBaseUrl()}alternateNames.zip";
+    }
+
+    /**
+     * Get the all countries geonames resource URL.
+     *
+     * @return string
+     */
+    protected function getAllCountriesUrl(): string
+    {
+        return "{$this->getBaseUrl()}allCountries.zip";
+    }
+
+    /**
      * Get the URL of the single country file by the given country code.
      *
      * @return string
      */
-    private function getSingleCountryUrl(string $code): string
+    protected function getSingleCountryUrl(string $code): string
     {
         return "{$this->getBaseUrl()}{$code}.zip";
+    }
+
+    /**
+     * Get the previous date of geonames updates.
+     */
+    protected function getGeonamesLastUpdateDate(): Carbon
+    {
+        return Carbon::yesterday('UTC');
     }
 
     /**
@@ -237,7 +244,7 @@ class DownloadService
      *
      * @return string
      */
-    private function getDailyModificationsUrl(): string
+    protected function getDailyModificationsUrl(): string
     {
         return $this->getDailyUpdateUrlByType('modifications');
     }
@@ -247,7 +254,7 @@ class DownloadService
      *
      * @return string
      */
-    private function getDailyDeletesUrl(): string
+    protected function getDailyDeletesUrl(): string
     {
         return $this->getDailyUpdateUrlByType('deletes');
     }
@@ -257,17 +264,19 @@ class DownloadService
      *
      * @return string
      */
-    private function getDailyUpdateUrlByType(string $type): string
+    protected function getDailyUpdateUrlByType(string $type): string
     {
         return "{$this->getBaseUrl()}{$type}-{$this->getGeonamesLastUpdateDate()->format('Y-m-d')}.txt";
     }
 
     /**
-     * Get the previous date of geonames updates.
+     * Get the base URL for downloading geonames resources.
+     *
+     * @return string
      */
-    private function getGeonamesLastUpdateDate(): Carbon
+    protected function getBaseUrl(): string
     {
-        return Carbon::yesterday('UTC');
+        return 'http://download.geonames.org/export/dump/';
     }
 
     /**
@@ -275,7 +284,7 @@ class DownloadService
      *
      * @param int $population
      */
-    private function assertAvailablePopulation(int $population): void
+    protected function assertAvailablePopulation(int $population): void
     {
         if (! in_array($population, $this->getPopulations())) {
             throw new InvalidArgumentException(
@@ -290,7 +299,7 @@ class DownloadService
     /**
      * Assert that a country code is specified.
      */
-    private function assertCountryIsSpecified(array $countries): void
+    protected function assertCountryIsSpecified(array $countries): void
     {
         if ($countries === ['*']) {
             throw new InvalidArgumentException('Specify a country code as in the geonames configuration file.');
@@ -302,7 +311,7 @@ class DownloadService
      *
      * @return int[]
      */
-    public function getPopulations(): array
+    protected function getPopulations(): array
     {
         return [
             500,
