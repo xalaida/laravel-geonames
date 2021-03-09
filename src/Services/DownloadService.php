@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Nevadskiy\Geonames\Geonames;
@@ -106,6 +107,26 @@ class DownloadService
     }
 
     /**
+     * Download geonames daily modifications file.
+     *
+     * @return string
+     */
+    public function downloadDailyModifications(): string
+    {
+        return $this->downloader->download($this->getDailyModificationsUrl(), $this->directory);
+    }
+
+    /**
+     * Download geonames daily deletes file.
+     *
+     * @return string
+     */
+    public function downloadDailyDeletes(): string
+    {
+        return $this->downloader->download($this->getDailyDeletesUrl(), $this->directory);
+    }
+
+    /**
      * Download geonames source file by the given URL.
      *
      * @return string
@@ -158,7 +179,7 @@ class DownloadService
      */
     private function getCountryInfoUrl(): string
     {
-        return $this->getBaseUrl() . 'countryInfo.txt';
+        return "{$this->getBaseUrl()}countryInfo.txt";
     }
 
     /**
@@ -168,7 +189,7 @@ class DownloadService
      */
     protected function getAllCountriesUrl(): string
     {
-        return $this->getBaseUrl() . 'allCountries.zip';
+        return "{$this->getBaseUrl()}allCountries.zip";
     }
 
     /**
@@ -180,7 +201,7 @@ class DownloadService
     {
         $this->assertAvailablePopulation($population);
 
-        return $this->getBaseUrl() . "cities{$population}.zip";
+        return "{$this->getBaseUrl()}cities{$population}.zip";
     }
 
     /**
@@ -208,7 +229,45 @@ class DownloadService
      */
     private function getSingleCountryUrl(string $code): string
     {
-        return $this->getBaseUrl() . "{$code}.zip";
+        return "{$this->getBaseUrl()}{$code}.zip";
+    }
+
+    /**
+     * Get the URL of the geonames daily modifications file.
+     *
+     * @return string
+     */
+    private function getDailyModificationsUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('modifications');
+    }
+
+    /**
+     * Get the URL of the geonames daily deletes file.
+     *
+     * @return string
+     */
+    private function getDailyDeletesUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('deletes');
+    }
+
+    /**
+     * Get the URL of the geonames daily deletes file.
+     *
+     * @return string
+     */
+    private function getDailyUpdateUrlByType(string $type): string
+    {
+        return "{$this->getBaseUrl()}{$type}-{$this->getGeonamesLastUpdateDate()->format('Y-m-d')}.txt";
+    }
+
+    /**
+     * Get the previous date of geonames updates.
+     */
+    private function getGeonamesLastUpdateDate(): Carbon
+    {
+        return Carbon::yesterday('UTC');
     }
 
     /**

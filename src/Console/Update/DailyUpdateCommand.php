@@ -2,15 +2,14 @@
 
 namespace Nevadskiy\Geonames\Console\Update;
 
-use Carbon\Carbon;
-use DateTimeInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\DeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
+use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
@@ -34,11 +33,18 @@ class DailyUpdateCommand extends Command
     protected $description = 'Make a daily update for the geonames database.';
 
     /**
-     * The downloader instance.
+     * The geonames instance.
      *
-     * @var ConsoleDownloader
+     * @var Geonames
      */
-    protected $downloader;
+    protected $geonames;
+
+    /**
+     * The download service instance.
+     *
+     * @var DownloadService
+     */
+    protected $downloadService;
 
     /**
      * The dispatcher instance.
@@ -100,7 +106,8 @@ class DailyUpdateCommand extends Command
      * Execute the console command.
      */
     public function handle(
-        ConsoleDownloader $downloader,
+        Geonames $geonames,
+        DownloadService $downloadService,
         Dispatcher $dispatcher,
         CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
@@ -111,23 +118,14 @@ class DailyUpdateCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->init($downloader, $dispatcher, $countryInfoParser, $geonamesParser, $deletesParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->init($geonames, $downloadService, $dispatcher, $countryInfoParser, $geonamesParser, $deletesParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->setUpDownloader($this->downloadService->getDownloader());
 
         $this->info('Start geonames daily updating.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
-        $date = $this->getPreviousDate();
-
-        // TODO: remove the line when code will be ready
-        DB::beginTransaction();
-
-        $this->modify($date);
-        $this->delete($date);
-
-        // TODO: need to process the file 4 times to avoid FOREIGN KEY CONSTRAINT error in the case when new city is added, but division in not exists yet.
-
-        // TODO: remove the line when code will be ready
-        DB::rollBack();
+        $this->modify();
+        $this->delete();
 
         $this->info('Daily update had been successfully done.');
     }
@@ -136,7 +134,8 @@ class DailyUpdateCommand extends Command
      * Init the command instance with all required services.
      */
     private function init(
-        ConsoleDownloader $downloader,
+        Geonames $geonames,
+        DownloadService $downloadService,
         Dispatcher $dispatcher,
         CountryInfoParser $countryInfoParser,
         GeonamesParser $geonamesParser,
@@ -147,7 +146,8 @@ class DailyUpdateCommand extends Command
         CitySupplier $citySupplier
     ): void
     {
-        $this->downloader = $this->setUpDownloader($downloader);
+        $this->geonames = $geonames;
+        $this->downloadService = $downloadService;
         $this->dispatcher = $dispatcher;
         $this->countryInfoParser = $countryInfoParser;
         $this->geonamesParser = $geonamesParser;
@@ -163,158 +163,108 @@ class DailyUpdateCommand extends Command
      *
      * @param ConsoleDownloader $downloader
      */
-    private function setUpDownloader(ConsoleDownloader $downloader): ConsoleDownloader
+    private function setUpDownloader(ConsoleDownloader $downloader): void
     {
-        return $downloader->withProgressBar($this->getOutput());
+        $downloader->withProgressBar($this->getOutput());
     }
 
     /**
-     * Get the previous date of geonames' resources.
+     * Modify changed items according to a geonames resource.
      */
-    private function getPreviousDate(): Carbon
+    private function modify(): void
     {
-        return Carbon::yesterday('UTC');
-    }
+        $this->info('Start processing modifications.');
 
-    /**
-     * Modify changed items according to a geonames' resource.
-     */
-    private function modify(DateTimeInterface $previousDate): void
-    {
-        $modificationsPath = $this->downloadModifications($previousDate);
+        $modificationsPath = $this->downloadService->downloadDailyModifications();
 
-        $this->continentSupplier->init();
-        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-            if ($this->continentSupplier->modify($id, $data)) {
-                $this->info('Continent has been modified: '. $id);
+        if ($this->geonames->shouldSupplyContinents()) {
+            $this->continentSupplier->init();
+            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+                if ($this->continentSupplier->modify($id, $data)) {
+                    $this->info('Continent has been modified: '. $id);
+                }
             }
+            $this->countrySupplier->commit();
         }
 
-        // TODO: download country info
-        $countryInfoPath = $this->downloadCountryInfoFile();
-        $this->countrySupplier->setCountryInfos($this->countryInfoParser->all($countryInfoPath));
+        if ($this->geonames->shouldSupplyCountries()) {
+            $this->countrySupplier->setCountryInfos(
+                $this->countryInfoParser->all($this->downloadService->downloadCountryInfoFile())
+            );
 
-
-        $this->countrySupplier->init();
-
-        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-            if ($this->countrySupplier->modify($id, $data)) {
-                $this->info('Country has been modified: '. $id);
+            $this->countrySupplier->init();
+            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+                if ($this->countrySupplier->modify($id, $data)) {
+                    $this->info('Country has been modified: '. $id);
+                }
             }
+            $this->countrySupplier->commit();
         }
 
-        $this->divisionSupplier->init();
-        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-            if ($this->divisionSupplier->modify($id, $data)) {
-                $this->info('Division has been modified: '. $id);
+        if ($this->geonames->shouldSupplyDivisions()) {
+            $this->divisionSupplier->init();
+            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+                if ($this->divisionSupplier->modify($id, $data)) {
+                    $this->info('Division has been modified: '. $id);
+                }
             }
+            $this->divisionSupplier->commit();
         }
 
-        $this->citySupplier->init();
-        foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-            if ($this->citySupplier->modify($id, $data)) {
-                $this->info('City has been modified: '. $id);
+        if ($this->geonames->shouldSupplyCities()) {
+            $this->citySupplier->init();
+            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
+                if ($this->citySupplier->modify($id, $data)) {
+                    $this->info('City has been modified: '. $id);
+                }
             }
+            $this->citySupplier->commit();
         }
 
         // TODO: delete modifications file.
     }
 
     /**
-     * Delete removed items according to a geonames' resource.
+     * Delete removed items according to a geonames resource.
      */
-    private function delete(DateTimeInterface $previousDate): void
+    private function delete(): void
     {
-        $deletesPath = $this->downloadDeletes($previousDate);
+        $this->info('Start processing deletes.');
 
-        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-            if ($this->continentSupplier->delete($id, $data)) {
-                $this->info('Continent has been deleted: '. $id);
+        $deletesPath = $this->downloadService->downloadDailyDeletes();
+
+        if ($this->geonames->shouldSupplyContinents()) {
+            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+                if ($this->continentSupplier->delete($id, $data)) {
+                    $this->info('Continent has been deleted: '. $id);
+                }
             }
         }
 
-        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-            if ($this->countrySupplier->delete($id, $data)) {
-                $this->info('Country has been deleted: '. $id);
+        if ($this->geonames->shouldSupplyCountries()) {
+            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+                if ($this->countrySupplier->delete($id, $data)) {
+                    $this->info('Country has been deleted: '. $id);
+                }
             }
         }
 
-        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-            if ($this->divisionSupplier->delete($id, $data)) {
-                $this->info('Division has been deleted: '. $id);
+        if ($this->geonames->shouldSupplyDivisions()) {
+            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+                if ($this->divisionSupplier->delete($id, $data)) {
+                    $this->info('Division has been deleted: '. $id);
+                }
             }
         }
 
-        foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-            if ($this->citySupplier->delete($id, $data)) {
-                $this->info('City has been deleted: '. $id);
+        if ($this->geonames->shouldSupplyCities()) {
+            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
+                if ($this->citySupplier->delete($id, $data)) {
+                    $this->info('City has been deleted: '. $id);
+                }
             }
         }
 
         // TODO: delete deletes file.
-    }
-
-    /**
-     * Download geonames' daily modifications file.
-     *
-     * @param DateTimeInterface $date
-     * @return string
-     */
-    private function downloadModifications(DateTimeInterface $date): string
-    {
-        return $this->downloader->download($this->getModificationsUrlByDate($date), config('geonames.directory'));
-    }
-
-    /**
-     * Download geonames' daily deletes file.
-     *
-     * @param DateTimeInterface $date
-     * @return string
-     */
-    private function downloadDeletes(DateTimeInterface $date): string
-    {
-        return $this->downloader->download($this->getDeletesUrlByDate($date), config('geonames.directory'));
-    }
-
-    /**
-     * Download geonames' country info file.
-     *
-     * @return string
-     */
-    private function downloadCountryInfoFile(): string
-    {
-        return $this->downloader->download($this->getCountryInfoUrl(), config('geonames.directory'));
-    }
-
-    /**
-     * Get the URL of the geonames' daily modifications file.
-     *
-     * @param DateTimeInterface $date
-     * @return string
-     */
-    private function getModificationsUrlByDate(DateTimeInterface $date): string
-    {
-        return "http://download.geonames.org/export/dump/modifications-{$date->format('Y-m-d')}.txt";
-    }
-
-    /**
-     * Get the URL of the geonames' daily deletes file.
-     *
-     * @param DateTimeInterface $date
-     * @return string
-     */
-    private function getDeletesUrlByDate(DateTimeInterface $date): string
-    {
-        return "http://download.geonames.org/export/dump/deletes-{$date->format('Y-m-d')}.txt";
-    }
-
-    /**
-     * Get the URL of the geonames' country info file.
-     *
-     * @return string
-     */
-    private function getCountryInfoUrl(): string
-    {
-        return "http://download.geonames.org/export/dump/countryInfo.txt";
     }
 }
