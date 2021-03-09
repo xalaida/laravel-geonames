@@ -35,28 +35,21 @@ class Unzipper
     {
         $this->assertFileIsZipArchive($zipPath);
 
-        $directory = $this->getDirectory($directory, $zipPath);
+        return $this->extractedPath($zipPath,
+            $this->performExtract($zipPath, $this->getDirectory($directory, $zipPath))
+        );
+    }
 
-        $zip = new ZipArchive();
-        $zip->open($zipPath);
+    /**
+     * Determine whether the unzipper should return only path to the main file.
+     *
+     * @return bool
+     */
+    protected function shouldReturnOnlyMainFile(): bool
+    {
+        // TODO: make it configurable.
 
-        $fileNames = $this->getArchiveFileNames($zip);
-
-        $paths = [];
-
-        foreach ($fileNames as $fileName) {
-            $paths[] = $this->extractFile($zip, $fileName, $directory);
-        }
-
-        // TODO: feature finding main file (same name as zip name)
-
-        $zip->close();
-
-        if (count($paths) === 1) {
-            return $paths[0];
-        }
-
-        return $paths;
+        return true;
     }
 
     /**
@@ -177,5 +170,58 @@ class Unzipper
     protected function getZipFileSize(ZipArchive $zip, string $zipFileName): int
     {
         return $zip->statName($zipFileName)['size'];
+    }
+
+    /**
+     * Determine the extracted path.
+     *
+     * @param string $zipPath
+     * @param array $paths
+     * @return array|string
+     */
+    protected function extractedPath(string $zipPath, array $paths)
+    {
+        if ($this->shouldReturnOnlyMainFile()) {
+            $mainBaseName = basename($zipPath, '.zip');
+
+            foreach ($paths as $path) {
+                [$baseName] = explode('.', basename($path));
+
+                if ($baseName === $mainBaseName) {
+                    return $path;
+                }
+            }
+        }
+
+        if (count($paths) === 1) {
+            return $paths[0];
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Perform the extracting process.
+     *
+     * @param string $path
+     * @param string $directory
+     * @return array
+     */
+    protected function performExtract(string $path, string $directory): array
+    {
+        $zip = new ZipArchive();
+        $zip->open($path);
+
+        $fileNames = $this->getArchiveFileNames($zip);
+
+        $paths = [];
+
+        foreach ($fileNames as $fileName) {
+            $paths[] = $this->extractFile($zip, $fileName, $directory);
+        }
+
+        $zip->close();
+
+        return $paths;
     }
 }
