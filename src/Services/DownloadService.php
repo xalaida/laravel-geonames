@@ -70,13 +70,29 @@ class DownloadService
     }
 
     /**
-     * Download geonames resource file.
+     * Download geonames resource files.
+     *
+     * @return array
+     */
+    public function downloadGeonamesFiles(): array
+    {
+        $paths = [];
+
+        foreach ($this->getGeonamesUrls() as $url) {
+            $paths[] = $this->downloadGeonamesFile($url);
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Download geonames resource file by the given URL.
      *
      * @return string
      */
-    public function downloadGeonamesFile(): string
+    protected function downloadGeonamesFile(string $url): string
     {
-        $path = $this->downloader->download($this->getGeonamesUrl(), $this->directory);
+        $path = $this->downloader->download($url, $this->directory);
 
         if (is_array($path)) {
             $paths = array_filter($path, static function ($path) {
@@ -98,22 +114,22 @@ class DownloadService
     }
 
     /**
-     * Get the URL of the geonames' main file.
+     * Get the URLs of the geonames resources.
      *
-     * @return string
+     * @return array
      */
-    private function getGeonamesUrl(): string
+    private function getGeonamesUrls(): array
     {
         if ($this->geonames->isAllCountriesSource()) {
-            return $this->getAllCountriesUrl();
+            return [$this->getAllCountriesUrl()];
         }
 
         if ($this->geonames->isOnlyCitiesSource()) {
-            return $this->getCitiesUrl($this->geonames->getPopulation());
+            return [$this->getCitiesUrl($this->geonames->getPopulation())];
         }
 
         if ($this->geonames->isSingleCountrySource()) {
-            return $this->getSingleCountryUrl($this->geonames->getCountries());
+            return $this->getSingleCountryUrls($this->geonames->getCountries());
         }
 
 //        if ($this->geonames->isAutoSource()) {
@@ -136,7 +152,7 @@ class DownloadService
      *
      * @return string
      */
-    public function getAllCountriesUrl(): string
+    protected function getAllCountriesUrl(): string
     {
         return $this->getBaseUrl() . 'allCountries.zip';
     }
@@ -154,16 +170,30 @@ class DownloadService
     }
 
     /**
-     * Get the URL of the single country file by the given code.
+     * Get the URL of the single country file by the given country codes.
+     *
+     * @return array
+     */
+    private function getSingleCountryUrls(array $countries): array
+    {
+        $this->assertCountryIsSpecified($countries);
+
+        $urls = [];
+
+        foreach ($countries as $country) {
+            $urls[] = $this->getSingleCountryUrl($country);
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Get the URL of the single country file by the given country code.
      *
      * @return string
      */
-    private function getSingleCountryUrl(array $code): string
+    private function getSingleCountryUrl(string $code): string
     {
-        $code = reset($code);
-
-        $this->assertCodeIsSpecified($code);
-
         return $this->getBaseUrl() . "{$code}.zip";
     }
 
@@ -185,11 +215,11 @@ class DownloadService
     }
 
     /**
-     * Assert that the country code is specified.
+     * Assert that a country code is specified.
      */
-    private function assertCodeIsSpecified(string $code): void
+    private function assertCountryIsSpecified(array $countries): void
     {
-        if ($code === ['*'] || $code === '*') {
+        if ($countries === ['*']) {
             throw new InvalidArgumentException('Specify a country code as in the geonames configuration file.');
         }
     }

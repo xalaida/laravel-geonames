@@ -17,6 +17,7 @@ class Geonames
     public function __construct(array $config)
     {
         $this->config = $config;
+        $this->transformCountries();
     }
 
     /**
@@ -220,5 +221,13 @@ class Geonames
         }
 
         return in_array($code, $this->getCountries(), true);
+    }
+
+    /**
+     * Transform countries to uppercase.
+     */
+    protected function transformCountries(): void
+    {
+        $this->config['filters']['countries'] = array_map('strtoupper', (array) $this->config['filters']['countries']);
     }
 }
