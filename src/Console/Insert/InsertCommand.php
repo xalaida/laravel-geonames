@@ -114,9 +114,11 @@ class InsertCommand extends Command
     ): void
     {
         $this->init($geonames, $downloadService, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->setUpDownloader($this->downloadService->getDownloader());
 
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
+
 
         $this->truncateAttempt();
         $this->insert();
@@ -197,8 +199,6 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $this->setUpDownloader($this->downloadService->getDownloader());
-
         $this->setUpProgressBar();
 
         if ($this->geonames->shouldSupplyCountries()) {
@@ -268,6 +268,11 @@ class InsertCommand extends Command
     private function setUpProgressBar(int $step = 1000): void
     {
         $progress = $this->output->createProgressBar();
+
+        // TODO: probably use progress format
+        // if ($linesCount) {
+        // $this->progress->setFormat("<info>Downloading:</info> {$url}\n%bar% %percent%%\n<info>Remaining Time:</info> %remaining%");
+        // }
 
         $this->geonamesParser->enableCountingLines()
             ->onReady(static function (int $linesCount) use ($progress) {
