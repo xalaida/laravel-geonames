@@ -224,6 +224,18 @@ class Geonames
     }
 
     /**
+     * Determine whether the given language code is allowed.
+     *
+     * @param string|null $code
+     * @return bool
+     */
+    public function isLanguageAllowed(?string $code): bool
+    {
+        return (is_null($code) && $this->config['nullable_language'])
+            || in_array($code, $this->config['languages'], true);
+    }
+
+    /**
      * Transform countries to uppercase.
      */
     protected function transformCountries(): void
