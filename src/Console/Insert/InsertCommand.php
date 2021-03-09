@@ -2,12 +2,14 @@
 
 namespace Nevadskiy\Geonames\Console\Insert;
 
+use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
+use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -15,7 +17,9 @@ use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
 use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
+use Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
+use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class InsertCommand extends Command
 {
@@ -71,6 +75,13 @@ class InsertCommand extends Command
     protected $countryInfoParser;
 
     /**
+     * The alternate name parser instance.
+     *
+     * @var AlternateNameParser
+     */
+    protected $alternateNameParser;
+
+    /**
      * The continent supplier instance.
      *
      * @var ContinentSupplier
@@ -99,6 +110,14 @@ class InsertCommand extends Command
     protected $citySupplier;
 
     /**
+     * The translation supplier instance.
+     *
+     * @var CitySupplier
+     */
+    protected $translationSupplier;
+
+
+    /**
      * Execute the console command.
      */
     public function handle(
@@ -107,21 +126,22 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
+        AlternateNameParser $alternateNameParser,
         ContinentSupplier $continentSupplier,
         CountrySupplier $countrySupplier,
         DivisionSupplier $divisionSupplier,
-        CitySupplier $citySupplier
+        CitySupplier $citySupplier,
+        TranslationSupplier $translationSupplier
     ): void
     {
-        $this->init($geonames, $downloadService, $dispatcher, $geonamesParser, $countryInfoParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier);
+        $this->init($geonames, $downloadService, $dispatcher, $geonamesParser, $countryInfoParser, $alternateNameParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier, $translationSupplier);
         $this->setUpDownloader($this->downloadService->getDownloader());
 
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
-
-        $this->truncateAttempt();
-        $this->insert();
+        // $this->insert();
+        $this->translate();
 
         $this->info('Geonames dataset has been successfully inserted.');
     }
@@ -131,6 +151,7 @@ class InsertCommand extends Command
      */
     protected function truncateAttempt(): void
     {
+        // TODO: add warning message with tables that are going to be truncated
         if (! $this->confirmToProceed()) {
             return;
         }
@@ -162,10 +183,12 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
+        AlternateNameParser $alternateNameParser,
         ContinentSupplier $continentSupplier,
         CountrySupplier $countrySupplier,
         DivisionSupplier $divisionSupplier,
-        CitySupplier $citySupplier
+        CitySupplier $citySupplier,
+        TranslationSupplier $translationSupplier
     ): void
     {
         $this->geonames = $geonames;
@@ -174,15 +197,17 @@ class InsertCommand extends Command
         $this->geonamesParser = $geonamesParser;
         $this->continentSupplier = $continentSupplier;
         $this->countryInfoParser = $countryInfoParser;
+        $this->alternateNameParser = $alternateNameParser;
         $this->countrySupplier = $countrySupplier;
         $this->divisionSupplier = $divisionSupplier;
         $this->citySupplier = $citySupplier;
+        $this->translationSupplier = $translationSupplier;
     }
 
     /**
      * Set up the console downloader.
      *
-     * @param ConsoleDownloader $downloader
+     * @param ConsoleDownloader|Downloader $downloader
      */
     private function setUpDownloader(ConsoleDownloader $downloader): void
     {
@@ -199,6 +224,8 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
+        $this->truncateAttempt();
+
         $this->setUpProgressBar();
 
         if ($this->geonames->shouldSupplyCountries()) {
@@ -285,5 +312,56 @@ class InsertCommand extends Command
                 $progress->finish();
                 $this->output->newLine();
             });
+    }
+
+    /**
+     * Translate inserted data.
+     */
+    private function translate(): void
+    {
+        $this->info('Start seeding translations. It may take some time.');
+
+        // TODO: remove
+        DB::table('translations')->truncate();
+
+        $this->setUpTranslationsProgressBar();
+
+        foreach ($this->translations() as $id => $translation) {
+            $this->translationSupplier->insert($id, $translation);
+        }
+
+        $this->info('Translations have been successfully seeded.');
+    }
+
+    /**
+     * TODO: extract into parser decorator ProgressBarParser.php
+     * Set up the progress bar.
+     */
+    private function setUpTranslationsProgressBar(int $step = 1000): void
+    {
+        $progress = $this->output->createProgressBar();
+        $progress->setFormat('very_verbose');
+
+        $this->alternateNameParser->enableCountingLines()
+            ->onReady(static function (int $linesCount) use ($progress) {
+                $progress->start($linesCount);
+            })
+            ->onEach(static function () use ($progress, $step) {
+                $progress->advance($step);
+            }, $step)
+            ->onFinish(function () use ($progress) {
+                $progress->finish();
+                $this->output->newLine();
+            });
+    }
+
+    /**
+     * Get translations for seeding.
+     */
+    private function translations(): Generator
+    {
+        return $this->alternateNameParser->forEach(
+            $this->downloadService->downloaderAlternateNames()
+        );
     }
 }

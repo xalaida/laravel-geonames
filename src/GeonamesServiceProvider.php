@@ -9,7 +9,6 @@ use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
@@ -35,7 +34,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloadService();
         $this->registerFileReader();
         $this->registerSuppliers();
-        $this->registerDefaultTranslationSupplier();
         $this->registerIgnitionFixer();
     }
 
@@ -123,24 +121,6 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the default translation supplier.
-     */
-    private function registerDefaultTranslationSupplier(): void
-    {
-        $this->app->when(TranslationDefaultSeeder::class)
-            ->needs('$nullableLanguage')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['nullable_language'];
-            });
-
-        $this->app->when(TranslationDefaultSeeder::class)
-            ->needs('$languages')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['languages'];
-            });
-    }
-
-    /**
      * Register ignition memory limit fixer.
      */
     private function registerIgnitionFixer(): void
@@ -157,8 +137,6 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\Download\DownloadTranslationsCommand::class,
-                Console\Seed\SeedTranslationsCommand::class,
                 Console\Insert\InsertCommand::class,
                 Console\Update\DailyUpdateCommand::class,
             ]);
