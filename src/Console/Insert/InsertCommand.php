@@ -145,7 +145,7 @@ class InsertCommand extends Command
      */
     private function performTruncate(): void
     {
-        foreach (app(Geonames::class)->supply() as $table) {
+        foreach ($this->geonames->supply() as $table) {
             DB::table($table)->truncate();
             $this->info("Table {$table} has been truncated.");
         }
