@@ -10,12 +10,32 @@ use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class DownloadService
 {
-    public const SOURCE_AUTO = 'auto';
-
+    /**
+     * The all countries source.
+     * It's a huge source that contains everything, unzipped size is about 1.5GB.
+     *
+     * Source URL: http://download.geonames.org/export/dump/allCountries.zip
+     */
     public const SOURCE_ALL_COUNTRIES = 'all_countries';
 
+    /**
+     * The single country source.
+     * Use it when you need dataset that belongs to one or multiple countries.
+     * Continents table is not available with this source.
+     * The country codes must be specified as countries filter configuration.
+     *
+     * Example of source URL for the US: http://download.geonames.org/export/dump/US.zip
+     */
     public const SOURCE_SINGLE_COUNTRY = 'single_country';
 
+    /**
+     * The only cities source.
+     * Use it when you only need the cities table.
+     * Continents, countries and divisions is not available with this source.
+     * Also, you need to specify population filter for the specific source file.
+     *
+     * Example of source URL for cities with population above 15000: http://download.geonames.org/export/dump/cities15000.zip
+     */
     public const SOURCE_ONLY_CITIES = 'only_cities';
 
     /**
@@ -70,27 +90,27 @@ class DownloadService
     }
 
     /**
-     * Download geonames resource files.
+     * Download geonames source files.
      *
      * @return array
      */
-    public function downloadGeonamesFiles(): array
+    public function downloadSourceFiles(): array
     {
         $paths = [];
 
-        foreach ($this->getGeonamesUrls() as $url) {
-            $paths[] = $this->downloadGeonamesFile($url);
+        foreach ($this->getSourceUrls() as $url) {
+            $paths[] = $this->downloadSourceFile($url);
         }
 
         return $paths;
     }
 
     /**
-     * Download geonames resource file by the given URL.
+     * Download geonames source file by the given URL.
      *
      * @return string
      */
-    protected function downloadGeonamesFile(string $url): string
+    protected function downloadSourceFile(string $url): string
     {
         $path = $this->downloader->download($url, $this->directory);
 
@@ -106,7 +126,7 @@ class DownloadService
     }
 
     /**
-     * Download geonames country info resource file.
+     * Download geonames country info source file.
      */
     public function downloadCountryInfoFile(): string
     {
@@ -114,16 +134,12 @@ class DownloadService
     }
 
     /**
-     * Get the URLs of the geonames resources.
+     * Get the URLs of the geonames sources.
      *
      * @return array
      */
-    private function getGeonamesUrls(): array
+    private function getSourceUrls(): array
     {
-        if ($this->geonames->isAllCountriesSource()) {
-            return [$this->getAllCountriesUrl()];
-        }
-
         if ($this->geonames->isOnlyCitiesSource()) {
             return [$this->getCitiesUrl($this->geonames->getPopulation())];
         }
@@ -132,9 +148,7 @@ class DownloadService
             return $this->getSingleCountryUrls($this->geonames->getCountries());
         }
 
-//        if ($this->geonames->isAutoSource()) {
-//            // TODO: determine correct source.
-//        }
+        return [$this->getAllCountriesUrl()];
     }
 
     /**

@@ -29,6 +29,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Geonames source.
+    |--------------------------------------------------------------------------
+    |
+    | TODO: add description
+    | More info: http://download.geonames.org/export/dump/
+    |
+    */
+
+    'source' => Nevadskiy\Geonames\Services\DownloadService::SOURCE_ALL_COUNTRIES,
+
+    /*
+    |--------------------------------------------------------------------------
     | Seeding filters.
     |--------------------------------------------------------------------------
     |
@@ -65,18 +77,6 @@ return [
         'cities' => true,
 
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Geonames source.
-    |--------------------------------------------------------------------------
-    |
-    | TODO: add description
-    | More info: http://download.geonames.org/export/dump/
-    |
-    */
-
-    'source' => Nevadskiy\Geonames\Services\DownloadService::SOURCE_ALL_COUNTRIES,
 
     /*
     |--------------------------------------------------------------------------

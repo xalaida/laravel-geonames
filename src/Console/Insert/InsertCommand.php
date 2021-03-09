@@ -207,7 +207,7 @@ class InsertCommand extends Command
             );
         }
 
-        foreach ($this->downloadService->downloadGeonamesFiles() as $path) {
+        foreach ($this->downloadService->downloadSourceFiles() as $path) {
             $this->insertFromSource($path);
         }
     }
