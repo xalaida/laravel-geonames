@@ -39,8 +39,10 @@ class ConsoleDownloader implements Downloader
     {
         $this->onReady(function (int $steps, string $url) use ($output) {
             $this->progress = $output->createProgressBar($steps);
-            $this->progress->setFormat("<info>Downloading:</info> {$url}\n%bar% %percent%%\n<info>Remaining Time:</info> %remaining%");
 
+            if ($steps) {
+                $this->progress->setFormat("<info>Downloading:</info> {$url}\n%bar% %percent%%\n<info>Remaining Time:</info> %remaining%");
+            }
         });
 
         $this->onStep(function () {
