@@ -12,7 +12,7 @@ use Nevadskiy\Geonames\Support\Batch\Batch;
 abstract class DefaultSupplier implements Supplier
 {
     /**
-     * Insert cities batch to reduce queries amount to be performed.
+     * The insert batch to reduce queries amount to be performed.
      *
      * @var Batch
      */
@@ -26,33 +26,56 @@ abstract class DefaultSupplier implements Supplier
     protected $fields;
 
     /**
-     * Make a new seeder instance.
+     * @inheritDoc
      */
-    public function __construct(int $batchSize = 1000)
+    public function insertMany(iterable $data): void
     {
-        $this->insertBatch = $this->makeInsertBatch($batchSize);
+        $this->init();
+
+        foreach ($data as $id => $item) {
+            $this->insert($id, $item);
+        }
+
+        $this->commit();
     }
 
     /**
      * @inheritDoc
      */
-    public function init(): void
+    public function modifyMany(iterable $data): void
     {
+        $this->init();
+
+        foreach ($data as $id => $item) {
+            $this->modify($id, $item);
+        }
+
+        $this->commit();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteMany(iterable $data): void
+    {
+        foreach ($data as $id => $item) {
+            $this->delete($id);
+        }
+    }
+
+    /**
+     * Init the supplier process.
+     */
+    protected function init(): void
+    {
+        $this->insertBatch = $this->makeInsertBatch();
         $this->fields = $this->getFields();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function commit(): void
-    {
-        $this->insertBatch->commit();
     }
 
     /**
      * Make a batch instance for better inserting performance.
      */
-    protected function makeInsertBatch(int $batchSize): Batch
+    protected function makeInsertBatch(int $batchSize = 1000): Batch
     {
         return new Batch(function (array $data) {
             DB::table($this->getTable())->insert($data);
@@ -60,39 +83,47 @@ abstract class DefaultSupplier implements Supplier
     }
 
     /**
-     * @inheritDoc
+     * Commit the supplier process.
      */
-    public function insert(int $id, array $data): bool
+    protected function commit(): void
     {
-        if (! $this->shouldSupply($data, $id)) {
-            return false;
-        }
-
-        return $this->performInsert($data, $id);
+        $this->insertBatch->commit();
     }
 
     /**
-     * @inheritDoc
+     * Attempt to insert geonames data and return true on success.
      */
-    public function modify(int $id, array $data): bool
+    protected function insert(int $id, array $item): bool
+    {
+        if (! $this->shouldSupply($item, $id)) {
+            return false;
+        }
+
+        return $this->performInsert($item, $id);
+    }
+
+    /**
+     * Attempt to modify a geonames data by the given id and return true on success.
+     */
+    protected function modify(int $id, array $item): bool
     {
         $model = $this->findModel($id);
 
         if (! $model) {
-            return $this->insert($id, $data);
+            return $this->insert($id, $item);
         }
 
-        if (! $this->shouldSupply($data, $id)) {
+        if (! $this->shouldSupply($item, $id)) {
             return $this->deleteModel($model);
         }
 
-        return $this->updateModel($model, $data, $id);
+        return $this->updateModel($model, $item, $id);
     }
 
     /**
-     * @inheritDoc
+     * Attempt to delete a geonames data by the given id and return true if success.
      */
-    public function delete(int $id, array $data): bool
+    protected function delete(int $id): bool
     {
         $model = $this->findModel($id);
 

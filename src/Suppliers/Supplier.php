@@ -5,27 +5,23 @@ namespace Nevadskiy\Geonames\Suppliers;
 interface Supplier
 {
     /**
-     * Init the supplier process.
+     * Insert items into the database.
+     *
+     * @param iterable|array<int, array> $data
      */
-    public function init(): void;
+    public function insertMany(iterable $data): void;
 
     /**
-     * Commit the supplier process.
+     * Modify items according to the given data.
+     *
+     * @param iterable|array<int, array> $data
      */
-    public function commit(): void;
+    public function modifyMany(iterable $data): void;
 
     /**
-     * Attempt to insert geonames data and return true on success.
+     * Delete items according to the given data.
+     *
+     * @param iterable|array<int, array> $data
      */
-    public function insert(int $id, array $data): bool;
-
-    /**
-     * Attempt to modify a geonames data by the given id and return true on success.
-     */
-    public function modify(int $id, array $data): bool;
-
-    /**
-     * Attempt to delete a geonames data by the given id and return true if success.
-     */
-    public function delete(int $id, array $data): bool;
+    public function deleteMany(iterable $data): void;
 }

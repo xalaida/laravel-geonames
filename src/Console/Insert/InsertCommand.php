@@ -140,8 +140,8 @@ class InsertCommand extends Command
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
-        // $this->insert();
-        $this->translate();
+        $this->insert();
+        // $this->translate();
 
         $this->info('Geonames dataset has been successfully inserted.');
     }
@@ -250,41 +250,22 @@ class InsertCommand extends Command
 
         if ($this->geonames->shouldSupplyContinents()) {
             $this->info('Start processing continents');
-            $this->continentSupplier->init();
-            foreach ($this->geonamesParser->forEach($sourcePath) as $id => $data) {
-                $this->continentSupplier->insert($id, $data);
-            }
-            $this->continentSupplier->commit();
+            $this->continentSupplier->insertMany($this->geonamesParser->forEach($sourcePath));
         }
 
         if ($this->geonames->shouldSupplyCountries()) {
             $this->info('Start processing countries');
-            $this->countrySupplier->setCountryInfos(
-                $this->countryInfoParser->all($this->downloadService->downloadCountryInfoFile())
-            );
-            $this->countrySupplier->init();
-            foreach ($this->geonamesParser->forEach($sourcePath) as $id => $data) {
-                $this->countrySupplier->insert($id, $data);
-            }
-            $this->countrySupplier->commit();
+            $this->countrySupplier->insertMany($this->geonamesParser->forEach($sourcePath));
         }
 
         if ($this->geonames->shouldSupplyDivisions()) {
             $this->info('Start processing divisions');
-            $this->divisionSupplier->init();
-            foreach ($this->geonamesParser->forEach($sourcePath) as $id => $data) {
-                $this->divisionSupplier->insert($id, $data);
-            }
-            $this->divisionSupplier->commit();
+            $this->divisionSupplier->insertMany($this->geonamesParser->forEach($sourcePath));
         }
 
         if ($this->geonames->shouldSupplyCities()) {
             $this->info('Start processing cities');
-            $this->citySupplier->init();
-            foreach ($this->geonamesParser->forEach($sourcePath) as $id => $data) {
-                $this->citySupplier->insert($id, $data);
-            }
-            $this->citySupplier->commit();
+            $this->citySupplier->insertMany($this->geonamesParser->forEach($sourcePath));
         }
     }
 

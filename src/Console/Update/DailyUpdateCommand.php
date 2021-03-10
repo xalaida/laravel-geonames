@@ -15,6 +15,7 @@ use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
 use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
+use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class DailyUpdateCommand extends Command
 {
@@ -161,7 +162,7 @@ class DailyUpdateCommand extends Command
     /**
      * Set up the console downloader.
      *
-     * @param ConsoleDownloader $downloader
+     * @param ConsoleDownloader|Downloader $downloader
      */
     private function setUpDownloader(ConsoleDownloader $downloader): void
     {
@@ -178,13 +179,7 @@ class DailyUpdateCommand extends Command
         $modificationsPath = $this->downloadService->downloadDailyModifications();
 
         if ($this->geonames->shouldSupplyContinents()) {
-            $this->continentSupplier->init();
-            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-                if ($this->continentSupplier->modify($id, $data)) {
-                    $this->info('Continent has been modified: '. $id);
-                }
-            }
-            $this->countrySupplier->commit();
+            $this->continentSupplier->modifyMany($this->geonamesParser->forEach($modificationsPath));
         }
 
         if ($this->geonames->shouldSupplyCountries()) {
@@ -192,33 +187,15 @@ class DailyUpdateCommand extends Command
                 $this->countryInfoParser->all($this->downloadService->downloadCountryInfoFile())
             );
 
-            $this->countrySupplier->init();
-            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-                if ($this->countrySupplier->modify($id, $data)) {
-                    $this->info('Country has been modified: '. $id);
-                }
-            }
-            $this->countrySupplier->commit();
+            $this->countrySupplier->modifyMany($this->geonamesParser->forEach($modificationsPath));
         }
 
         if ($this->geonames->shouldSupplyDivisions()) {
-            $this->divisionSupplier->init();
-            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-                if ($this->divisionSupplier->modify($id, $data)) {
-                    $this->info('Division has been modified: '. $id);
-                }
-            }
-            $this->divisionSupplier->commit();
+            $this->divisionSupplier->modifyMany($this->geonamesParser->forEach($modificationsPath));
         }
 
         if ($this->geonames->shouldSupplyCities()) {
-            $this->citySupplier->init();
-            foreach ($this->geonamesParser->forEach($modificationsPath) as $id => $data) {
-                if ($this->citySupplier->modify($id, $data)) {
-                    $this->info('City has been modified: '. $id);
-                }
-            }
-            $this->citySupplier->commit();
+            $this->citySupplier->modifyMany($this->geonamesParser->forEach($modificationsPath));
         }
 
         // TODO: delete modifications file.
@@ -234,35 +211,23 @@ class DailyUpdateCommand extends Command
         $deletesPath = $this->downloadService->downloadDailyDeletes();
 
         if ($this->geonames->shouldSupplyContinents()) {
-            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-                if ($this->continentSupplier->delete($id, $data)) {
-                    $this->info('Continent has been deleted: '. $id);
-                }
-            }
+            $this->info('Start deleting continents');
+            $this->continentSupplier->deleteMany($this->deletesParser->forEach($deletesPath));
         }
 
         if ($this->geonames->shouldSupplyCountries()) {
-            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-                if ($this->countrySupplier->delete($id, $data)) {
-                    $this->info('Country has been deleted: '. $id);
-                }
-            }
+            $this->info('Start deleting countries');
+            $this->countrySupplier->deleteMany($this->deletesParser->forEach($deletesPath));
         }
 
         if ($this->geonames->shouldSupplyDivisions()) {
-            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-                if ($this->divisionSupplier->delete($id, $data)) {
-                    $this->info('Division has been deleted: '. $id);
-                }
-            }
+            $this->info('Start deleting divisions');
+            $this->divisionSupplier->deleteMany($this->deletesParser->forEach($deletesPath));
         }
 
         if ($this->geonames->shouldSupplyCities()) {
-            foreach ($this->deletesParser->forEach($deletesPath) as $id => $data) {
-                if ($this->citySupplier->delete($id, $data)) {
-                    $this->info('City has been deleted: '. $id);
-                }
-            }
+            $this->info('Start deleting cities');
+            $this->citySupplier->deleteMany($this->deletesParser->forEach($deletesPath));
         }
 
         // TODO: delete deletes file.

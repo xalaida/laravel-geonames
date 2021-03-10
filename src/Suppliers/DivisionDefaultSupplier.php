@@ -37,18 +37,17 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     protected $availableCountries;
 
     /**
-     * Make a new seeder instance.
+     * Make a new supplier instance.
      */
-    public function __construct(Geonames $geonames, int $batchSize = 1000)
+    public function __construct(Geonames $geonames)
     {
-        parent::__construct($batchSize);
         $this->geonames = $geonames;
     }
 
     /**
      * @inheritDoc
      */
-    public function init(): void
+    protected function init(): void
     {
         parent::init();
 

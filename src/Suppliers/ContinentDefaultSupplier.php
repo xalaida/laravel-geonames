@@ -26,11 +26,10 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     private $codeGenerator;
 
     /**
-     * ContinentDefaultSupplier constructor.
+     * Make a new supplier instance.
      */
-    public function __construct(ContinentCodeGenerator $codeGenerator, int $batchSize = 1000)
+    public function __construct(ContinentCodeGenerator $codeGenerator)
     {
-        parent::__construct($batchSize);
         $this->codeGenerator = $codeGenerator;
     }
 

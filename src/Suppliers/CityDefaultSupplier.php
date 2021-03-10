@@ -45,9 +45,8 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Make a new supplier instance.
      */
-    public function __construct(Geonames $geonames, int $batchSize = 1000)
+    public function __construct(Geonames $geonames)
     {
-        parent::__construct($batchSize);
         $this->geonames = $geonames;
     }
 
