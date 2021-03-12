@@ -149,16 +149,10 @@ class InsertCommand extends Command
     /**
      * Set up the console downloader.
      *
-     * @param ConsoleDownloader|Downloader $downloader
+     * @param Downloader $downloader
      */
-    private function setUpDownloader(ConsoleDownloader $downloader): void
+    private function setUpDownloader(Downloader $downloader): void
     {
-        // TODO: probably resolve output directly from container
-        //  $output = new Symfony\Component\Console\Output\ConsoleOutput();
-        // $output->writeln("<info>my message</info>");
-
-        $downloader->withProgressBar($this->getOutput());
-
         if ($this->option('update-files')) {
             $downloader->update();
         }
@@ -169,11 +163,10 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $this->setUpProgressBar();
-
         $this->truncate();
 
         if ($this->geonames->shouldSupplyCountries()) {
+            $this->info('Add country info.');
             $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
         }
 
@@ -190,63 +183,11 @@ class InsertCommand extends Command
     {
         $this->info('Start seeding translations. It may take some time.');
 
-        // TODO: remove
+        // TODO: refactor with config and translatable package features.
         DB::table('translations')->truncate();
-
-        $this->setUpTranslationsProgressBar();
 
         $this->translateService->insert($this->downloadService->downloaderAlternateNames());
 
         $this->info('Translations have been successfully seeded.');
-    }
-
-    /**
-     * TODO: extract into parser decorator ProgressBarParser.php
-     * Set up the progress bar.
-     */
-    private function setUpTranslationsProgressBar(int $step = 1000): void
-    {
-        $progress = $this->output->createProgressBar();
-        $progress->setFormat('very_verbose');
-
-        $this->translateService->getAlternateNameParser()
-            ->enableCountingLines()
-            ->onReady(static function (int $linesCount) use ($progress) {
-                $progress->start($linesCount);
-            })
-            ->onEach(static function () use ($progress, $step) {
-                $progress->advance($step);
-            }, $step)
-            ->onFinish(function () use ($progress) {
-                $progress->finish();
-                $this->output->newLine();
-            });
-    }
-
-    /**
-     * Set up the progress bar.
-     * TODO: refactor using decorator pattern
-     */
-    private function setUpProgressBar(int $step = 1000): void
-    {
-        $progress = $this->output->createProgressBar();
-
-        // TODO: probably use progress format
-        // if ($linesCount) {
-        // $this->progress->setFormat("<info>Downloading:</info> {$url}\n%bar% %percent%%\n<info>Remaining Time:</info> %remaining%");
-        // }
-
-        $this->supplyService->getGeonamesParser()
-            ->enableCountingLines()
-            ->onReady(static function (int $linesCount) use ($progress) {
-                $progress->start($linesCount);
-            })
-            ->onEach(static function () use ($progress, $step) {
-                $progress->advance($step);
-            }, $step)
-            ->onFinish(function () use ($progress) {
-                $progress->finish();
-                $this->output->newLine();
-            });
     }
 }

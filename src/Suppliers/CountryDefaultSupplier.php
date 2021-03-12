@@ -56,7 +56,9 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
      */
     public function setCountryInfos(array $countryInfo): void
     {
-        $this->countryInfos = $countryInfo;
+        $this->countryInfos = collect($countryInfo)
+            ->keyBy('geonameid')
+            ->toArray();
     }
 
     /**

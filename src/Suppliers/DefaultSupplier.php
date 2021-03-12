@@ -32,8 +32,8 @@ abstract class DefaultSupplier implements Supplier
     {
         $this->init();
 
-        foreach ($data as $id => $item) {
-            $this->insert($id, $item);
+        foreach ($data as $item) {
+            $this->insert($item['geonameid'], $item);
         }
 
         $this->commit();
@@ -46,8 +46,8 @@ abstract class DefaultSupplier implements Supplier
     {
         $this->init();
 
-        foreach ($data as $id => $item) {
-            $this->modify($id, $item);
+        foreach ($data as $item) {
+            $this->modify($item['geonameid'], $item);
         }
 
         $this->commit();
@@ -58,8 +58,8 @@ abstract class DefaultSupplier implements Supplier
      */
     public function deleteMany(iterable $data): void
     {
-        foreach ($data as $id => $item) {
-            $this->delete($id);
+        foreach ($data as $item) {
+            $this->delete($item['geonameid']);
         }
     }
 

@@ -24,9 +24,10 @@ class ConsoleDownloader implements Downloader
     /**
      * ConsoleFileDownloader constructor.
      */
-    public function __construct(Downloader $downloader)
+    public function __construct(Downloader $downloader, OutputStyle $output)
     {
         $this->downloader = $downloader;
+        $this->withProgressBar($output);
     }
 
     /**

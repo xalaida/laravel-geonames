@@ -5,10 +5,12 @@ namespace Nevadskiy\Geonames;
 use Facade\Ignition\QueryRecorder\QueryRecorder;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
+use Nevadskiy\Geonames\Parsers\FileParser;
+use Nevadskiy\Geonames\Parsers\Parser;
+use Nevadskiy\Geonames\Parsers\ProgressParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
@@ -18,6 +20,9 @@ use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
 use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
+use Nevadskiy\Geonames\Support\Output\OutputFactory;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -36,6 +41,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloader();
         $this->registerDownloadService();
         $this->registerFileReader();
+        $this->registerParser();
         $this->registerSuppliers();
         $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
@@ -89,7 +95,7 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->app->extend(Downloader::class, function (Downloader $downloader) {
-                return $this->app->make(ConsoleDownloader::class, ['downloader' => $downloader]);
+                return new ConsoleDownloader($downloader, OutputFactory::make());
             });
         }
     }
@@ -112,6 +118,20 @@ class GeonamesServiceProvider extends ServiceProvider
     private function registerFileReader(): void
     {
         $this->app->bind(FileReader::class, BaseFileReader::class);
+    }
+
+    /**
+     * Register the resource parser.
+     */
+    private function registerParser(): void
+    {
+        $this->app->bind(Parser::class, FileParser::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(Parser::class, function (Parser $parser) {
+                return new ProgressParser($parser, OutputFactory::make());
+            });
+        }
     }
 
     /**

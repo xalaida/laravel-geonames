@@ -86,16 +86,6 @@ class SupplyService
     }
 
     /**
-     * Get the geonames parser instance.
-     *
-     * @return GeonamesParser
-     */
-    public function getGeonamesParser(): GeonamesParser
-    {
-        return $this->geonamesParser;
-    }
-
-    /**
      * Add the country info by the given path.
      *
      * @param string $path
@@ -113,7 +103,7 @@ class SupplyService
     public function insert(string $path): void
     {
         foreach ($this->suppliers() as $supplier) {
-            $supplier->insertMany($this->geonamesParser->forEach($path));
+            $supplier->insertMany($this->geonamesParser->each($path));
         }
     }
 

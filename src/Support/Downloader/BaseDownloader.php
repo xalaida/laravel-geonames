@@ -127,6 +127,7 @@ class BaseDownloader implements Downloader
         $sourceResource = $this->openSourceResource($sourceUrl);
         $targetResource = $this->openTargetResource($targetPath);
 
+        // TODO: extract steps count into console downloader and rename console downloader into ConsoleProgressDownloader
         $this->fireEvent('ready', [$this->getStepsCount($sourceSize), $sourceUrl]);
 
         $this->copyResource($sourceResource, $targetResource);

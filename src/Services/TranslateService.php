@@ -47,6 +47,6 @@ class TranslateService
      */
     public function insert(string $path): void
     {
-        $this->translationSupplier->insertMany($this->alternateNameParser->forEach($path));
+        $this->translationSupplier->insertMany($this->alternateNameParser->each($path));
     }
 }
