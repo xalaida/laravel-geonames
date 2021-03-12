@@ -10,13 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
-use Nevadskiy\Geonames\Parsers\CountryInfoParser;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Suppliers\CitySupplier;
-use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
-use Nevadskiy\Geonames\Suppliers\CountrySupplier;
-use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
+use Nevadskiy\Geonames\Services\SupplyService;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
@@ -47,13 +42,6 @@ class InsertCommand extends Command
     protected $geonames;
 
     /**
-     * The download service instance.
-     *
-     * @var DownloadService
-     */
-    protected $downloadService;
-
-    /**
      * The dispatcher instance.
      *
      * @var Dispatcher
@@ -61,18 +49,18 @@ class InsertCommand extends Command
     protected $dispatcher;
 
     /**
-     * The geonames parser instance.
+     * The download service instance.
      *
-     * @var GeonamesParser
+     * @var DownloadService
      */
-    protected $geonamesParser;
+    protected $downloadService;
 
     /**
-     * The geonames country info parser instance.
+     * The supply service instance.
      *
-     * @var CountryInfoParser
+     * @var SupplyService
      */
-    protected $countryInfoParser;
+    protected $supplyService;
 
     /**
      * The alternate name parser instance.
@@ -82,59 +70,25 @@ class InsertCommand extends Command
     protected $alternateNameParser;
 
     /**
-     * The continent supplier instance.
-     *
-     * @var ContinentSupplier
-     */
-    protected $continentSupplier;
-
-    /**
-     * The country supplier instance.
-     *
-     * @var CountrySupplier
-     */
-    protected $countrySupplier;
-
-    /**
-     * The division supplier instance.
-     *
-     * @var DivisionSupplier
-     */
-    protected $divisionSupplier;
-
-    /**
-     * The city supplier instance.
-     *
-     * @var CitySupplier
-     */
-    protected $citySupplier;
-
-    /**
      * The translation supplier instance.
      *
-     * @var CitySupplier
+     * @var TranslationSupplier
      */
     protected $translationSupplier;
-
 
     /**
      * Execute the console command.
      */
     public function handle(
         Geonames $geonames,
-        DownloadService $downloadService,
         Dispatcher $dispatcher,
-        GeonamesParser $geonamesParser,
-        CountryInfoParser $countryInfoParser,
+        DownloadService $downloadService,
+        SupplyService $supplyService,
         AlternateNameParser $alternateNameParser,
-        ContinentSupplier $continentSupplier,
-        CountrySupplier $countrySupplier,
-        DivisionSupplier $divisionSupplier,
-        CitySupplier $citySupplier,
         TranslationSupplier $translationSupplier
     ): void
     {
-        $this->init($geonames, $downloadService, $dispatcher, $geonamesParser, $countryInfoParser, $alternateNameParser, $continentSupplier, $countrySupplier, $divisionSupplier, $citySupplier, $translationSupplier);
+        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $alternateNameParser, $translationSupplier);
         $this->setUpDownloader($this->downloadService->getDownloader());
 
         $this->info('Start inserting geonames dataset.');
@@ -179,28 +133,18 @@ class InsertCommand extends Command
      */
     private function init(
         Geonames $geonames,
-        DownloadService $downloadService,
         Dispatcher $dispatcher,
-        GeonamesParser $geonamesParser,
-        CountryInfoParser $countryInfoParser,
+        DownloadService $downloadService,
+        SupplyService $supplyService,
         AlternateNameParser $alternateNameParser,
-        ContinentSupplier $continentSupplier,
-        CountrySupplier $countrySupplier,
-        DivisionSupplier $divisionSupplier,
-        CitySupplier $citySupplier,
         TranslationSupplier $translationSupplier
     ): void
     {
         $this->geonames = $geonames;
-        $this->downloadService = $downloadService;
         $this->dispatcher = $dispatcher;
-        $this->geonamesParser = $geonamesParser;
-        $this->continentSupplier = $continentSupplier;
-        $this->countryInfoParser = $countryInfoParser;
+        $this->downloadService = $downloadService;
+        $this->supplyService = $supplyService;
         $this->alternateNameParser = $alternateNameParser;
-        $this->countrySupplier = $countrySupplier;
-        $this->divisionSupplier = $divisionSupplier;
-        $this->citySupplier = $citySupplier;
         $this->translationSupplier = $translationSupplier;
     }
 
@@ -220,7 +164,6 @@ class InsertCommand extends Command
 
     /**
      * Insert the geonames dataset.
-     * TODO: refactor
      */
     private function insert(): void
     {
@@ -229,43 +172,12 @@ class InsertCommand extends Command
         $this->setUpProgressBar();
 
         if ($this->geonames->shouldSupplyCountries()) {
-            $this->countrySupplier->setCountryInfos(
-                $this->countryInfoParser->all($this->downloadService->downloadCountryInfoFile())
-            );
+            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
         }
 
         foreach ($this->downloadService->downloadSourceFiles() as $path) {
-            $this->insertFromSource($path);
-        }
-    }
-
-    /**
-     * Insert dataset from the given source path.
-     *
-     * @param string $sourcePath
-     */
-    public function insertFromSource(string $sourcePath): void
-    {
-        $this->info("Processing {$sourcePath} file.");
-
-        if ($this->geonames->shouldSupplyContinents()) {
-            $this->info('Start processing continents');
-            $this->continentSupplier->insertMany($this->geonamesParser->forEach($sourcePath));
-        }
-
-        if ($this->geonames->shouldSupplyCountries()) {
-            $this->info('Start processing countries');
-            $this->countrySupplier->insertMany($this->geonamesParser->forEach($sourcePath));
-        }
-
-        if ($this->geonames->shouldSupplyDivisions()) {
-            $this->info('Start processing divisions');
-            $this->divisionSupplier->insertMany($this->geonamesParser->forEach($sourcePath));
-        }
-
-        if ($this->geonames->shouldSupplyCities()) {
-            $this->info('Start processing cities');
-            $this->citySupplier->insertMany($this->geonamesParser->forEach($sourcePath));
+            $this->info("Processing the {$path} file.");
+            $this->supplyService->insert($path);
         }
     }
 
@@ -282,7 +194,8 @@ class InsertCommand extends Command
         // $this->progress->setFormat("<info>Downloading:</info> {$url}\n%bar% %percent%%\n<info>Remaining Time:</info> %remaining%");
         // }
 
-        $this->geonamesParser->enableCountingLines()
+        $this->supplyService->getGeonamesParser()
+            ->enableCountingLines()
             ->onReady(static function (int $linesCount) use ($progress) {
                 $progress->start($linesCount);
             })
