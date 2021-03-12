@@ -1,11 +1,11 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Translations;
+namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
 use Nevadskiy\Geonames\Models\Country;
 
-class CountryTranslationMapper
+class CountryTranslationMapper implements TranslationMapper
 {
     /**
      * The countries collection.
@@ -15,23 +15,25 @@ class CountryTranslationMapper
     protected $countries;
 
     /**
-     * CountriesTranslationMapper constructor.
-     */
-    public function __construct()
-    {
-        $this->countries = $this->getCountries();
-    }
-
-    /**
-     * Apply the given callback for each country translation map.
+     * @inheritDoc
      */
     public function forEach(Collection $translations, callable $callback): void
     {
+        $this->init();
+
         foreach ($this->filterCountries($translations) as $country) {
             foreach ($this->filterCountryTranslations($country, $translations) as $translation) {
                 $callback($country, $translation);
             }
         }
+    }
+
+    /*
+     * Init the mapper.
+     */
+    protected function init(): void
+    {
+        $this->countries = $this->countries ?: $this->getCountries();
     }
 
     /**

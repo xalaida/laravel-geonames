@@ -1,11 +1,11 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Translations;
+namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
 use Nevadskiy\Geonames\Models\Continent;
 
-class ContinentTranslationMapper
+class ContinentTranslationMapper implements TranslationMapper
 {
     /**
      * The continents collection.
@@ -15,23 +15,25 @@ class ContinentTranslationMapper
     protected $continents;
 
     /**
-     * ContinentTranslationMapper constructor.
-     */
-    public function __construct()
-    {
-        $this->continents = $this->getContinents();
-    }
-
-    /**
-     * Apply the given callback for each continent translation map.
+     * @inheritDoc
      */
     public function forEach(Collection $translations, callable $callback): void
     {
+        $this->init();
+
         foreach ($this->filterContinents($translations) as $continent) {
             foreach ($this->filterContinentTranslations($continent, $translations) as $translation) {
                 $callback($continent, $translation);
             }
         }
+    }
+
+    /*
+     * Init the mapper.
+     */
+    protected function init(): void
+    {
+        $this->continents = $this->continents ?: $this->getContinents();
     }
 
     /**

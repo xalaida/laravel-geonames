@@ -1,14 +1,14 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Translations;
+namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
 use Nevadskiy\Geonames\Models\City;
 
-class CityTranslationMapper
+class CityTranslationMapper implements TranslationMapper
 {
     /**
-     * Apply the given callback for each city translation map.
+     * @inheritDoc
      */
     public function forEach(Collection $translations, callable $callback): void
     {

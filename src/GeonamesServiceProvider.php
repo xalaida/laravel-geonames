@@ -5,10 +5,13 @@ namespace Nevadskiy\Geonames;
 use Facade\Ignition\QueryRecorder\QueryRecorder;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
+use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
@@ -34,6 +37,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloadService();
         $this->registerFileReader();
         $this->registerSuppliers();
+        $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
 
@@ -118,6 +122,28 @@ class GeonamesServiceProvider extends ServiceProvider
         foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
             $this->app->bind($supplier, $implementation);
         }
+    }
+
+    /**
+     * Register the translation mapper.
+     */
+    private function registerTranslationMapper(): void
+    {
+        $this->app->bind(TranslationMapper::class, function () {
+            $mappers = collect([
+                'continents' => Suppliers\Translations\ContinentTranslationMapper::class,
+                'countries' => Suppliers\Translations\CountryTranslationMapper::class,
+                'divisions' => Suppliers\Translations\DivisionTranslationMapper::class,
+                'cities' => Suppliers\Translations\CityTranslationMapper::class,
+            ])
+                ->only($this->app->make(Geonames::class)->supply())
+                ->map(function (string $mapper) {
+                    return $this->app->make($mapper);
+                })
+                ->toArray();
+
+            return new CompositeTranslationMapper($mappers);
+        });
     }
 
     /**

@@ -1,14 +1,14 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Translations;
+namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
 use Nevadskiy\Geonames\Models\Division;
 
-class DivisionTranslationMapper
+class DivisionTranslationMapper implements TranslationMapper
 {
     /**
-     * Apply the given callback for each division translation map.
+     * @inheritDoc
      */
     public function forEach(Collection $translations, callable $callback): void
     {
