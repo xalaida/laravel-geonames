@@ -31,12 +31,20 @@ class ProgressParser implements Parser
     private $output;
 
     /**
+     * The progress step.
+     *
+     * @var int
+     */
+    private $step;
+
+    /**
      * Make a new progress parser instance.
      */
-    public function __construct(Parser $parser, OutputStyle $output)
+    public function __construct(Parser $parser, OutputStyle $output, int $step = 1000)
     {
         $this->parser = $parser;
         $this->output = $output;
+        $this->step = $step;
     }
 
     /**
@@ -48,7 +56,13 @@ class ProgressParser implements Parser
 
         $this->progress->advance();
 
-        yield from $this->parser->each($path);
+        foreach ($this->parser->each($path) as $i => $line) {
+            if ($i % $this->step === 0) {
+                $this->progress->advance($this->step);
+            }
+
+            yield $line;
+        }
 
         $this->finishProgress();
     }
@@ -69,6 +83,8 @@ class ProgressParser implements Parser
         $this->progress = $this->output->createProgressBar(
             $this->getFileReader()->getLinesCount($path)
         );
+
+        $this->progress->setFormat('very_verbose');
     }
 
     /**
@@ -80,9 +96,13 @@ class ProgressParser implements Parser
         $this->output->newLine();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function all(string $path): array
     {
         // TODO: check how this works with iterator_to_array and progress at same time.
+        return iterator_to_array($this->each($path));
     }
 
     /**
