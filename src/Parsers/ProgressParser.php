@@ -101,7 +101,6 @@ class ProgressParser implements Parser
      */
     public function all(string $path): array
     {
-        // TODO: check how this works with iterator_to_array and progress at same time.
         return iterator_to_array($this->each($path));
     }
 
