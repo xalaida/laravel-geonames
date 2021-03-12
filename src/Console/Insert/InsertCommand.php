@@ -2,17 +2,15 @@
 
 namespace Nevadskiy\Geonames\Console\Insert;
 
-use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
-use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\SupplyService;
-use Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier;
+use Nevadskiy\Geonames\Services\TranslateService;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
@@ -63,18 +61,11 @@ class InsertCommand extends Command
     protected $supplyService;
 
     /**
-     * The alternate name parser instance.
+     * The translate service instance.
      *
-     * @var AlternateNameParser
+     * @var TranslateService
      */
-    protected $alternateNameParser;
-
-    /**
-     * The translation supplier instance.
-     *
-     * @var TranslationSupplier
-     */
-    protected $translationSupplier;
+    protected $translateService;
 
     /**
      * Execute the console command.
@@ -84,18 +75,16 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService,
-        AlternateNameParser $alternateNameParser,
-        TranslationSupplier $translationSupplier
+        TranslateService $translateService
     ): void
     {
-        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $alternateNameParser, $translationSupplier);
-        $this->setUpDownloader($this->downloadService->getDownloader());
+        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
 
         $this->info('Start inserting geonames dataset.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         $this->insert();
-        // $this->translate();
+        $this->translate();
 
         $this->info('Geonames dataset has been successfully inserted.');
     }
@@ -103,10 +92,9 @@ class InsertCommand extends Command
     /**
      * Truncate a table if the option is specified.
      */
-    protected function truncateAttempt(): void
+    protected function truncate(): void
     {
-        // TODO: add warning message with tables that are going to be truncated
-        if (! $this->confirmToProceed()) {
+        if (! $this->confirmToProceed($this->getTruncateWarning())) {
             return;
         }
 
@@ -118,7 +106,17 @@ class InsertCommand extends Command
     }
 
     /**
-     * Truncate a table.
+     * Get the truncate warning message.
+     *
+     * @return string
+     */
+    private function getTruncateWarning(): string
+    {
+        return sprintf('The following tables will be truncated: %s', implode(', ', $this->geonames->supply()));
+    }
+
+    /**
+     * Truncate geonames tables.
      */
     private function performTruncate(): void
     {
@@ -136,16 +134,16 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService,
-        AlternateNameParser $alternateNameParser,
-        TranslationSupplier $translationSupplier
+        TranslateService $translateService
     ): void
     {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
         $this->supplyService = $supplyService;
-        $this->alternateNameParser = $alternateNameParser;
-        $this->translationSupplier = $translationSupplier;
+        $this->translateService = $translateService;
+
+        $this->setUpDownloader($this->downloadService->getDownloader());
     }
 
     /**
@@ -155,6 +153,10 @@ class InsertCommand extends Command
      */
     private function setUpDownloader(ConsoleDownloader $downloader): void
     {
+        // TODO: probably resolve output directly from container
+        //  $output = new Symfony\Component\Console\Output\ConsoleOutput();
+        // $output->writeln("<info>my message</info>");
+
         $downloader->withProgressBar($this->getOutput());
 
         if ($this->option('update-files')) {
@@ -167,9 +169,9 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $this->truncateAttempt();
-
         $this->setUpProgressBar();
+
+        $this->truncate();
 
         if ($this->geonames->shouldSupplyCountries()) {
             $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
@@ -179,6 +181,46 @@ class InsertCommand extends Command
             $this->info("Processing the {$path} file.");
             $this->supplyService->insert($path);
         }
+    }
+
+    /**
+     * Translate inserted data.
+     */
+    private function translate(): void
+    {
+        $this->info('Start seeding translations. It may take some time.');
+
+        // TODO: remove
+        DB::table('translations')->truncate();
+
+        $this->setUpTranslationsProgressBar();
+
+        $this->translateService->insert($this->downloadService->downloaderAlternateNames());
+
+        $this->info('Translations have been successfully seeded.');
+    }
+
+    /**
+     * TODO: extract into parser decorator ProgressBarParser.php
+     * Set up the progress bar.
+     */
+    private function setUpTranslationsProgressBar(int $step = 1000): void
+    {
+        $progress = $this->output->createProgressBar();
+        $progress->setFormat('very_verbose');
+
+        $this->translateService->getAlternateNameParser()
+            ->enableCountingLines()
+            ->onReady(static function (int $linesCount) use ($progress) {
+                $progress->start($linesCount);
+            })
+            ->onEach(static function () use ($progress, $step) {
+                $progress->advance($step);
+            }, $step)
+            ->onFinish(function () use ($progress) {
+                $progress->finish();
+                $this->output->newLine();
+            });
     }
 
     /**
@@ -206,56 +248,5 @@ class InsertCommand extends Command
                 $progress->finish();
                 $this->output->newLine();
             });
-    }
-
-    /**
-     * Translate inserted data.
-     */
-    private function translate(): void
-    {
-        $this->info('Start seeding translations. It may take some time.');
-
-        // TODO: remove
-        DB::table('translations')->truncate();
-
-        $this->setUpTranslationsProgressBar();
-
-        foreach ($this->translations() as $id => $translation) {
-            $this->translationSupplier->insert($id, $translation);
-        }
-
-        $this->info('Translations have been successfully seeded.');
-    }
-
-    /**
-     * TODO: extract into parser decorator ProgressBarParser.php
-     * Set up the progress bar.
-     */
-    private function setUpTranslationsProgressBar(int $step = 1000): void
-    {
-        $progress = $this->output->createProgressBar();
-        $progress->setFormat('very_verbose');
-
-        $this->alternateNameParser->enableCountingLines()
-            ->onReady(static function (int $linesCount) use ($progress) {
-                $progress->start($linesCount);
-            })
-            ->onEach(static function () use ($progress, $step) {
-                $progress->advance($step);
-            }, $step)
-            ->onFinish(function () use ($progress) {
-                $progress->finish();
-                $this->output->newLine();
-            });
-    }
-
-    /**
-     * Get translations for seeding.
-     */
-    private function translations(): Generator
-    {
-        return $this->alternateNameParser->forEach(
-            $this->downloadService->downloaderAlternateNames()
-        );
     }
 }
