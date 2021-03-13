@@ -9,6 +9,7 @@ use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\SupplyService;
+use Nevadskiy\Geonames\Services\TranslateService;
 
 class UpdateCommand extends Command
 {
@@ -55,31 +56,40 @@ class UpdateCommand extends Command
     protected $supplyService;
 
     /**
+     * The translate service instance.
+     *
+     * @var TranslateService
+     */
+    protected $translateService;
+
+    /**
      * Execute the console command.
      */
     public function handle(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService
+        SupplyService $supplyService,
+        TranslateService $translateService
     ): void
     {
-        $this->init($geonames, $dispatcher, $downloadService, $supplyService);
+        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
 
         $this->info('Start geonames daily updating.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
-        // TODO: check if items exists in database.
+        // TODO: check if any items exists in database.
 
         DB::beginTransaction();
 
         $this->modify();
         $this->delete();
+        $this->modifyTranslations();
+        $this->deleteTranslations();
 
         DB::rollBack();
 
-
-        // TODO: process alternate names
+        // TODO: delete files
 
         $this->info('Daily update had been successfully done.');
     }
@@ -91,41 +101,55 @@ class UpdateCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService
+        SupplyService $supplyService,
+        TranslateService $translateService
     ): void
     {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
         $this->supplyService = $supplyService;
+        $this->translateService = $translateService;
     }
 
     /**
-     * Modify changed items according to a geonames resource.
+     * Delete items according to the geonames resource.
      */
     private function modify(): void
     {
-        $this->info('Start processing modifications.');
+        $this->info('Start processing daily modifications.');
 
         if ($this->geonames->shouldSupplyCountries()) {
-            $this->info('Add country info.');
             $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
         }
 
         $this->supplyService->modify($this->downloadService->downloadDailyModifications());
-
-        // TODO: delete modifications file.
     }
 
     /**
-     * Delete removed items according to a geonames resource.
+     * Delete items according to the geonames resource.
      */
     private function delete(): void
     {
-        $this->info('Start processing deletes.');
-
+        $this->info('Start processing daily deletes.');
         $this->supplyService->delete($this->downloadService->downloadDailyDeletes());
+    }
 
-        // TODO: delete deletes file.
+    /**
+     * Modify translations according to the geonames resource.
+     */
+    private function modifyTranslations(): void
+    {
+        $this->info('Start processing alternate names daily modifications.');
+        $this->translateService->modify($this->downloadService->downloadDailyAlternateNamesModifications());
+    }
+
+    /**
+     * Delete translations according to the geonames resource.
+     */
+    private function deleteTranslations(): void
+    {
+        $this->info('Start processing alternate names daily deletes.');
+        $this->translateService->delete($this->downloadService->downloadDailyAlternateNamesDeletes());
     }
 }

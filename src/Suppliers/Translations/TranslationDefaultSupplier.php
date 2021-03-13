@@ -20,14 +20,14 @@ class TranslationDefaultSupplier implements TranslationSupplier
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The translation mapper instance.
      *
      * @var TranslationMapper
      */
-    private $translationMapper;
+    protected $translationMapper;
 
     /**
      * A batch of source translations.
@@ -50,8 +50,6 @@ class TranslationDefaultSupplier implements TranslationSupplier
     {
         $this->geonames = $geonames;
         $this->translationMapper = $translationMapper;
-        $this->sourceBatch = $this->makeSourceBatch();
-        $this->insertBatch = $this->makeInsertBatch();
     }
 
     /**
@@ -59,9 +57,13 @@ class TranslationDefaultSupplier implements TranslationSupplier
      */
     public function insertMany(iterable $data): void
     {
-        foreach ($data as $item) {
-            $this->insert($item);
+        $this->initInsert();
+
+        foreach ($data as $translation) {
+            $this->addToSourceIfProcessable($translation);
         }
+
+        $this->commitInsert();
     }
 
     /**
@@ -69,63 +71,62 @@ class TranslationDefaultSupplier implements TranslationSupplier
      */
     public function modifyMany(iterable $data): void
     {
-        // TODO: Implement modifyMany() method.
-    }
+        $this->initModify();
 
-    public function deleteMany(iterable $data): void
-    {
-        // TODO: Implement deleteMany() method.
-    }
-
-    protected function insert(array $translation): void
-    {
-        if ($this->shouldSupply($translation)) {
-            $this->sourceBatch->push($translation);
+        foreach ($data as $translation) {
+            $this->addToSourceIfProcessable($translation);
         }
+
+        $this->commitModify();
     }
 
     /**
-     * Make a batch instance for source translations.
-     *
-     * @return Batch
+     * @inheritDoc
      */
-    protected function makeSourceBatch(): Batch
+    public function deleteMany(iterable $data): void
     {
-        return new Batch(function (array $items) {
-            $this->translate(collect($items));
+        $this->initDelete();
+
+        foreach ($data as $translation) {
+            $this->addToSource($translation);
+        }
+
+        $this->commitDelete();
+    }
+
+    /**
+     * Init the insert process.
+     */
+    protected function initInsert(): void
+    {
+        $this->sourceBatch = new Batch(function (array $items) {
+            $this->insert(collect($items));
+        }, 1000);
+
+        $this->insertBatch = new Batch(function (array $items) {
+            DB::table('translations')->insert($items);
         }, 1000);
     }
 
     /**
-     * Translate the database items using the given translations.
+     * Commit the insert process.
+     */
+    protected function commitInsert(): void
+    {
+        $this->sourceBatch->commit();
+        $this->insertBatch->commit();
+    }
+
+    /**
+     * Insert given translations into the database.
      *
      * @param Collection $translations
      */
-    protected function translate(Collection $translations): void
+    protected function insert(Collection $translations): void
     {
         $this->translationMapper->forEach($translations, function ($model, $translation) {
             $this->addTranslation($translation, $model);
         });
-    }
-
-    /**
-     * Determine whether the translation item should be supplied.
-     */
-    protected function shouldSupply(array $translation): bool
-    {
-        return $this->geonames->isLanguageAllowed($translation['isolanguage']);
-    }
-
-    /**
-     * Make a batch instance for prepared translations to be inserted.
-     *
-     * @return Batch
-     */
-    protected function makeInsertBatch(): Batch
-    {
-        return new Batch(function (array $items) {
-            DB::table('translations')->insert($items);
-        }, 1000);
     }
 
     /**
@@ -161,11 +162,152 @@ class TranslationDefaultSupplier implements TranslationSupplier
     }
 
     /**
-     * Determine whether the translation should be archived.
+     * Init the modify process.
+     */
+    protected function initModify(): void
+    {
+        $this->sourceBatch = new Batch(function (array $items) {
+            $this->modify(collect($items));
+        }, 1000);
+    }
+
+    /**
+     * Commit the modify process.
+     */
+    protected function commitModify(): void
+    {
+        $this->sourceBatch->commit();
+    }
+
+    /**
+     * Update the database items using the given translations.
+     *
+     * @param Collection $translations
+     */
+    protected function modify(Collection $translations): void
+    {
+        $this->translationMapper->forEach($translations, function ($model, $translation) {
+            $this->updateTranslation($translation, $model);
+        });
+    }
+
+    /**
+     * Update translation of the model.
+     */
+    protected function updateTranslation(array $translation, Model $model): void
+    {
+        $translation = Translation::query()->updateOrCreate([
+            'translatable_id' => $model->getKey(),
+            'translatable_type' => $model->getMorphClass(),
+            'translatable_attribute' => 'name',
+            'locale' => $translation['isolanguage'],
+            'value' => $translation['alternate name'],
+        ], [
+            'is_archived' => $this->isArchivedTranslation($translation),
+        ]);
+
+        if ($translation->wasRecentlyCreated) {
+            echo("Translation {$translation->value} has been added to {$translation->translatable_type}\n");
+        } else {
+            echo("Translation {$translation->value} has been updated in {$translation->translatable_type}\n");
+        }
+    }
+
+    /**
+     * Delete the given translations from the database.
+     *
+     * @param Collection $translations
+     */
+    protected function delete(Collection $translations): void
+    {
+        $this->translationMapper->forEach($translations, function ($model, $translation) {
+            $this->deleteTranslation($translation, $model);
+        });
+    }
+
+    /**
+     * Init the delete process.
+     */
+    protected function initDelete(): void
+    {
+        $this->sourceBatch = new Batch(function (array $items) {
+            $this->delete(collect($items));
+        }, 1000);
+    }
+
+    /**
+     * Commit the delete process.
+     */
+    protected function commitDelete(): void
+    {
+        $this->sourceBatch->commit();
+    }
+
+    /**
+     * Delete translation from the model.
+     *
+     * @param Model|Continent|Country|Division|City $model
+     */
+    protected function deleteTranslation(array $translation, Model $model): void
+    {
+        // If duplicated translation has been deleted, we dont need to delete all translations,
+        // so we limit them to 1 and order by archived translations first.
+        $deleted = Translation::query()
+            ->where([
+                'translatable_id' => $model->getKey(),
+                'translatable_type' => $model->getMorphClass(),
+                'translatable_attribute' => 'name',
+                'value' => $translation['alternate name'],
+            ])
+            ->orderBy('is_archived')
+            ->limit(1)
+            ->delete();
+
+        if ($deleted) {
+            echo("Deleted {$translation['alternate name']} from the model {$model->getMorphClass()}");
+        }
+    }
+
+    /**
+     * Add the given translation to the source batch if the translation can be supplied.
+     *
+     * @param array $translation
+     */
+    protected function addToSourceIfProcessable(array $translation): void
+    {
+        if ($this->shouldSupply($translation)) {
+            $this->addToSource($translation);
+        }
+    }
+
+    /**
+     * Add the given translation to the source batch.
+     *
+     * @param array $translation
+     */
+    protected function addToSource(array $translation): void
+    {
+        $this->sourceBatch->push($translation);
+    }
+
+    /**
+     * Determine if the translation item should be supplied.
+     */
+    protected function shouldSupply(array $translation): bool
+    {
+        return $this->geonames->isLanguageAllowed($translation['isolanguage']);
+    }
+
+    /**
+     * Determine if the translation should be archived.
      */
     protected function isArchivedTranslation(array $translation): bool
     {
         if (is_null($translation['isolanguage'])) {
+            return true;
+        }
+
+        if ($translation['isolanguage'] === 'en') {
             return true;
         }
 
