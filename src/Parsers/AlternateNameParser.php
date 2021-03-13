@@ -2,12 +2,30 @@
 
 namespace Nevadskiy\Geonames\Parsers;
 
-class AlternateNameParser extends Parser
+use Generator;
+use Nevadskiy\Geonames\Support\FileReader\FileReader;
+
+class AlternateNameParser implements Parser
 {
     /**
-     * @inheritDoc
+     * The decorated parser instance.
+     *
+     * @var Parser
      */
-    protected function fieldsMapping(): array
+    private $parser;
+
+    /**
+     * Make a new alternate name parser instance.
+     */
+    public function __construct(Parser $parser)
+    {
+        $this->parser = $this->setUpParser($parser);
+    }
+
+    /**
+     * The alternate name parser fields.
+     */
+    protected function fields(): array
     {
         return [
             'alternateNameId', // the id of this alternate name, int
@@ -19,5 +37,50 @@ class AlternateNameParser extends Parser
             'isColloquial', // '1', if this alternate name is a colloquial or slang term. Example: 'Big Apple' for 'New York'.
             'isHistoric', // '1', if this alternate name is historic and was used in the past. Example 'Bombay' for 'Mumbai'.
         ];
+    }
+
+    /**
+     * Set up the original parser instance.
+     *
+     * @param Parser $parser
+     * @return Parser
+     */
+    protected function setUpParser(Parser $parser): Parser
+    {
+        $parser->setFields($this->fields());
+
+        return $parser;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function all(string $path): array
+    {
+        return $this->parser->all($path);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function each(string $path): Generator
+    {
+        return $this->parser->each($path);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFileReader(): FileReader
+    {
+        return $this->parser->getFileReader();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setFields(array $fields): Parser
+    {
+        return $this->parser->setFields($fields);
     }
 }

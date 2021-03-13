@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Parsers;
 use Generator;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
-class CountryInfoParser implements Parser
+class DeletesParser implements Parser
 {
     /**
      * The decorated parser instance.
@@ -28,25 +28,9 @@ class CountryInfoParser implements Parser
     protected function fields(): array
     {
         return [
-            'ISO',
-            'ISO3',
-            'ISO-Numeric',
-            'fips',
-            'Country',
-            'Capital',
-            'Area(in sq km)',
-            'Population',
-            'Continent',
-            'tld',
-            'CurrencyCode',
-            'CurrencyName',
-            'Phone',
-            'Postal Code Format',
-            'Postal Code Regex',
-            'Languages',
             'geonameid',
-            'neighbours',
-            'EquivalentFipsCode',
+            'name',
+            'comment',
         ];
     }
 

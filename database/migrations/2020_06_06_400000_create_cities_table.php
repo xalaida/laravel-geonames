@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
@@ -17,8 +18,15 @@ class CreateCitiesTable extends Migration
         Schema::create(City::TABLE, static function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->foreignUuid('country_id')->references('id')->on(Country::TABLE)->cascadeOnDelete();
-            $table->foreignUuid('division_id')->nullable()->references('id')->on(Division::TABLE)->cascadeOnDelete();
+
+            if (app(Geonames::class)->shouldSupplyCountries()) {
+                $table->foreignUuid('country_id')->references('id')->on(Country::TABLE)->cascadeOnDelete();
+            }
+
+            if (app(Geonames::class)->shouldSupplyDivisions()) {
+                $table->foreignUuid('division_id')->nullable()->references('id')->on(Division::TABLE)->cascadeOnDelete();
+            }
+
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             $table->string('timezone_id', 32)->nullable()->index();

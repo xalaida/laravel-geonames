@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 
@@ -25,7 +26,11 @@ class CreateCountriesTable extends Migration
             $table->string('timezone_id', 32)->nullable()->index();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->foreignUuid('continent_id')->references('id')->on(Continent::TABLE)->cascadeOnDelete();
+
+            if (app(Geonames::class)->shouldSupplyContinents()) {
+                $table->foreignUuid('continent_id')->references('id')->on(Continent::TABLE)->cascadeOnDelete();
+            }
+
             $table->string('capital')->nullable(); // Can be normalized using separate table.
             $table->string('currency_code', 3)->nullable(); // Can be normalized using separate table.
             $table->string('currency_name', 32)->nullable(); // Can be normalized using separate table.

@@ -40,6 +40,8 @@ class Division extends Model
      * @var array
      */
     protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
         'modified_at' => 'date',
     ];
 

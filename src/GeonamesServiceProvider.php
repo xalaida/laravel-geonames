@@ -8,10 +8,19 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
-use Nevadskiy\Geonames\Seeders\CityDefaultSeeder;
-use Nevadskiy\Geonames\Seeders\Translations\TranslationDefaultSeeder;
+use Nevadskiy\Geonames\Parsers\FileParser;
+use Nevadskiy\Geonames\Parsers\Parser;
+use Nevadskiy\Geonames\Parsers\ProgressParser;
+use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
+use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
+use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
+use Nevadskiy\Geonames\Support\Downloader\Downloader;
+use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
+use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
+use Nevadskiy\Geonames\Support\Output\OutputFactory;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -26,10 +35,13 @@ class GeonamesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerConfig();
+        $this->registerGeonames();
+        $this->registerDownloader();
+        $this->registerDownloadService();
         $this->registerFileReader();
-        $this->registerSeeders();
-        $this->registerCitySeeder();
-        $this->registerTranslationSeeder();
+        $this->registerParser();
+        $this->registerSuppliers();
+        $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
 
@@ -55,6 +67,50 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the geonames.
+     */
+    private function registerGeonames(): void
+    {
+        $this->app->singleton(Geonames::class);
+
+        $this->app->when(Geonames::class)
+            ->needs('$config')
+            ->give(function () {
+                return $this->app['config']['geonames'];
+            });
+    }
+
+    /**
+     * Register the downloader.
+     */
+    private function registerDownloader(): void
+    {
+        $this->app->bind(Downloader::class, BaseDownloader::class);
+
+        $this->app->extend(Downloader::class, function (Downloader $downloader) {
+            return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
+        });
+
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(Downloader::class, function (Downloader $downloader) {
+                return new ConsoleDownloader($downloader, OutputFactory::make());
+            });
+        }
+    }
+
+    /**
+     * Register the download service.
+     */
+    private function registerDownloadService(): void
+    {
+        $this->app->when(DownloadService::class)
+            ->needs('$directory')
+            ->give(function () {
+                return $this->app['config']['geonames']['directory'];
+            });
+    }
+
+    /**
      * Register the file reader.
      */
     private function registerFileReader(): void
@@ -63,43 +119,49 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any module seeders.
+     * Register the resource parser.
      */
-    private function registerSeeders(): void
+    private function registerParser(): void
     {
-        foreach ($this->app['config']['geonames']['seeders'] as $seeder => $implementation) {
-            $this->app->bind($seeder, $implementation);
+        $this->app->bind(Parser::class, FileParser::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(Parser::class, function (Parser $parser) {
+                return new ProgressParser($parser, OutputFactory::make());
+            });
         }
     }
 
     /**
-     * Register a city seeder.
+     * Register any module suppliers.
      */
-    private function registerCitySeeder(): void
+    private function registerSuppliers(): void
     {
-        $this->app->when(CityDefaultSeeder::class)
-            ->needs('$minPopulation')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['min_population'];
-            });
+        foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
+            $this->app->bind($supplier, $implementation);
+        }
     }
 
     /**
-     * Register a translation seeder.
+     * Register the translation mapper.
      */
-    private function registerTranslationSeeder(): void
+    private function registerTranslationMapper(): void
     {
-        $this->app->when(TranslationDefaultSeeder::class)
-            ->needs('$nullableLanguage')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['nullable_language'];
-            });
+        $this->app->bind(TranslationMapper::class, function () {
+            $mappers = collect([
+                'continents' => Suppliers\Translations\ContinentTranslationMapper::class,
+                'countries' => Suppliers\Translations\CountryTranslationMapper::class,
+                'divisions' => Suppliers\Translations\DivisionTranslationMapper::class,
+                'cities' => Suppliers\Translations\CityTranslationMapper::class,
+            ])
+                ->only($this->app->make(Geonames::class)->supply())
+                ->map(function (string $mapper) {
+                    return $this->app->make($mapper);
+                })
+                ->toArray();
 
-        $this->app->when(TranslationDefaultSeeder::class)
-            ->needs('$languages')
-            ->give(function () {
-                return $this->app['config']['geonames']['filters']['languages'];
-            });
+            return new CompositeTranslationMapper($mappers);
+        });
     }
 
     /**
@@ -119,14 +181,8 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\Download\DownloadCountriesCommand::class,
-                Console\Download\DownloadTranslationsCommand::class,
-                Console\Seed\SeedContinentsCommand::class,
-                Console\Seed\SeedCountriesCommand::class,
-                Console\Seed\SeedDivisionsCommand::class,
-                Console\Seed\SeedCitiesCommand::class,
-                Console\Seed\SeedTranslationsCommand::class,
-                Console\Seed\SeedCommand::class,
+                Console\Insert\InsertCommand::class,
+                Console\Update\UpdateCommand::class,
             ]);
         }
     }
@@ -136,8 +192,24 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     private function bootMigrations(): void
     {
-        if ($this->app->runningInConsole() && $this->app['config']['geonames']['default_migrations']) {
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $geonames = $this->app->make(Geonames::class);
+
+        if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
+            if ($geonames->shouldSupplyContinents()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_100000_create_continents_table.php');
+            }
+
+            if ($geonames->shouldSupplyCountries()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_200000_create_countries_table.php');
+            }
+
+            if ($geonames->shouldSupplyDivisions()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_300000_create_divisions_table.php');
+            }
+
+            if ($geonames->shouldSupplyCities()) {
+                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_400000_create_cities_table.php');
+            }
         }
     }
 
