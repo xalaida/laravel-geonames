@@ -18,7 +18,7 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:update {--keep-files}';
+    protected $signature = 'geonames:update {--keep-files} {--without-translations}';
 
     /**
      * The console command description.
@@ -135,6 +135,10 @@ class UpdateCommand extends Command
      */
     private function modifyTranslations(): void
     {
+        if ($this->option('without-translations')) {
+            return;
+        }
+
         $this->info('Start processing alternate names daily modifications.');
         $this->translateService->modify($this->downloadService->downloadDailyAlternateNamesModifications());
     }
@@ -144,6 +148,10 @@ class UpdateCommand extends Command
      */
     private function deleteTranslations(): void
     {
+        if ($this->option('without-translations')) {
+            return;
+        }
+
         $this->info('Start processing alternate names daily deletes.');
         $this->translateService->delete($this->downloadService->downloadDailyAlternateNamesDeletes());
     }
