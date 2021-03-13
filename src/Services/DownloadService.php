@@ -152,7 +152,7 @@ class DownloadService
      */
     protected function download(string $url)
     {
-        return $this->downloader->download($url, $this->directory);
+        return $this->downloader->download($url, $this->geonames->directory());
     }
 
     /**

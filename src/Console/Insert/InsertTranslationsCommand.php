@@ -106,7 +106,7 @@ class InsertTranslationsCommand extends Command
      */
     private function reset(): void
     {
-        if (! $this->option('truncate')) {
+        if (! $this->option('reset')) {
             return;
         }
 
@@ -141,6 +141,8 @@ class InsertTranslationsCommand extends Command
         foreach (Arr::only($models, $this->geonames->supply()) as $model) {
             $this->deleteTranslations(new $model);
         }
+
+        $this->info('Translations have been reset.');
     }
 
     /**
