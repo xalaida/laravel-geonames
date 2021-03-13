@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Parsers;
 use Generator;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
-class DeletesParser implements Parser
+class GeonamesDeletesParser implements Parser
 {
     /**
      * The decorated parser instance.
