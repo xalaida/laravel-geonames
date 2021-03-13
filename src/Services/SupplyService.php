@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Services;
 use Illuminate\Support\Arr;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
-use Nevadskiy\Geonames\Parsers\DeletesParser;
+use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
@@ -37,11 +37,11 @@ class SupplyService
     protected $countryInfoParser;
 
     /**
-     * The deletes parser instance.
+     * The geonames deletes parser instance.
      *
-     * @var DeletesParser
+     * @var GeonamesDeletesParser
      */
-    protected $deletesParser;
+    protected $geonamesDeletesParser;
 
     /**
      * The continent supplier instance.
@@ -78,7 +78,7 @@ class SupplyService
         Geonames $geonames,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
-        DeletesParser $deletesParser,
+        GeonamesDeletesParser $geonamesDeletesParser,
         ContinentSupplier $continentSupplier,
         CountrySupplier $countrySupplier,
         DivisionSupplier $divisionSupplier,
@@ -88,7 +88,7 @@ class SupplyService
         $this->geonames = $geonames;
         $this->geonamesParser = $geonamesParser;
         $this->countryInfoParser = $countryInfoParser;
-        $this->deletesParser = $deletesParser;
+        $this->geonamesDeletesParser = $geonamesDeletesParser;
         $this->continentSupplier = $continentSupplier;
         $this->countrySupplier = $countrySupplier;
         $this->divisionSupplier = $divisionSupplier;
@@ -137,7 +137,7 @@ class SupplyService
     public function delete(string $path): void
     {
         foreach ($this->suppliers() as $supplier) {
-            $supplier->deleteMany($this->deletesParser->each($path));
+            $supplier->deleteMany($this->geonamesDeletesParser->each($path));
         }
     }
 

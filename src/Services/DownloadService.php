@@ -45,13 +45,6 @@ class DownloadService
     protected $downloader;
 
     /**
-     * A directory for geonames downloads.
-     *
-     * @var string
-     */
-    protected $directory;
-
-    /**
      * The geonames instance.
      *
      * @var Geonames
@@ -61,10 +54,9 @@ class DownloadService
     /**
      * DownloadService constructor.
      */
-    public function __construct(Downloader $downloader, Geonames $geonames, string $directory)
+    public function __construct(Downloader $downloader, Geonames $geonames)
     {
         $this->downloader = $downloader;
-        $this->directory = $directory;
         $this->geonames = $geonames;
     }
 
@@ -122,6 +114,26 @@ class DownloadService
     public function downloadDailyDeletes(): string
     {
         return $this->download($this->getDailyDeletesUrl());
+    }
+
+    /**
+     * Download geonames daily alternate name modifications file.
+     *
+     * @return string
+     */
+    public function downloadDailyAlternateNamesModifications(): string
+    {
+        return $this->download($this->getDailyAlternateNamesModificationsUrl());
+    }
+
+    /**
+     * Download geonames daily alternate name deletes file.
+     *
+     * @return string
+     */
+    public function downloadDailyAlternateNamesDeletes(): string
+    {
+        return $this->download($this->getDailyAlternateNamesDeletesUrl());
     }
 
     /**
@@ -257,6 +269,27 @@ class DownloadService
     protected function getDailyDeletesUrl(): string
     {
         return $this->getDailyUpdateUrlByType('deletes');
+    }
+
+    /**
+     * Get the URL of the geonames daily alternate names modifications file.
+     *
+     * @return string
+     */
+    protected function getDailyAlternateNamesModificationsUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('alternateNamesModifications');
+    }
+
+
+    /**
+     * Get the URL of the geonames daily alternate names deletes file.
+     *
+     * @return string
+     */
+    protected function getDailyAlternateNamesDeletesUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('alternateNamesDeletes');
     }
 
     /**

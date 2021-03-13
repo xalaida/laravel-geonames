@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Parsers;
 use Generator;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
-class DeletesParser implements Parser
+class AlternateNameDeletesParser implements Parser
 {
     /**
      * The decorated parser instance.
@@ -28,6 +28,7 @@ class DeletesParser implements Parser
     protected function fields(): array
     {
         return [
+            'alternateNameId',
             'geonameid',
             'name',
             'comment',
@@ -36,6 +37,9 @@ class DeletesParser implements Parser
 
     /**
      * Set up the original parser instance.
+     *
+     * @param Parser $parser
+     * @return Parser
      */
     protected function setUpParser(Parser $parser): Parser
     {

@@ -11,7 +11,6 @@ use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
-use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
@@ -37,7 +36,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerGeonames();
         $this->registerDownloader();
-        $this->registerDownloadService();
         $this->registerFileReader();
         $this->registerParser();
         $this->registerSuppliers();
@@ -55,7 +53,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootMigrations();
         $this->publishConfig();
         $this->publishMigrations();
-        $this->publishResources();
     }
 
     /**
@@ -96,18 +93,6 @@ class GeonamesServiceProvider extends ServiceProvider
                 return new ConsoleDownloader($downloader, OutputFactory::make());
             });
         }
-    }
-
-    /**
-     * Register the download service.
-     */
-    private function registerDownloadService(): void
-    {
-        $this->app->when(DownloadService::class)
-            ->needs('$directory')
-            ->give(function () {
-                return $this->app['config']['geonames']['directory'];
-            });
     }
 
     /**
@@ -246,15 +231,5 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations')
         ], self::PACKAGE . '-migrations');
-    }
-
-    /**
-     * Publish any module resources.
-     */
-    private function publishResources(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../resources/meta' => $this->app['config']['geonames']['directory']
-        ], self::PACKAGE . '-resources');
     }
 }

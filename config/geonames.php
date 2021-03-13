@@ -87,10 +87,20 @@ return [
     |
     */
 
+    /**
+     * Indicates if the translations should be supplied.
+     */
     'translations' => true,
 
+    /**
+     * Indicates the languages list that should translate into.
+     */
     'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
 
+    /**
+     * Indicates if nullable languages should be supplied.
+     * Can be useful for searching, but increase the database size.
+     */
     'nullable_language' => true,
 
     /*
@@ -106,7 +116,7 @@ return [
         Nevadskiy\Geonames\Suppliers\CountrySupplier::class => Nevadskiy\Geonames\Suppliers\CountryDefaultSupplier::class,
         Nevadskiy\Geonames\Suppliers\DivisionSupplier::class => Nevadskiy\Geonames\Suppliers\DivisionDefaultSupplier::class,
         Nevadskiy\Geonames\Suppliers\CitySupplier::class => Nevadskiy\Geonames\Suppliers\CityDefaultSupplier::class,
-        Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier::class => Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSeeder::class,
+        Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier::class => Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSupplier::class,
     ],
 
 ];
