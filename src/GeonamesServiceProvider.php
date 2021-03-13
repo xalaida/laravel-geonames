@@ -55,7 +55,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootMigrations();
         $this->publishConfig();
         $this->publishMigrations();
-        $this->publishResources();
     }
 
     /**
@@ -246,15 +245,5 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations')
         ], self::PACKAGE . '-migrations');
-    }
-
-    /**
-     * Publish any module resources.
-     */
-    private function publishResources(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../resources/meta' => $this->app['config']['geonames']['directory']
-        ], self::PACKAGE . '-resources');
     }
 }
