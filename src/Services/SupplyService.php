@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Services;
 use Illuminate\Support\Arr;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
+use Nevadskiy\Geonames\Parsers\DeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Suppliers\CitySupplier;
 use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
@@ -34,6 +35,13 @@ class SupplyService
      * @var CountryInfoParser
      */
     protected $countryInfoParser;
+
+    /**
+     * The deletes parser instance.
+     *
+     * @var DeletesParser
+     */
+    protected $deletesParser;
 
     /**
      * The continent supplier instance.
@@ -70,6 +78,7 @@ class SupplyService
         Geonames $geonames,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
+        DeletesParser $deletesParser,
         ContinentSupplier $continentSupplier,
         CountrySupplier $countrySupplier,
         DivisionSupplier $divisionSupplier,
@@ -79,6 +88,7 @@ class SupplyService
         $this->geonames = $geonames;
         $this->geonamesParser = $geonamesParser;
         $this->countryInfoParser = $countryInfoParser;
+        $this->deletesParser = $deletesParser;
         $this->continentSupplier = $continentSupplier;
         $this->countrySupplier = $countrySupplier;
         $this->divisionSupplier = $divisionSupplier;
@@ -104,6 +114,30 @@ class SupplyService
     {
         foreach ($this->suppliers() as $supplier) {
             $supplier->insertMany($this->geonamesParser->each($path));
+        }
+    }
+
+    /**
+     * Modify the database according to the given modifications path file.
+     *
+     * @param string $path
+     */
+    public function modify(string $path): void
+    {
+        foreach ($this->suppliers() as $supplier) {
+             $supplier->modifyMany($this->geonamesParser->each($path));
+        }
+    }
+
+    /**
+     * Delete items from database according to the given deletes path file.
+     *
+     * @param string $path
+     */
+    public function delete(string $path): void
+    {
+        foreach ($this->suppliers() as $supplier) {
+            $supplier->deleteMany($this->deletesParser->each($path));
         }
     }
 
