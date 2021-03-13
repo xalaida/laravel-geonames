@@ -138,6 +138,7 @@ class InsertCommand extends Command
 
         // TODO: refactor with config and translatable package features.
         DB::table('translations')->truncate();
+        // TODO: delete all items that belongs to the supplied morph entity by the morph map
 
         // TODO: feature downloading specific alternate names source (single country or everything)
         $this->translateService->insert($this->downloadService->downloaderAlternateNames());
@@ -150,11 +151,11 @@ class InsertCommand extends Command
      */
     protected function truncate(): void
     {
-        if (! $this->confirmToProceed($this->getTruncateWarning())) {
+        if (! $this->option('truncate')) {
             return;
         }
 
-        if (! $this->option('truncate')) {
+        if (! $this->confirmToProceed($this->getTruncateWarning())) {
             return;
         }
 
