@@ -125,6 +125,26 @@ class DownloadService
     }
 
     /**
+     * Download geonames daily alternate name modifications file.
+     *
+     * @return string
+     */
+    public function downloadDailyAlternateNamesModifications(): string
+    {
+        return $this->download($this->getDailyAlternateNamesModificationsUrl());
+    }
+
+    /**
+     * Download geonames daily alternate name deletes file.
+     *
+     * @return string
+     */
+    public function downloadDailyAlternateNamesDeletes(): string
+    {
+        return $this->download($this->getDailyAlternateNamesDeletesUrl());
+    }
+
+    /**
      * Download geonames country info file.
      */
     public function downloadCountryInfoFile(): string
@@ -257,6 +277,27 @@ class DownloadService
     protected function getDailyDeletesUrl(): string
     {
         return $this->getDailyUpdateUrlByType('deletes');
+    }
+
+    /**
+     * Get the URL of the geonames daily alternate names modifications file.
+     *
+     * @return string
+     */
+    protected function getDailyAlternateNamesModificationsUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('alternateNamesModifications');
+    }
+
+
+    /**
+     * Get the URL of the geonames daily alternate names deletes file.
+     *
+     * @return string
+     */
+    protected function getDailyAlternateNamesDeletesUrl(): string
+    {
+        return $this->getDailyUpdateUrlByType('alternateNamesDeletes');
     }
 
     /**
