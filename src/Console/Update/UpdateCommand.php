@@ -2,9 +2,9 @@
 
 namespace Nevadskiy\Geonames\Console\Update;
 
+use DirectoryIterator;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -18,7 +18,7 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:update';
+    protected $signature = 'geonames:update {--keep-files}';
 
     /**
      * The console command description.
@@ -75,23 +75,18 @@ class UpdateCommand extends Command
     {
         $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
 
-        $this->info('Start geonames daily updating.');
+        $this->info('Start daily updating.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());
 
         // TODO: check if any items exists in database.
-
-        DB::beginTransaction();
 
         $this->modify();
         $this->delete();
         $this->modifyTranslations();
         $this->deleteTranslations();
+        $this->clearFolder();
 
-        DB::rollBack();
-
-        // TODO: delete files
-
-        $this->info('Daily update had been successfully done.');
+        $this->info('Daily update had been completed.');
     }
 
     /**
@@ -151,5 +146,23 @@ class UpdateCommand extends Command
     {
         $this->info('Start processing alternate names daily deletes.');
         $this->translateService->delete($this->downloadService->downloadDailyAlternateNamesDeletes());
+    }
+
+    /**
+     * Clear the resource downloads folder.
+     */
+    private function clearFolder(): void
+    {
+        if ($this->option('keep-files')) {
+            return;
+        }
+
+        $this->info('Clearing the downloads folder.');
+
+        foreach (new DirectoryIterator($this->geonames->directory()) as $fileInfo) {
+            if ($fileInfo->isFile() && $fileInfo->getBasename() !== '.gitignore') {
+                unlink($fileInfo->getPathname());
+            }
+        }
     }
 }
