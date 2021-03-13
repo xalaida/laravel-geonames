@@ -84,6 +84,8 @@ class ProgressParser implements Parser
             $this->getFileReader()->getLinesCount($path)
         );
 
+        // TODO: add format with path of file that is being parsed (similar to downloader progress).
+
         $this->progress->setFormat('very_verbose');
     }
 
