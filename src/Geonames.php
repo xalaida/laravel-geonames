@@ -31,13 +31,11 @@ class Geonames
     }
 
     /**
-     * Determine whether the auto source is specified.
-     *
-     * @return bool
+     * Get the geonames downloads directory.
      */
-    public function isAutoSource(): bool
+    public function directory(): string
     {
-        return $this->config['source'] === DownloadService::SOURCE_AUTO;
+        return $this->config['directory'];
     }
 
     /**
@@ -87,7 +85,7 @@ class Geonames
      */
     public function shouldSupplyContinents(): bool
     {
-        if (! $this->isAllCountriesSource() && ! $this->isAutoSource()) {
+        if (! $this->isAllCountriesSource()) {
             return false;
         }
 

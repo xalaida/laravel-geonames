@@ -45,13 +45,6 @@ class DownloadService
     protected $downloader;
 
     /**
-     * A directory for geonames downloads.
-     *
-     * @var string
-     */
-    protected $directory;
-
-    /**
      * The geonames instance.
      *
      * @var Geonames
@@ -61,10 +54,9 @@ class DownloadService
     /**
      * DownloadService constructor.
      */
-    public function __construct(Downloader $downloader, Geonames $geonames, string $directory)
+    public function __construct(Downloader $downloader, Geonames $geonames)
     {
         $this->downloader = $downloader;
-        $this->directory = $directory;
         $this->geonames = $geonames;
     }
 
