@@ -7,6 +7,8 @@ use Nevadskiy\Geonames\Services\DownloadService;
 class Geonames
 {
     /**
+     * The configuration array.
+     *
      * @var array
      */
     private $config;
