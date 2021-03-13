@@ -44,6 +44,20 @@ abstract class DefaultSupplier implements Supplier
      */
     public function modifyMany(iterable $data): void
     {
+        // TODO: log changes...
+        $this->getModel()::updating(function (Model $model) {
+            $diff = [];
+
+            foreach ($model->getDirty() as $field => $value) {
+                $diff[$field] = [
+                    'old' => (string) $model->getOriginal($field),
+                    'new' => (string) $value,
+                ];
+            }
+
+            dump($diff);
+        });
+
         $this->init();
 
         foreach ($data as $item) {
@@ -98,6 +112,8 @@ abstract class DefaultSupplier implements Supplier
         if (! $this->shouldSupply($item, $id)) {
             return false;
         }
+
+        echo("Adding new model {$this->getModel()->getMorphClass()}: {$id}\n");
 
         return $this->performInsert($item, $id);
     }
@@ -173,6 +189,8 @@ abstract class DefaultSupplier implements Supplier
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
+        echo("Updating model {$model->getMorphClass()}: {$id}\n");
+
         return $model->update(
             $this->resolveValues($this->mapUpdateFields($data, $id))
         );
@@ -187,6 +205,8 @@ abstract class DefaultSupplier implements Supplier
      */
     protected function deleteModel(Model $model): bool
     {
+        echo("Deleting model {$model->getMorphClass()}: {$model->geoname_id}\n");
+
         return $model->delete();
     }
 
