@@ -45,28 +45,36 @@ class Continent extends Resource
      */
     public function fields(Request $request)
     {
-        // TODO: probably cache fields from db and use arr::only
-
         return [
-            ID::make(__('ID'), 'id'),
+            ID::make(__('ID'), 'id')
+                ->onlyOnDetail(),
 
-            Text::make(__('Code'))->sortable(),
+            Text::make(__('Code'))
+                ->sortable(),
 
-            Text::make(__('Name'))->sortable(),
+            Text::make(__('Name'))
+                ->sortable(),
 
-            Number::make(__('Latitude'))->sortable(),
+            Number::make(__('Latitude'))
+                ->sortable(),
 
-            Number::make(__('Longitude'))->sortable(),
+            Number::make(__('Longitude'))
+                ->sortable(),
 
-            Timezone::make(__('Timezone ID'))->sortable(),
+            Timezone::make(__('Timezone ID'))
+                ->onlyOnDetail(),
 
-            Number::make(__('Population'))->sortable(),
+            Number::make(__('Population'))
+                ->sortable(),
 
-            Number::make(__('Dem'))->sortable(),
+            Number::make(__('Dem'))
+                ->sortable(),
 
-            Text::make(__('Feature code'))->sortable(),
+            Text::make(__('Feature code'))
+                ->sortable(),
 
-            Number::make(__('Geoname ID'))->sortable(),
+            Number::make(__('Geoname ID'))
+                ->sortable(),
 
             Date::make(__('Date of modification'), 'modified_at')
                 ->onlyOnDetail(),
