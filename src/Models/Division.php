@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Models;
 
 use Carbon\CarbonTimeZone;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 use Nevadskiy\Geonames\ValueObjects\Location;
@@ -74,5 +75,15 @@ class Division extends Model
         }
 
         return new CarbonTimeZone($this->timezone_id);
+    }
+
+    /**
+     * Get the country relation.
+     *
+     * @return BelongsTo
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'id', 'country');
     }
 }
