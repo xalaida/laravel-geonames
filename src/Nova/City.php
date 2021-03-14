@@ -39,6 +39,16 @@ class City extends Resource
     ];
 
     /**
+     * The relationships that should be eager loaded on index queries.
+     *
+     * @var array
+     */
+    public static $with = [
+        'country',
+        'division',
+    ];
+
+    /**
      * The number of resources to show per page via relationships.
      *
      * @var int

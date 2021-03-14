@@ -40,6 +40,15 @@ class Country extends Resource
     ];
 
     /**
+     * The relationships that should be eager loaded on index queries.
+     *
+     * @var array
+     */
+    public static $with = [
+        'continent',
+    ];
+
+    /**
      * The number of resources to show per page via relationships.
      *
      * @var int
