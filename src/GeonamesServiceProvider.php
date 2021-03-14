@@ -53,9 +53,9 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootCommands();
         $this->bootMorphMap();
         $this->bootMigrations();
+        $this->bootNovaResources();
         $this->publishConfig();
         $this->publishMigrations();
-        $this->bootNovaResources();
     }
 
     /**
