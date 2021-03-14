@@ -2,9 +2,9 @@
 
 namespace Nevadskiy\Geonames\Console\Update;
 
-use DirectoryIterator;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
+use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -13,6 +13,8 @@ use Nevadskiy\Geonames\Services\TranslateService;
 
 class UpdateCommand extends Command
 {
+    use CleanFolder;
+
     /**
      * The name and signature of the console command.
      *
@@ -75,16 +77,14 @@ class UpdateCommand extends Command
     {
         $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
 
-        $this->info('Start daily updating.');
-        $this->dispatcher->dispatch(new GeonamesCommandReady());
-
         // TODO: check if any items exists in database.
 
+        $this->prepare();
         $this->modify();
         $this->delete();
         $this->modifyTranslations();
         $this->deleteTranslations();
-        $this->clearFolder();
+        $this->cleanFolder();
 
         $this->info('Daily update had been completed.');
     }
@@ -157,20 +157,11 @@ class UpdateCommand extends Command
     }
 
     /**
-     * Clear the resource downloads folder.
+     * Prepare the command.
      */
-    private function clearFolder(): void
+    private function prepare(): void
     {
-        if ($this->option('keep-files')) {
-            return;
-        }
-
-        $this->info('Clearing the downloads folder.');
-
-        foreach (new DirectoryIterator($this->geonames->directory()) as $fileInfo) {
-            if ($fileInfo->isFile() && $fileInfo->getBasename() !== '.gitignore') {
-                unlink($fileInfo->getPathname());
-            }
-        }
+        $this->info('Start daily updating.');
+        $this->dispatcher->dispatch(new GeonamesCommandReady());
     }
 }

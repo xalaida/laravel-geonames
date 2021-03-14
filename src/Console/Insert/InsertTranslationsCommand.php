@@ -8,6 +8,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
@@ -20,14 +21,15 @@ use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class InsertTranslationsCommand extends Command
 {
-    use ConfirmableTrait;
+    use ConfirmableTrait,
+        CleanFolder;
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'geonames:translations {--reset} {--update-files}';
+    protected $signature = 'geonames:translations {--reset} {--keep-files} {--update-files}';
 
     /**
      * The console command description.
@@ -81,6 +83,7 @@ class InsertTranslationsCommand extends Command
         $this->prepare();
         $this->reset();
         $this->insert();
+        $this->cleanFolder();
 
         $this->info('Translations have been successfully inserted.');
     }

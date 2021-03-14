@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
+use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -15,14 +16,15 @@ use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class InsertCommand extends Command
 {
-    use ConfirmableTrait;
+    use ConfirmableTrait,
+        CleanFolder;
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'geonames:insert {--truncate} {--update-files} {--without-translations}';
+    protected $signature = 'geonames:insert {--truncate} {--keep-files} {--update-files} {--without-translations}';
 
     /**
      * The console command description.
@@ -135,6 +137,8 @@ class InsertCommand extends Command
             '--reset' => $this->option('truncate'),
             '--update-files' => $this->option('update-files'),
         ]);
+
+        $this->cleanFolder();
     }
 
     /**
