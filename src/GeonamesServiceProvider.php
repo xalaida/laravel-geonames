@@ -221,6 +221,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         Nova::resources([
             Resources\Continent::class,
+            Resources\Country::class,
         ]);
     }
 
