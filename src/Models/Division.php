@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Models;
 
 use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 use Nevadskiy\Geonames\ValueObjects\Location;
@@ -85,5 +86,15 @@ class Division extends Model
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'country_id', 'id', 'country');
+    }
+
+    /**
+     * Get the cities relation.
+     *
+     * @return HasMany
+     */
+    public function cities(): HasMany
+    {
+        return $this->hasMany(City::class, 'division_id', 'id');
     }
 }

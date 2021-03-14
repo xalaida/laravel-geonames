@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\DateTime;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
@@ -57,23 +58,11 @@ class Division extends Resource
             ID::make(__('ID'), 'id')
                 ->onlyOnDetail(),
 
-//            Text::make(__('Code'))
-//                ->sortable(),
-//
-//            Text::make(__('ISO'))
-//                ->sortable(),
-//
-//            Text::make(__('ISO numeric'))
-//                ->sortable(),
-
             Text::make(__('Name'))
                 ->sortable(),
 
             BelongsTo::make(__('Country'))
                 ->sortable(),
-
-//            Text::make(__('Official name'), 'name_official')
-//                ->onlyOnDetail(),
 
             Number::make(__('Latitude'))
                 ->sortable(),
@@ -83,42 +72,6 @@ class Division extends Resource
 
             Timezone::make(__('Timezone ID'))
                 ->onlyOnDetail(),
-
-//            BelongsTo::make(__('Continent'))
-//                ->sortable(),
-//
-//            Text::make(__('Capital'))
-//                ->sortable(),
-//
-//            Text::make(__('Currency code'))
-//                ->sortable(),
-//
-//            Text::make(__('Currency name'))
-//                ->sortable(),
-//
-//            Text::make(__('TLD'))
-//                ->onlyOnDetail(),
-//
-//            Text::make(__('Phone code'))
-//                ->sortable(),
-//
-//            Text::make(__('Postal code format'))
-//                ->onlyOnDetail(),
-//
-//            Text::make(__('Postal code regex'))
-//                ->onlyOnDetail(),
-//
-//            Text::make(__('Languages'))
-//                ->onlyOnDetail(),
-//
-//            Text::make(__('Neighbours'))
-//                ->onlyOnDetail(),
-//
-//            Number::make(__('Area'))
-//                ->sortable(),
-//
-//            Text::make(__('Fips'))
-//                ->onlyOnDetail(),
 
             Number::make(__('Population'))
                 ->sortable(),
@@ -146,6 +99,8 @@ class Division extends Resource
 
             DateTime::make(__('Date of update'), 'created_at')
                 ->onlyOnDetail(),
+
+            HasMany::make(__('Cities')),
         ];
     }
 
