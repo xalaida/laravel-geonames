@@ -217,12 +217,16 @@ class GeonamesServiceProvider extends ServiceProvider
         }
     }
 
-    public function bootNovaResources(): void
+    /**
+     * Boot any module nova resources.
+     */
+    private function bootNovaResources(): void
     {
         Nova::resources([
             Resources\Continent::class,
             Resources\Country::class,
             Resources\Division::class,
+            Resources\City::class,
         ]);
     }
 
