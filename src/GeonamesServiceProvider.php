@@ -6,6 +6,8 @@ use Facade\Ignition\QueryRecorder\QueryRecorder;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Nova\Nova;
+use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Parsers\FileParser;
@@ -53,6 +55,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootMigrations();
         $this->publishConfig();
         $this->publishMigrations();
+        $this->bootNovaResources();
     }
 
     /**
@@ -212,6 +215,13 @@ class GeonamesServiceProvider extends ServiceProvider
                 'city' => Models\City::class,
             ]);
         }
+    }
+
+    public function bootNovaResources(): void
+    {
+        Nova::resources([
+            Resources\Continent::class,
+        ]);
     }
 
     /**
