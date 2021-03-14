@@ -15,9 +15,9 @@ use Nevadskiy\Translatable\HasTranslations;
  * @property string iso_numeric
  * @property string name
  * @property string name_official
- * @property string|null timezone_id
  * @property float latitude
  * @property float longitude
+ * @property string|null timezone_id
  * @property string continent_id
  * @property string|null capital
  * @property string|null currency_code
@@ -70,6 +70,14 @@ class Country extends Model
     ];
 
     /**
+     * Get the location instance.
+     */
+    public function getLocation(): Location
+    {
+        return new Location($this->latitude, $this->longitude);
+    }
+
+    /**
      * Get the timezone instance.
      */
     public function getTimezone(): ?CarbonTimeZone
@@ -79,13 +87,5 @@ class Country extends Model
         }
 
         return new CarbonTimeZone($this->timezone_id);
-    }
-
-    /**
-     * Get the location instance.
-     */
-    public function getLocation(): Location
-    {
-        return new Location($this->latitude, $this->longitude);
     }
 }

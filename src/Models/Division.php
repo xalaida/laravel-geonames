@@ -2,8 +2,10 @@
 
 namespace Nevadskiy\Geonames\Models;
 
+use Carbon\CarbonTimeZone;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
 
 /**
@@ -53,4 +55,24 @@ class Division extends Model
     protected $translatable = [
         'name',
     ];
+
+    /**
+     * Get the location instance.
+     */
+    public function getLocation(): Location
+    {
+        return new Location($this->latitude, $this->longitude);
+    }
+
+    /**
+     * Get the timezone instance.
+     */
+    public function getTimezone(): ?CarbonTimeZone
+    {
+        if (! $this->timezone_id) {
+            return null;
+        }
+
+        return new CarbonTimeZone($this->timezone_id);
+    }
 }

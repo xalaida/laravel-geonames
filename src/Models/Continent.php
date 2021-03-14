@@ -56,18 +56,18 @@ class Continent extends Model
     ];
 
     /**
-     * Get the timezone instance.
-     */
-    public function getTimezone(): CarbonTimeZone
-    {
-        return new CarbonTimeZone($this->timezone_id);
-    }
-
-    /**
      * Get the location instance.
      */
     public function getLocation(): Location
     {
         return new Location($this->latitude, $this->longitude);
+    }
+
+    /**
+     * Get the timezone instance.
+     */
+    public function getTimezone(): CarbonTimeZone
+    {
+        return new CarbonTimeZone($this->timezone_id);
     }
 }

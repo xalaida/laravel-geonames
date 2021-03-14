@@ -23,9 +23,9 @@ class CreateCountriesTable extends Migration
             $table->string('iso_numeric', 3)->unique();
             $table->string('name');
             $table->string('name_official');
-            $table->string('timezone_id', 32)->nullable()->index();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
+            $table->string('timezone_id', 32)->nullable()->index();
 
             if (app(Geonames::class)->shouldSupplyContinents()) {
                 $table->foreignUuid('continent_id')->references('id')->on(Continent::TABLE)->cascadeOnDelete();

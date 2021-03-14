@@ -58,6 +58,14 @@ class City extends Model
     ];
 
     /**
+     * Get the location instance.
+     */
+    public function getLocation(): Location
+    {
+        return new Location($this->latitude, $this->longitude);
+    }
+
+    /**
      * Get the timezone instance.
      */
     public function getTimezone(): ?CarbonTimeZone
@@ -67,14 +75,6 @@ class City extends Model
         }
 
         return new CarbonTimeZone($this->timezone_id);
-    }
-
-    /**
-     * Get the location instance.
-     */
-    public function getLocation(): Location
-    {
-        return new Location($this->latitude, $this->longitude);
     }
 
     /**
