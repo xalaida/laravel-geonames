@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Models;
 
 use Carbon\CarbonTimeZone;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
@@ -69,5 +70,13 @@ class Continent extends Model
     public function getTimezone(): CarbonTimeZone
     {
         return new CarbonTimeZone($this->timezone_id);
+    }
+
+    /**
+     * Get the countries relation.
+     */
+    public function countries(): HasMany
+    {
+        return $this->hasMany(Country::class);
     }
 }

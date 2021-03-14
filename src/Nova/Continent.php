@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\DateTime;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
@@ -84,6 +85,8 @@ class Continent extends Resource
 
             DateTime::make(__('Date of update'), 'created_at')
                 ->onlyOnDetail(),
+
+            HasMany::make(__('Countries'))
         ];
     }
 
