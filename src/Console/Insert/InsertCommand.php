@@ -24,7 +24,7 @@ class InsertCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:insert {--truncate} {--keep-files} {--update-files} {--without-translations}';
+    protected $signature = 'geonames:insert {--reset} {--keep-files} {--update-files} {--without-translations}';
 
     /**
      * The console command description.
@@ -111,7 +111,7 @@ class InsertCommand extends Command
      */
     private function insert(): void
     {
-        $this->truncate();
+        $this->reset();
 
         if ($this->geonames->shouldSupplyCountries()) {
             $this->info('Add country info.');
@@ -133,8 +133,10 @@ class InsertCommand extends Command
             return;
         }
 
+        // TODO: check if translations should be supplied at all.
+
         $this->call('geonames:translations', [
-            '--reset' => $this->option('truncate'),
+            '--reset' => $this->option('reset'),
             '--update-files' => $this->option('update-files'),
         ]);
 
@@ -142,35 +144,35 @@ class InsertCommand extends Command
     }
 
     /**
-     * Truncate a table if the option is specified.
+     * Reset tables if the option is specified.
      */
-    protected function truncate(): void
+    protected function reset(): void
     {
-        if (! $this->option('truncate')) {
+        if (! $this->option('reset')) {
             return;
         }
 
-        if (! $this->confirmToProceed($this->getTruncateWarning())) {
+        if (! $this->confirmToProceed($this->getResetWarning())) {
             return;
         }
 
-        $this->performTruncate();
+        $this->performReset();
     }
 
     /**
-     * Get the truncate warning message.
+     * Get the reset warning message.
      *
      * @return string
      */
-    private function getTruncateWarning(): string
+    private function getResetWarning(): string
     {
         return sprintf('The following tables will be truncated: %s', implode(', ', $this->geonames->supply()));
     }
 
     /**
-     * Truncate geonames tables.
+     * Reset geonames tables.
      */
-    private function performTruncate(): void
+    private function performReset(): void
     {
         foreach ($this->geonames->supply() as $table) {
             DB::table($table)->truncate();
