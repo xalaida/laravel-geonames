@@ -29,7 +29,7 @@ class InsertTranslationsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:translations {--reset} {--keep-files} {--update-files}';
+    protected $signature = 'geonames:translations:insert {--reset} {--keep-files} {--update-files}';
 
     /**
      * The console command description.
