@@ -20,11 +20,6 @@ interface Downloader
     public function force(): Downloader;
 
     /**
-     * Enable updating files if a file already exists with different size.
-     */
-    public function update(): Downloader;
-
-    /**
      * Add the given callback to ready event.
      *
      * @param callable $callback

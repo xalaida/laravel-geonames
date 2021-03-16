@@ -29,7 +29,7 @@ class BaseDownloader implements Downloader
      *
      * @var bool
      */
-    protected $updateFiles = false;
+    protected $updateFiles = true;
 
     /**
      * FileDownloader constructor.
@@ -71,16 +71,6 @@ class BaseDownloader implements Downloader
     public function force(): Downloader
     {
         $this->overwriteFiles = true;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function update(): Downloader
-    {
-        $this->updateFiles = true;
 
         return $this;
     }

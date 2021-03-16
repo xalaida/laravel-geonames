@@ -61,16 +61,6 @@ class DownloadService
     }
 
     /**
-     * Get the downloader instance.
-     *
-     * @return Downloader
-     */
-    public function getDownloader(): Downloader
-    {
-        return $this->downloader;
-    }
-
-    /**
      * Download geonames source files.
      *
      * @return array

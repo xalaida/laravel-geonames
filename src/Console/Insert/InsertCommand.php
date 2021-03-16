@@ -24,7 +24,7 @@ class InsertCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:insert {--reset} {--keep-files} {--update-files} {--without-translations}';
+    protected $signature = 'geonames:insert {--reset} {--keep-files} {--without-translations}';
 
     /**
      * The console command description.
@@ -137,7 +137,6 @@ class InsertCommand extends Command
 
         $this->call('geonames:translations:insert', [
             '--reset' => $this->option('reset'),
-            '--update-files' => $this->option('update-files'),
             '--keep-files' => true
         ]);
 
@@ -187,18 +186,5 @@ class InsertCommand extends Command
     private function prepare(): void
     {
         $this->dispatcher->dispatch(new GeonamesCommandReady());
-        $this->setUpDownloader($this->downloadService->getDownloader());
-    }
-
-    /**
-     * Set up the console downloader.
-     *
-     * @param Downloader $downloader
-     */
-    private function setUpDownloader(Downloader $downloader): void
-    {
-        if ($this->option('update-files')) {
-            $downloader->update();
-        }
     }
 }

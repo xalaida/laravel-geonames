@@ -59,14 +59,6 @@ class UnzipperDownloader implements Downloader
     /**
      * @inheritDoc
      */
-    public function update(): Downloader
-    {
-        return $this->downloader->update();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function onReady(callable $callback): void
     {
         $this->downloader->onReady($callback);
