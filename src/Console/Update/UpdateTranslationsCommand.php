@@ -8,9 +8,9 @@ use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Services\SupplyService;
+use Nevadskiy\Geonames\Services\TranslateService;
 
-class UpdateCommand extends Command
+class UpdateTranslationsCommand extends Command
 {
     use CleanFolder;
 
@@ -19,14 +19,14 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:update {--keep-files} {--without-translations}';
+    protected $signature = 'geonames:translations:update {--keep-files}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Make a daily update for the geonames database.';
+    protected $description = 'Make a daily update for the geonames translations.';
 
     /**
      * The geonames instance.
@@ -50,11 +50,11 @@ class UpdateCommand extends Command
     protected $downloadService;
 
     /**
-     * The supply service instance.
+     * The translate service instance.
      *
-     * @var SupplyService
+     * @var TranslateService
      */
-    protected $supplyService;
+    protected $translateService;
 
     /**
      * Execute the console command.
@@ -63,20 +63,17 @@ class UpdateCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService
+        TranslateService $translateService
     ): void
     {
-        $this->init($geonames, $dispatcher, $downloadService, $supplyService);
-
-        // TODO: check if any items exists in database.
+        $this->init($geonames, $dispatcher, $downloadService, $translateService);
 
         $this->prepare();
         $this->modify();
         $this->delete();
-        $this->updateTranslations();
         $this->cleanFolder();
 
-        $this->info('Daily update had been completed.');
+        $this->info('Translations update has been completed.');
     }
 
     /**
@@ -86,46 +83,31 @@ class UpdateCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService,
+        TranslateService $translateService
     ): void
     {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
-        $this->supplyService = $supplyService;
+        $this->translateService = $translateService;
     }
 
     /**
-     * Delete items according to the geonames resource.
+     * Modify translations according to the geonames resource.
      */
     private function modify(): void
     {
-        $this->info('Start processing daily modifications.');
-
-        if ($this->geonames->shouldSupplyCountries()) {
-            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
-        }
-
-        $this->supplyService->modify($this->downloadService->downloadDailyModifications());
+        $this->info('Start processing alternate names daily modifications.');
+        $this->translateService->modify($this->downloadService->downloadDailyAlternateNamesModifications());
     }
 
     /**
-     * Delete items according to the geonames resource.
+     * Delete translations according to the geonames resource.
      */
     private function delete(): void
     {
-        $this->info('Start processing daily deletes.');
-        $this->supplyService->delete($this->downloadService->downloadDailyDeletes());
-    }
-
-    /**
-     * Update geonames translations.
-     */
-    protected function updateTranslations(): void
-    {
-        $this->call('geonames:translations:update', [
-            '--keep-files' => true
-        ]);
+        $this->info('Start processing alternate names daily deletes.');
+        $this->translateService->delete($this->downloadService->downloadDailyAlternateNamesDeletes());
     }
 
     /**
