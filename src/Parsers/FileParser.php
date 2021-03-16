@@ -156,7 +156,13 @@ class FileParser implements Parser
             return $values;
         }
 
-        return array_combine($this->fields, $values);
+        $map = [];
+
+        foreach ($values as $index => $value) {
+            $map[$this->fields[$index] ?? $index] = $value;
+        }
+
+        return $map;
     }
 
     /**
