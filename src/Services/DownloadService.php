@@ -87,13 +87,19 @@ class DownloadService
     }
 
     /**
-     * Download geonames alternate names file.
+     * Download geonames alternate names resources.
      *
-     * @return string
+     * @return array
      */
-    public function downloaderAlternateNames(): string
+    public function downloaderAlternateNames(): array
     {
-        return $this->download($this->getAlternateNamesUrl());
+        $paths = [];
+
+        foreach ($this->getAlternateNamesUrl() as $url) {
+            $paths[] = $this->download($url);
+        }
+
+        return $paths;
     }
 
     /**
@@ -204,6 +210,24 @@ class DownloadService
     }
 
     /**
+     * Get the URLs of the single country of the alternate names files by the given country codes.
+     *
+     * @return array
+     */
+    protected function getSingleCountryAlternateNamesUrls(array $countries): array
+    {
+        $this->assertCountryIsSpecified($countries);
+
+        $urls = [];
+
+        foreach ($countries as $country) {
+            $urls[] = $this->getSingleCountryAlternateNamesUrl($country);
+        }
+
+        return $urls;
+    }
+
+    /**
      * Get the country info resource URL.
      *
      * @return string
@@ -214,13 +238,17 @@ class DownloadService
     }
 
     /**
-     * Get the geonames alternate names resource URL.
+     * Get the geonames alternate names resource URLs.
      *
-     * @return string
+     * @return array
      */
-    protected function getAlternateNamesUrl(): string
+    protected function getAlternateNamesUrl(): array
     {
-        return "{$this->getBaseUrl()}alternateNames.zip";
+        if ($this->geonames->isSingleCountrySource()) {
+            return $this->getSingleCountryAlternateNamesUrls($this->geonames->getCountries());
+        }
+
+        return [$this->getAllAlternateNamesUrl()];
     }
 
     /**
@@ -241,6 +269,16 @@ class DownloadService
     protected function getSingleCountryUrl(string $code): string
     {
         return "{$this->getBaseUrl()}{$code}.zip";
+    }
+
+    /**
+     * Get the URL of the single country of the alternate name file by the given country code.
+     *
+     * @return string
+     */
+    protected function getSingleCountryAlternateNamesUrl(string $code): string
+    {
+        return "{$this->getBaseUrl()}alternatenames/{$code}.zip";
     }
 
     /**
@@ -352,5 +390,13 @@ class DownloadService
             5000,
             15000,
         ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAllAlternateNamesUrl(): string
+    {
+        return "{$this->getBaseUrl()}alternateNames.zip";
     }
 }

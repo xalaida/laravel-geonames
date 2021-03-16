@@ -121,12 +121,14 @@ class InsertTranslationsCommand extends Command
     }
 
     /**
-     * Insert the geonames dataset.
+     * Insert the geonames alternate names dataset.
      */
     private function insert(): void
     {
-        // TODO: feature downloading specific alternate names source (single country or everything)
-        $this->translateService->insert($this->downloadService->downloaderAlternateNames());
+        foreach ($this->downloadService->downloaderAlternateNames() as $path) {
+            $this->info("Processing the {$path} file.");
+            $this->translateService->insert($path);
+        }
     }
 
     /**
