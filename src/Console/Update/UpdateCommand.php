@@ -86,7 +86,7 @@ class UpdateCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService,
+        SupplyService $supplyService
     ): void
     {
         $this->geonames = $geonames;
