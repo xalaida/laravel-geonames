@@ -135,9 +135,10 @@ class InsertCommand extends Command
 
         // TODO: check if translations should be supplied at all.
 
-        $this->call('geonames:translations', [
+        $this->call('geonames:translations:insert', [
             '--reset' => $this->option('reset'),
             '--update-files' => $this->option('update-files'),
+            '--keep-files' => true
         ]);
 
         $this->cleanFolder();
