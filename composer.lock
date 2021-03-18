@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec59f0dd4997e4eea9d6475ea1ca22c0",
+    "content-hash": "e62035355a22ad7e426dec244055f4b0",
     "packages": [
         {
             "name": "brick/math",
@@ -974,16 +974,16 @@
         },
         {
             "name": "nevadskiy/laravel-translatable",
-            "version": "0.7.0",
+            "version": "0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nevadskiy/laravel-translatable.git",
-                "reference": "7d5f3f2da7d4cb1619f41c03948fd20b47d90e9a"
+                "reference": "64be44d4a67dce4a656e3a1396af9e356de4fa01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nevadskiy/laravel-translatable/zipball/7d5f3f2da7d4cb1619f41c03948fd20b47d90e9a",
-                "reference": "7d5f3f2da7d4cb1619f41c03948fd20b47d90e9a",
+                "url": "https://api.github.com/repos/nevadskiy/laravel-translatable/zipball/64be44d4a67dce4a656e3a1396af9e356de4fa01",
+                "reference": "64be44d4a67dce4a656e3a1396af9e356de4fa01",
                 "shasum": ""
             },
             "require": {
@@ -1029,9 +1029,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nevadskiy/laravel-translatable/issues",
-                "source": "https://github.com/nevadskiy/laravel-translatable/tree/0.7.0"
+                "source": "https://github.com/nevadskiy/laravel-translatable/tree/0.7.1"
             },
-            "time": "2021-02-26T19:11:02+00:00"
+            "time": "2021-03-18T18:13:22+00:00"
         },
         {
             "name": "nevadskiy/laravel-uuid",
