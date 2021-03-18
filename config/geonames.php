@@ -4,20 +4,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default package boot settings
-    |--------------------------------------------------------------------------
-    |
-    | Configure default package settings like loading default migrations,
-    | morph mapping for models and others according to personal needs.
-    |
-    */
-
-    'default_migrations' => true,
-
-    'default_morph_map' => true,
-
-    /*
-    |--------------------------------------------------------------------------
     | Geonames resources directory
     |--------------------------------------------------------------------------
     |
@@ -52,7 +38,7 @@ return [
 
         'countries' => ['*'],
 
-        'population' => 0,
+        'population' => 500,
 
     ],
 
@@ -77,6 +63,20 @@ return [
         'cities' => true,
 
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default package boot settings
+    |--------------------------------------------------------------------------
+    |
+    | Configure default package settings like loading default migrations,
+    | morph mapping for models and others according to personal needs.
+    |
+    */
+
+    'default_migrations' => true,
+
+    'default_morph_map' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +108,8 @@ return [
     | Default geonames suppliers
     |--------------------------------------------------------------------------
     |
-    | Override it when you are going to use custom migrations.
+    | Override it when you are going to use custom migrations
+    | with own custom insert, update and delete logic.
     |
     */
     'suppliers' => [
