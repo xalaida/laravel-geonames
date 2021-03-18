@@ -8,9 +8,6 @@ class ArrayExporter
 {
     /**
      * Export the given array into a PHP file.
-     *
-     * @param array $array
-     * @param string $path
      */
     public function export(array $array, string $path): void
     {
@@ -23,7 +20,7 @@ class ArrayExporter
      */
     private function write(string $path, array $array): void
     {
-        file_put_contents($path, '<?php return ' . var_export($array, true) . ";\n");
+        file_put_contents($path, '<?php return '.var_export($array, true).";\n");
     }
 
     /**

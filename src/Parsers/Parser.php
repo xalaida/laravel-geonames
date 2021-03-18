@@ -25,5 +25,5 @@ interface Parser
     /**
      * Set the parser fields.
      */
-    public function setFields(array $fields): Parser;
+    public function setFields(array $fields): self;
 }

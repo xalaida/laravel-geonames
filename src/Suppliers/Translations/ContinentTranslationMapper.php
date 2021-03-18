@@ -15,7 +15,7 @@ class ContinentTranslationMapper implements TranslationMapper
     protected $continents;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function forEach(Collection $translations, callable $callback): void
     {

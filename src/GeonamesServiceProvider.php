@@ -7,17 +7,17 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Nova;
-use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
+use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
 use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
+use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
-use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
 use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
@@ -63,7 +63,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     private function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/geonames.php', self::PACKAGE);
+        $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', self::PACKAGE);
     }
 
     /**
@@ -185,19 +185,19 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
             if ($geonames->shouldSupplyContinents()) {
-                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_100000_create_continents_table.php');
+                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_100000_create_continents_table.php');
             }
 
             if ($geonames->shouldSupplyCountries()) {
-                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_200000_create_countries_table.php');
+                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_200000_create_countries_table.php');
             }
 
             if ($geonames->shouldSupplyDivisions()) {
-                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_300000_create_divisions_table.php');
+                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_300000_create_divisions_table.php');
             }
 
             if ($geonames->shouldSupplyCities()) {
-                $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/2020_06_06_400000_create_cities_table.php');
+                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_400000_create_cities_table.php');
             }
         }
     }
@@ -236,8 +236,8 @@ class GeonamesServiceProvider extends ServiceProvider
     private function publishConfig(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/geonames.php' => config_path('geonames.php')
-        ], self::PACKAGE . '-config');
+            __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
+        ], self::PACKAGE.'-config');
     }
 
     /**
@@ -246,7 +246,7 @@ class GeonamesServiceProvider extends ServiceProvider
     private function publishMigrations(): void
     {
         $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations')
-        ], self::PACKAGE . '-migrations');
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], self::PACKAGE.'-migrations');
     }
 }

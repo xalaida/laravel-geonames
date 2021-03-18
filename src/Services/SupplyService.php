@@ -83,8 +83,7 @@ class SupplyService
         CountrySupplier $countrySupplier,
         DivisionSupplier $divisionSupplier,
         CitySupplier $citySupplier
-    )
-    {
+    ) {
         $this->geonames = $geonames;
         $this->geonamesParser = $geonamesParser;
         $this->countryInfoParser = $countryInfoParser;
@@ -97,8 +96,6 @@ class SupplyService
 
     /**
      * Add the country info by the given path.
-     *
-     * @param string $path
      */
     public function addCountryInfo(string $path): void
     {
@@ -107,8 +104,6 @@ class SupplyService
 
     /**
      * Insert dataset from the given path.
-     *
-     * @param string $path
      */
     public function insert(string $path): void
     {
@@ -119,20 +114,16 @@ class SupplyService
 
     /**
      * Modify the database according to the given modifications path file.
-     *
-     * @param string $path
      */
     public function modify(string $path): void
     {
         foreach ($this->suppliers() as $supplier) {
-             $supplier->modifyMany($this->geonamesParser->each($path));
+            $supplier->modifyMany($this->geonamesParser->each($path));
         }
     }
 
     /**
      * Delete items from database according to the given deletes path file.
-     *
-     * @param string $path
      */
     public function delete(string $path): void
     {
@@ -152,7 +143,7 @@ class SupplyService
     }
 
     /**
-     * @return array
+     * Get all available suppliers.
      */
     protected function allSuppliers(): array
     {

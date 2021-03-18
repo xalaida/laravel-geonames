@@ -17,7 +17,6 @@ use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\TranslateService;
-use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class InsertTranslationsCommand extends Command
 {
@@ -74,8 +73,7 @@ class InsertTranslationsCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->init($geonames, $dispatcher, $downloadService, $translateService);
 
         $this->info('Start inserting translations. It may take some time.');
@@ -96,8 +94,7 @@ class InsertTranslationsCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
@@ -144,7 +141,7 @@ class InsertTranslationsCommand extends Command
         ];
 
         foreach (Arr::only($models, $this->geonames->supply()) as $model) {
-            $this->deleteTranslations(new $model);
+            $this->deleteTranslations(new $model());
         }
 
         $this->info('Translations have been reset.');

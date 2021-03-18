@@ -10,8 +10,6 @@ class OutputFactory
 {
     /**
      * Make the output style.
-     *
-     * @return OutputStyle
      */
     public static function make(): OutputStyle
     {

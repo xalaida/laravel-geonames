@@ -51,7 +51,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function init(): void
     {
@@ -67,7 +67,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getModel(): Model
     {
@@ -75,7 +75,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function shouldSupply(array $data, int $id): bool
     {
@@ -86,7 +86,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapInsertFields(array $data, int $id): array
     {
@@ -99,7 +99,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapUpdateFields(array $data, int $id): array
     {
@@ -140,9 +140,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 
     /**
      * Get a country ID by the given city data.
-     *
-     * @param array $data
-     * @return string
      */
     protected function getCountryId(array $data): string
     {
@@ -152,7 +149,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     /**
      * Get a division ID by the given city data.
      *
-     * @param array $data
      * @return string
      */
     protected function getDivisionId(array $data): ?string

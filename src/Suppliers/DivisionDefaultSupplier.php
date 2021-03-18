@@ -45,7 +45,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function init(): void
     {
@@ -57,7 +57,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getModel(): Model
     {
@@ -65,7 +65,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function shouldSupply(array $data, int $id): bool
     {
@@ -75,7 +75,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapInsertFields(array $data, int $id): array
     {
@@ -88,7 +88,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapUpdateFields(array $data, int $id): array
     {

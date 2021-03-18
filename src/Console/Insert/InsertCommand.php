@@ -12,7 +12,6 @@ use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\SupplyService;
 use Nevadskiy\Geonames\Services\TranslateService;
-use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class InsertCommand extends Command
 {
@@ -77,8 +76,7 @@ class InsertCommand extends Command
         DownloadService $downloadService,
         SupplyService $supplyService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
 
         $this->prepare();
@@ -97,8 +95,7 @@ class InsertCommand extends Command
         DownloadService $downloadService,
         SupplyService $supplyService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
@@ -137,7 +134,7 @@ class InsertCommand extends Command
 
         $this->call('geonames:translations:insert', [
             '--reset' => $this->option('reset'),
-            '--keep-files' => true
+            '--keep-files' => true,
         ]);
 
         $this->cleanFolder();
@@ -161,8 +158,6 @@ class InsertCommand extends Command
 
     /**
      * Get the reset warning message.
-     *
-     * @return string
      */
     private function getResetWarning(): string
     {

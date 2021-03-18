@@ -41,9 +41,6 @@ class AlternateNameParser implements Parser
 
     /**
      * Set up the original parser instance.
-     *
-     * @param Parser $parser
-     * @return Parser
      */
     protected function setUpParser(Parser $parser): Parser
     {
@@ -53,7 +50,7 @@ class AlternateNameParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function all(string $path): array
     {
@@ -61,7 +58,7 @@ class AlternateNameParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function each(string $path): Generator
     {
@@ -69,7 +66,7 @@ class AlternateNameParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFileReader(): FileReader
     {
@@ -77,7 +74,7 @@ class AlternateNameParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setFields(array $fields): Parser
     {

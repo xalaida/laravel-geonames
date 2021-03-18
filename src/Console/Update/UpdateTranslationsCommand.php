@@ -64,8 +64,7 @@ class UpdateTranslationsCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->init($geonames, $dispatcher, $downloadService, $translateService);
 
         $this->prepare();
@@ -84,8 +83,7 @@ class UpdateTranslationsCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         TranslateService $translateService
-    ): void
-    {
+    ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;

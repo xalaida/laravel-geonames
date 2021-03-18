@@ -32,9 +32,6 @@ class UnzipperDownloader implements Downloader
     /**
      * Download a file by the given url and unzip it if possible.
      *
-     * @param string $url
-     * @param string $directory
-     * @param string|null $name
      * @return array|string
      */
     public function download(string $url, string $directory, string $name = null)
@@ -49,7 +46,7 @@ class UnzipperDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function force(): Downloader
     {
@@ -57,7 +54,7 @@ class UnzipperDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onReady(callable $callback): void
     {
@@ -65,7 +62,7 @@ class UnzipperDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onStep(callable $callback): void
     {
@@ -73,7 +70,7 @@ class UnzipperDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onFinish(callable $callback): void
     {

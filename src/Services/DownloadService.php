@@ -62,8 +62,6 @@ class DownloadService
 
     /**
      * Download geonames source files.
-     *
-     * @return array
      */
     public function downloadSourceFiles(): array
     {
@@ -78,8 +76,6 @@ class DownloadService
 
     /**
      * Download geonames alternate names resources.
-     *
-     * @return array
      */
     public function downloaderAlternateNames(): array
     {
@@ -94,8 +90,6 @@ class DownloadService
 
     /**
      * Download geonames daily modifications file.
-     *
-     * @return string
      */
     public function downloadDailyModifications(): string
     {
@@ -104,8 +98,6 @@ class DownloadService
 
     /**
      * Download geonames daily deletes file.
-     *
-     * @return string
      */
     public function downloadDailyDeletes(): string
     {
@@ -114,8 +106,6 @@ class DownloadService
 
     /**
      * Download geonames daily alternate name modifications file.
-     *
-     * @return string
      */
     public function downloadDailyAlternateNamesModifications(): string
     {
@@ -124,8 +114,6 @@ class DownloadService
 
     /**
      * Download geonames daily alternate name deletes file.
-     *
-     * @return string
      */
     public function downloadDailyAlternateNamesDeletes(): string
     {
@@ -143,7 +131,6 @@ class DownloadService
     /**
      * Perform the downloading process.
      *
-     * @param string $url
      * @return array|string
      */
     protected function download(string $url)
@@ -153,8 +140,6 @@ class DownloadService
 
     /**
      * Get the URLs of the geonames sources.
-     *
-     * @return array
      */
     protected function getSourceUrls(): array
     {
@@ -171,8 +156,6 @@ class DownloadService
 
     /**
      * Get the URL of the cities file with the given population.
-     *
-     * @return string
      */
     protected function getCitiesUrl(int $population): string
     {
@@ -183,8 +166,6 @@ class DownloadService
 
     /**
      * Get the URL of the single country file by the given country codes.
-     *
-     * @return array
      */
     protected function getSingleCountryUrls(array $countries): array
     {
@@ -201,8 +182,6 @@ class DownloadService
 
     /**
      * Get the URLs of the single country of the alternate names files by the given country codes.
-     *
-     * @return array
      */
     protected function getSingleCountryAlternateNamesUrls(array $countries): array
     {
@@ -219,8 +198,6 @@ class DownloadService
 
     /**
      * Get the country info resource URL.
-     *
-     * @return string
      */
     protected function getCountryInfoUrl(): string
     {
@@ -229,8 +206,6 @@ class DownloadService
 
     /**
      * Get the geonames alternate names resource URLs.
-     *
-     * @return array
      */
     protected function getAlternateNamesUrl(): array
     {
@@ -243,8 +218,6 @@ class DownloadService
 
     /**
      * Get the all countries geonames resource URL.
-     *
-     * @return string
      */
     protected function getAllCountriesUrl(): string
     {
@@ -253,8 +226,6 @@ class DownloadService
 
     /**
      * Get the URL of the single country file by the given country code.
-     *
-     * @return string
      */
     protected function getSingleCountryUrl(string $code): string
     {
@@ -263,8 +234,6 @@ class DownloadService
 
     /**
      * Get the URL of the single country of the alternate name file by the given country code.
-     *
-     * @return string
      */
     protected function getSingleCountryAlternateNamesUrl(string $code): string
     {
@@ -281,8 +250,6 @@ class DownloadService
 
     /**
      * Get the URL of the geonames daily modifications file.
-     *
-     * @return string
      */
     protected function getDailyModificationsUrl(): string
     {
@@ -291,8 +258,6 @@ class DownloadService
 
     /**
      * Get the URL of the geonames daily deletes file.
-     *
-     * @return string
      */
     protected function getDailyDeletesUrl(): string
     {
@@ -301,19 +266,14 @@ class DownloadService
 
     /**
      * Get the URL of the geonames daily alternate names modifications file.
-     *
-     * @return string
      */
     protected function getDailyAlternateNamesModificationsUrl(): string
     {
         return $this->getDailyUpdateUrlByType('alternateNamesModifications');
     }
 
-
     /**
      * Get the URL of the geonames daily alternate names deletes file.
-     *
-     * @return string
      */
     protected function getDailyAlternateNamesDeletesUrl(): string
     {
@@ -322,8 +282,6 @@ class DownloadService
 
     /**
      * Get the URL of the geonames daily deletes file.
-     *
-     * @return string
      */
     protected function getDailyUpdateUrlByType(string $type): string
     {
@@ -332,8 +290,6 @@ class DownloadService
 
     /**
      * Get the base URL for downloading geonames resources.
-     *
-     * @return string
      */
     protected function getBaseUrl(): string
     {
@@ -342,14 +298,12 @@ class DownloadService
 
     /**
      * Assert that the given population is available to download.
-     *
-     * @param int $population
      */
     protected function assertAvailablePopulation(int $population): void
     {
         if (! in_array($population, $this->getPopulations())) {
             throw new InvalidArgumentException(
-                vsprintf("There is no file with %s population. Specify one of %s", [
+                vsprintf('There is no file with %s population. Specify one of %s', [
                     $population,
                     implode(', ', $this->getPopulations()),
                 ])
@@ -383,7 +337,7 @@ class DownloadService
     }
 
     /**
-     * @return string
+     * Get full alternate names URL.
      */
     protected function getAllAlternateNamesUrl(): string
     {

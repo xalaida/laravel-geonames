@@ -36,8 +36,7 @@ class TranslateService
         AlternateNameParser $alternateNameParser,
         AlternateNameDeletesParser $alternateDeletesParser,
         TranslationSupplier $translationSupplier
-    )
-    {
+    ) {
         $this->alternateNameParser = $alternateNameParser;
         $this->alternateDeletesParser = $alternateDeletesParser;
         $this->translationSupplier = $translationSupplier;
@@ -45,8 +44,6 @@ class TranslateService
 
     /**
      * Insert dataset translations from the given path.
-     *
-     * @param string $path
      */
     public function insert(string $path): void
     {
@@ -55,8 +52,6 @@ class TranslateService
 
     /**
      * Modify dataset translations by the given path.
-     *
-     * @param string $path
      */
     public function modify(string $path): void
     {
@@ -65,8 +60,6 @@ class TranslateService
 
     /**
      * Delete dataset translations by the given path.
-     *
-     * @param string $path
      */
     public function delete(string $path): void
     {

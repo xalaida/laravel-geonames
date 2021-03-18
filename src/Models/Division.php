@@ -17,9 +17,9 @@ use Nevadskiy\Translatable\HasTranslations;
  * @property float latitude
  * @property float longitude
  * @property string|null timezone_id
- * @property integer|null population
- * @property integer|null elevation
- * @property integer|null dem
+ * @property int|null population
+ * @property int|null elevation
+ * @property int|null dem
  * @property string code
  * @property string feature_code
  * @property int geoname_id
@@ -80,8 +80,6 @@ class Division extends Model
 
     /**
      * Get the country relation.
-     *
-     * @return BelongsTo
      */
     public function country(): BelongsTo
     {
@@ -90,8 +88,6 @@ class Division extends Model
 
     /**
      * Get the cities relation.
-     *
-     * @return HasMany
      */
     public function cities(): HasMany
     {

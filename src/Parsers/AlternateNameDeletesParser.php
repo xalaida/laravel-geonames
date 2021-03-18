@@ -37,9 +37,6 @@ class AlternateNameDeletesParser implements Parser
 
     /**
      * Set up the original parser instance.
-     *
-     * @param Parser $parser
-     * @return Parser
      */
     protected function setUpParser(Parser $parser): Parser
     {
@@ -49,7 +46,7 @@ class AlternateNameDeletesParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function all(string $path): array
     {
@@ -57,7 +54,7 @@ class AlternateNameDeletesParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function each(string $path): Generator
     {
@@ -65,7 +62,7 @@ class AlternateNameDeletesParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFileReader(): FileReader
     {
@@ -73,7 +70,7 @@ class AlternateNameDeletesParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setFields(array $fields): Parser
     {

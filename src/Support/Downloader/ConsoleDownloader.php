@@ -33,7 +33,6 @@ class ConsoleDownloader implements Downloader
     /**
      * Enable the console progress bar.
      *
-     * @param OutputStyle $output
      * @return ConsoleDownloader
      */
     public function withProgressBar(OutputStyle $output): self
@@ -60,7 +59,7 @@ class ConsoleDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function download(string $url, string $directory, string $name = null)
     {
@@ -68,7 +67,7 @@ class ConsoleDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function force(): Downloader
     {
@@ -76,7 +75,7 @@ class ConsoleDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onReady(callable $callback): void
     {
@@ -84,7 +83,7 @@ class ConsoleDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onStep(callable $callback): void
     {
@@ -92,7 +91,7 @@ class ConsoleDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onFinish(callable $callback): void
     {

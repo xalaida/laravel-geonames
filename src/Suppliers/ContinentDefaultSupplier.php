@@ -34,7 +34,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getModel(): Model
     {
@@ -42,7 +42,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function shouldSupply(array $data, int $id): bool
     {
@@ -51,7 +51,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapInsertFields(array $data, int $id): array
     {
@@ -64,7 +64,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapUpdateFields(array $data, int $id): array
     {

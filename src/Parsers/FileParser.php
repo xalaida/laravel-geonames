@@ -23,8 +23,6 @@ class FileParser implements Parser
 
     /**
      * CountryInfoParser constructor.
-     *
-     * @param FileReader $fileReader
      */
     public function __construct(FileReader $fileReader)
     {
@@ -32,7 +30,7 @@ class FileParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFileReader(): FileReader
     {
@@ -40,7 +38,7 @@ class FileParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setFields(array $fields): Parser
     {
@@ -50,7 +48,7 @@ class FileParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function each(string $path): Generator
     {
@@ -74,7 +72,7 @@ class FileParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function all(string $path): array
     {
@@ -119,9 +117,6 @@ class FileParser implements Parser
 
     /**
      * Determine whether the given line is commented.
-     *
-     * @param string $line
-     * @return bool
      */
     protected function isCommentedLine(string $line): bool
     {
@@ -144,9 +139,6 @@ class FileParser implements Parser
 
     /**
      * Map the given line into keyable array.
-     *
-     * @param string $line
-     * @return array
      */
     protected function mapLine(string $line): array
     {

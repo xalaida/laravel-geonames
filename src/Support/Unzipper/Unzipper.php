@@ -27,8 +27,6 @@ class Unzipper
     /**
      * Extract files from the given ZIP-archive.
      *
-     * @param string $zipPath
-     * @param string|null $directory
      * @return string|array
      */
     public function unzip(string $zipPath, string $directory = null)
@@ -42,8 +40,6 @@ class Unzipper
 
     /**
      * Determine whether the unzipper should return only path to the main file.
-     *
-     * @return bool
      */
     protected function shouldReturnOnlyMainFile(): bool
     {
@@ -62,10 +58,6 @@ class Unzipper
 
     /**
      * Extract a file from zip archive by the given file name.
-     *
-     * @param ZipArchive $zip
-     * @param string $fileName
-     * @param string $directory
      */
     protected function extractFile(ZipArchive $zip, string $fileName, string $directory): string
     {
@@ -73,21 +65,18 @@ class Unzipper
 
         if (! file_exists($targetPath)) {
             $zip->extractTo($directory, $fileName);
-        } else if ($this->getLocalFileSize($targetPath) !== $this->getZipFileSize($zip, $fileName)) {
+        } elseif ($this->getLocalFileSize($targetPath) !== $this->getZipFileSize($zip, $fileName)) {
             // TODO: toggle using update flag
             $zip->extractTo($directory, $fileName);
-        } else {
-            // TODO: toggle using force flag
-            // TODO: log that file already extracted
         }
+        // TODO: toggle using force flag
+        // TODO: log that file already extracted
 
         return $targetPath;
     }
 
     /**
      * Assert that the given file is a zip archive.
-     *
-     * @param string $path
      */
     protected function assertFileIsZipArchive(string $path): void
     {
@@ -98,9 +87,6 @@ class Unzipper
 
     /**
      * Get size of the local file by the given path.
-     *
-     * @param string $path
-     * @return int
      */
     protected function getLocalFileSize(string $path): int
     {
@@ -113,10 +99,6 @@ class Unzipper
 
     /**
      * Get the destination directory.
-     *
-     * @param string|null $directory
-     * @param string $zipPath
-     * @return string
      */
     protected function getDirectory(?string $directory, string $zipPath): string
     {
@@ -133,21 +115,14 @@ class Unzipper
 
     /**
      * Get full extract path for the given filename.
-     *
-     * @param string $directory
-     * @param string $fileName
-     * @return string
      */
     protected function getFullPath(string $directory, string $fileName): string
     {
-        return rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $fileName;
+        return rtrim($directory, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$fileName;
     }
 
     /**
      * Get zipped file names.
-     *
-     * @param ZipArchive $zip
-     * @return array
      */
     protected function getArchiveFileNames(ZipArchive $zip): array
     {
@@ -163,8 +138,6 @@ class Unzipper
     /**
      * Get size of the zip file.
      *
-     * @param ZipArchive $zip
-     * @param string $zipFileName
      * @return int in bytes
      */
     protected function getZipFileSize(ZipArchive $zip, string $zipFileName): int
@@ -175,8 +148,6 @@ class Unzipper
     /**
      * Determine the extracted path.
      *
-     * @param string $zipPath
-     * @param array $paths
      * @return array|string
      */
     protected function extractedPath(string $zipPath, array $paths)
@@ -202,10 +173,6 @@ class Unzipper
 
     /**
      * Perform the extracting process.
-     *
-     * @param string $path
-     * @param string $directory
-     * @return array
      */
     protected function performExtract(string $path, string $directory): array
     {

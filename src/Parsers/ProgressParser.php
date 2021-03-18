@@ -48,7 +48,7 @@ class ProgressParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function each(string $path): Generator
     {
@@ -68,7 +68,7 @@ class ProgressParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFileReader(): FileReader
     {
@@ -99,7 +99,7 @@ class ProgressParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function all(string $path): array
     {
@@ -107,7 +107,7 @@ class ProgressParser implements Parser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setFields(array $fields): Parser
     {

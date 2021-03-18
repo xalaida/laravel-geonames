@@ -15,7 +15,7 @@ class CountryTranslationMapper implements TranslationMapper
     protected $countries;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function forEach(Collection $translations, callable $callback): void
     {

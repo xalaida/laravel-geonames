@@ -26,7 +26,7 @@ abstract class DefaultSupplier implements Supplier
     protected $fields;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function insertMany(iterable $data): void
     {
@@ -40,7 +40,7 @@ abstract class DefaultSupplier implements Supplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function modifyMany(iterable $data): void
     {
@@ -68,7 +68,7 @@ abstract class DefaultSupplier implements Supplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function deleteMany(iterable $data): void
     {
@@ -113,7 +113,7 @@ abstract class DefaultSupplier implements Supplier
             return false;
         }
 
-        echo("Adding new model {$this->getModel()->getMorphClass()}: {$id}\n");
+        echo "Adding new model {$this->getModel()->getMorphClass()}: {$id}\n";
 
         return $this->performInsert($item, $id);
     }
@@ -152,10 +152,6 @@ abstract class DefaultSupplier implements Supplier
 
     /**
      * Insert the item into database.
-     *
-     * @param array $data
-     * @param int $id
-     * @return bool
      */
     protected function performInsert(array $data, int $id): bool
     {
@@ -169,7 +165,6 @@ abstract class DefaultSupplier implements Supplier
     /**
      * Find a model by the given geonames' id.
      *
-     * @param int $id
      * @return Continent|null
      */
     protected function findModel(int $id): ?Model
@@ -182,14 +177,10 @@ abstract class DefaultSupplier implements Supplier
 
     /**
      * Update the model with the given data.
-     *
-     * @param Model $model
-     * @param array $data
-     * @return bool
      */
     protected function updateModel(Model $model, array $data, int $id): bool
     {
-        echo("Updating model {$model->getMorphClass()}: {$id}\n");
+        echo "Updating model {$model->getMorphClass()}: {$id}\n";
 
         return $model->update(
             $this->resolveValues($this->mapUpdateFields($data, $id))
@@ -199,13 +190,11 @@ abstract class DefaultSupplier implements Supplier
     /**
      * Delete the given model from the database.
      *
-     * @param Model $model
-     * @return bool
      * @throws Exception
      */
     protected function deleteModel(Model $model): bool
     {
-        echo("Deleting model {$model->getMorphClass()}: {$model->geoname_id}\n");
+        echo "Deleting model {$model->getMorphClass()}: {$model->geoname_id}\n";
 
         return $model->delete();
     }
@@ -228,9 +217,6 @@ abstract class DefaultSupplier implements Supplier
 
     /**
      * Resolve the attributes.
-     *
-     * @param array $data
-     * @return array
      */
     protected function resolveValues(array $data): array
     {

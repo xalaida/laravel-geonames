@@ -8,7 +8,7 @@ use Nevadskiy\Geonames\Models\Division;
 class DivisionTranslationMapper implements TranslationMapper
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function forEach(Collection $translations, callable $callback): void
     {

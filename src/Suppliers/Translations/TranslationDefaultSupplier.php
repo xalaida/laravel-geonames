@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Geonames;
+use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 use Nevadskiy\Translatable\Models\Translation;
 
@@ -53,7 +53,7 @@ class TranslationDefaultSupplier implements TranslationSupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function insertMany(iterable $data): void
     {
@@ -67,7 +67,7 @@ class TranslationDefaultSupplier implements TranslationSupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function modifyMany(iterable $data): void
     {
@@ -81,7 +81,7 @@ class TranslationDefaultSupplier implements TranslationSupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function deleteMany(iterable $data): void
     {
@@ -119,8 +119,6 @@ class TranslationDefaultSupplier implements TranslationSupplier
 
     /**
      * Insert given translations into the database.
-     *
-     * @param Collection $translations
      */
     protected function insert(Collection $translations): void
     {
@@ -141,10 +139,6 @@ class TranslationDefaultSupplier implements TranslationSupplier
 
     /**
      * Map translation attributes.
-     *
-     * @param Model $model
-     * @param array $translation
-     * @return array
      */
     protected function mapTranslation(array $translation, Model $model): array
     {
@@ -181,8 +175,6 @@ class TranslationDefaultSupplier implements TranslationSupplier
 
     /**
      * Update the database items using the given translations.
-     *
-     * @param Collection $translations
      */
     protected function modify(Collection $translations): void
     {
@@ -207,16 +199,14 @@ class TranslationDefaultSupplier implements TranslationSupplier
         ]);
 
         if ($translation->wasRecentlyCreated) {
-            echo("Translation {$translation->value} has been added to {$translation->translatable_type}\n");
+            echo "Translation {$translation->value} has been added to {$translation->translatable_type}\n";
         } else {
-            echo("Translation {$translation->value} has been updated in {$translation->translatable_type}\n");
+            echo "Translation {$translation->value} has been updated in {$translation->translatable_type}\n";
         }
     }
 
     /**
      * Delete the given translations from the database.
-     *
-     * @param Collection $translations
      */
     protected function delete(Collection $translations): void
     {
@@ -264,14 +254,12 @@ class TranslationDefaultSupplier implements TranslationSupplier
             ->delete();
 
         if ($deleted) {
-            echo("Deleted {$translation['alternate name']} from the model {$model->getMorphClass()}");
+            echo "Deleted {$translation['alternate name']} from the model {$model->getMorphClass()}";
         }
     }
 
     /**
      * Add the given translation to the source batch if the translation can be supplied.
-     *
-     * @param array $translation
      */
     protected function addToSourceIfProcessable(array $translation): void
     {
@@ -282,8 +270,6 @@ class TranslationDefaultSupplier implements TranslationSupplier
 
     /**
      * Add the given translation to the source batch.
-     *
-     * @param array $translation
      */
     protected function addToSource(array $translation): void
     {

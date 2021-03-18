@@ -7,9 +7,6 @@ interface Downloader
     /**
      * Download a file by the given url and returns the final path.
      *
-     * @param string $url
-     * @param string $directory
-     * @param string|null $name
      * @return string|array
      */
     public function download(string $url, string $directory, string $name = null);
@@ -17,26 +14,20 @@ interface Downloader
     /**
      * Enable overwriting files if a file already exists.
      */
-    public function force(): Downloader;
+    public function force(): self;
 
     /**
      * Add the given callback to ready event.
-     *
-     * @param callable $callback
      */
     public function onReady(callable $callback): void;
 
     /**
      * Add the given callback to step event.
-     *
-     * @param callable $callback
      */
     public function onStep(callable $callback): void;
 
     /**
      * Add the given callback to finish event.
-     *
-     * @param callable $callback
      */
     public function onFinish(callable $callback): void;
 }

@@ -8,7 +8,7 @@ use Nevadskiy\Geonames\Models\City;
 class CityTranslationMapper implements TranslationMapper
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function forEach(Collection $translations, callable $callback): void
     {

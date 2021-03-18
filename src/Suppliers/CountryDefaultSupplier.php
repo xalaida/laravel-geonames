@@ -40,7 +40,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function init(): void
     {
@@ -52,7 +52,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setCountryInfos(array $countryInfo): void
     {
@@ -62,7 +62,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getModel(): Model
     {
@@ -70,7 +70,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function shouldSupply(array $data, int $id): bool
     {
@@ -82,7 +82,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapInsertFields(array $data, int $id): array
     {
@@ -95,7 +95,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function mapUpdateFields(array $data, int $id): array
     {
@@ -107,10 +107,6 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
 
     /**
      * Map country table fields.
-     *
-     * @param array $data
-     * @param int $id
-     * @return array
      */
     private function mapCountryFields(array $data, int $id): array
     {
@@ -128,9 +124,6 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
 
     /**
      * Map country info table fields.
-     *
-     * @param array $data
-     * @return array
      */
     private function mapCountryInfoFields(array $data): array
     {

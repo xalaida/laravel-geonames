@@ -64,8 +64,7 @@ class UpdateCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService
-    ): void
-    {
+    ): void {
         $this->init($geonames, $dispatcher, $downloadService, $supplyService);
 
         // TODO: check if any items exists in database.
@@ -87,8 +86,7 @@ class UpdateCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService
-    ): void
-    {
+    ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
@@ -124,7 +122,7 @@ class UpdateCommand extends Command
     protected function updateTranslations(): void
     {
         $this->call('geonames:translations:update', [
-            '--keep-files' => true
+            '--keep-files' => true,
         ]);
     }
 

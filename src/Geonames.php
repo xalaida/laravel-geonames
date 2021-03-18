@@ -24,8 +24,6 @@ class Geonames
 
     /**
      * Determine whether the package should use default migrations.
-     *
-     * @return bool
      */
     public function shouldUseDefaultMigrations(): bool
     {
@@ -42,8 +40,6 @@ class Geonames
 
     /**
      * Determine whether the all countries source is specified.
-     *
-     * @return bool
      */
     public function isAllCountriesSource(): bool
     {
@@ -52,8 +48,6 @@ class Geonames
 
     /**
      * Determine whether the only cities source is specified.
-     *
-     * @return bool
      */
     public function isOnlyCitiesSource(): bool
     {
@@ -62,8 +56,6 @@ class Geonames
 
     /**
      * Determine whether the single country source is specified.
-     *
-     * @return bool
      */
     public function isSingleCountrySource(): bool
     {
@@ -72,8 +64,6 @@ class Geonames
 
     /**
      * Determine whether the all countries is allowed to be supplied.
-     *
-     * @return bool
      */
     public function isAllCountriesAllowed(): bool
     {
@@ -82,8 +72,6 @@ class Geonames
 
     /**
      * Determine whether the package should supply continents to the database.
-     *
-     * @return bool
      */
     public function shouldSupplyContinents(): bool
     {
@@ -104,8 +92,6 @@ class Geonames
 
     /**
      * Determine whether the package should supply countries to the database.
-     *
-     * @return bool
      */
     public function shouldSupplyCountries(): bool
     {
@@ -122,8 +108,6 @@ class Geonames
 
     /**
      * Determine whether the package should supply divisions to the database.
-     *
-     * @return bool
      */
     public function shouldSupplyDivisions(): bool
     {
@@ -140,8 +124,6 @@ class Geonames
 
     /**
      * Determine whether the package should supply cities to the database.
-     *
-     * @return bool
      */
     public function shouldSupplyCities(): bool
     {
@@ -180,8 +162,6 @@ class Geonames
 
     /**
      * Get the population filter.
-     *
-     * @return int
      */
     public function getPopulation(): int
     {
@@ -190,8 +170,6 @@ class Geonames
 
     /**
      * Determine whether the population is allowed.
-     *
-     * @return bool
      */
     public function isPopulationAllowed(int $population): bool
     {
@@ -200,8 +178,6 @@ class Geonames
 
     /**
      * Get the countries filter.
-     *
-     * @return array
      */
     public function getCountries(): array
     {
@@ -210,9 +186,6 @@ class Geonames
 
     /**
      * Determine whether the country is allowed.
-     *
-     * @param string $code
-     * @return bool
      */
     public function isCountryAllowed(string $code): bool
     {
@@ -225,9 +198,6 @@ class Geonames
 
     /**
      * Determine whether the given language code is allowed.
-     *
-     * @param string|null $code
-     * @return bool
      */
     public function isLanguageAllowed(?string $code): bool
     {

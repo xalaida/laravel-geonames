@@ -6,8 +6,8 @@ use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
 
 /**
@@ -93,8 +93,6 @@ class Country extends Model
 
     /**
      * Get the continent relation.
-     *
-     * @return BelongsTo
      */
     public function continent(): BelongsTo
     {
@@ -103,8 +101,6 @@ class Country extends Model
 
     /**
      * Get the divisions relation.
-     *
-     * @return HasMany
      */
     public function divisions(): HasMany
     {

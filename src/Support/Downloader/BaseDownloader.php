@@ -33,8 +33,6 @@ class BaseDownloader implements Downloader
 
     /**
      * FileDownloader constructor.
-     *
-     * @param int $bufferSize
      */
     public function __construct(int $bufferSize = 1024 * 1024)
     {
@@ -42,7 +40,7 @@ class BaseDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onReady(callable $callback): void
     {
@@ -50,7 +48,7 @@ class BaseDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onStep(callable $callback): void
     {
@@ -58,7 +56,7 @@ class BaseDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function onFinish(callable $callback): void
     {
@@ -66,7 +64,7 @@ class BaseDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function force(): Downloader
     {
@@ -76,7 +74,7 @@ class BaseDownloader implements Downloader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function download(string $url, string $directory, string $name = null): string
     {
@@ -106,11 +104,6 @@ class BaseDownloader implements Downloader
 
     /**
      * Perform file download process.
-     *
-     * @param string $sourceUrl
-     * @param string $targetPath
-     * @param int $sourceSize
-     * @return string
      */
     private function performDownload(string $sourceUrl, string $targetPath, int $sourceSize): string
     {
@@ -132,22 +125,14 @@ class BaseDownloader implements Downloader
 
     /**
      * Get the target path.
-     *
-     * @param string $url
-     * @param string $directory
-     * @param string|null $name
-     * @return string
      */
     protected function getTargetPath(string $url, string $directory, string $name = null): string
     {
-        return rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ($name ?: basename($url));
+        return rtrim($directory, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.($name ?: basename($url));
     }
 
     /**
      * Get size of the file by the given url.
-     *
-     * @param string $url
-     * @return int
      */
     protected function getFileSizeByUrl(string $url): int
     {
@@ -156,9 +141,6 @@ class BaseDownloader implements Downloader
 
     /**
      * Get size of the local file by the given path.
-     *
-     * @param string $path
-     * @return int
      */
     private function getLocalFileSize(string $path): int
     {
@@ -172,7 +154,6 @@ class BaseDownloader implements Downloader
     /**
      * Open resource of the target file.
      *
-     * @param string $path
      * @return resource
      */
     protected function openTargetResource(string $path)
@@ -191,7 +172,6 @@ class BaseDownloader implements Downloader
     /**
      * Open resource of the source file.
      *
-     * @param string $path
      * @return resource
      */
     protected function openSourceResource(string $path)
@@ -202,8 +182,6 @@ class BaseDownloader implements Downloader
     /**
      * Get a resource of the given file.
      *
-     * @param string $file
-     * @param string $mode
      * @return resource
      */
     protected function openFileResource(string $file, string $mode = 'rb')
@@ -220,7 +198,6 @@ class BaseDownloader implements Downloader
     /**
      * Get the steps count of downloading process.
      *
-     * @param int $sourceSize
      * @return false|float|int
      */
     protected function getStepsCount(int $sourceSize)
@@ -236,7 +213,7 @@ class BaseDownloader implements Downloader
      */
     protected function copyResource($sourceResource, $targetResource): void
     {
-        while (!feof($sourceResource)) {
+        while (! feof($sourceResource)) {
             fwrite($targetResource, stream_get_contents($sourceResource, $this->bufferSize));
             $this->fireEvent('step');
         }

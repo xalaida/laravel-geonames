@@ -5,8 +5,8 @@ namespace Nevadskiy\Geonames\Models;
 use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
 
 /**
@@ -18,7 +18,7 @@ use Nevadskiy\Translatable\HasTranslations;
  * @property float longitude
  * @property string timezone_id
  * @property int population
- * @property integer|null dem
+ * @property int|null dem
  * @property string feature_code
  * @property int geoname_id
  * @property Carbon modified_at

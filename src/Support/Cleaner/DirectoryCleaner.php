@@ -28,7 +28,6 @@ class DirectoryCleaner
     /**
      * Do not remove the given file name.
      *
-     * @param string $fileName
      * @return $this
      */
     public function keep(string $fileName): self
@@ -40,8 +39,6 @@ class DirectoryCleaner
 
     /**
      * Clean the given directory.
-     *
-     * @param string $directory
      */
     public function clean(string $directory): void
     {
@@ -56,7 +53,6 @@ class DirectoryCleaner
      * Determine whether the given file shouldn't be deleted.
      *
      * @param $fileName
-     * @return bool
      */
     protected function shouldKeep(string $fileName): bool
     {
