@@ -12,57 +12,24 @@ jobs:
   php-cs-fixer:
     runs-on: ubuntu-latest
     steps:
-      -   name: Checkout code
-          uses: actions/checkout@v2
-          with:
-            ref: ${{ github.head_ref }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
 
-      -   name: Cache dependencies
-          uses: actions/cache@v1
-          with:
-            path: vendor
-            key: composer-${{ hashFiles('composer.lock') }}
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
 
-      -   name: Install dependencies
-          run: composer install --no-interaction --no-progress
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
 
-      -   name: Run php-cs-fixer
-          run: ./vendor/bin/php-cs-fixer fix
+      - name: Run php-cs-fixer
+        run: ./vendor/bin/php-cs-fixer fix
 
-      -   uses: stefanzweifel/git-auto-commit-action@v4
-          with:
-            commit_message: Apply php-cs-fixer changes
-            name: Fix Code Style
-
-            on:
-              push:
-                branches:
-                  - master
-              pull_request:
-                paths:
-                  - '**.php'
-
-            jobs:
-              php-cs-fixer:
-                runs-on: ubuntu-latest
-                steps:
-                  - name: Checkout code
-                    uses: actions/checkout@v2
-                    with:
-                      ref: ${{ github.head_ref }}
-
-                  - name: Cache dependencies
-                    uses: actions/cache@v1
-                    with:
-                      path: vendor
-                      key: composer-${{ hashFiles('composer.lock') }}
-
-                  - name: Install dependencies
-                    run: composer install --no-interaction --no-progress
-
-                  - name: Run php-cs-fixer
-                    run: ./vendor/bin/php-cs-fixer fix
-
-                  - uses: stefanzweifel/git-auto-commit-action@v4
-                    with:
-                      commit_message: Apply php-cs-fixer change
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply php-cs-fixer changes
+          name: Fix Code Style
