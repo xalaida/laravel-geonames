@@ -23,6 +23,12 @@ jobs:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          coverage: none
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress
 
