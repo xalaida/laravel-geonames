@@ -3,8 +3,11 @@
 namespace Nevadskiy\Geonames\Models;
 
 use Carbon\CarbonTimeZone;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
@@ -91,5 +94,20 @@ class City extends Model
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class, 'division_id');
+    }
+
+    /**
+     * Order cities by feature code.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeOrderByFeature(Builder $query): Builder
+    {
+        foreach (['PPLC', 'PPLA', 'PPLA2', 'PPLA3'] as $feature) {
+            $query->orderByDesc(new Expression("feature_code = '{$feature}'"));
+        }
+
+        return $query;
     }
 }
