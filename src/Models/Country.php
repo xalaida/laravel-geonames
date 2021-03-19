@@ -106,4 +106,12 @@ class Country extends Model
     {
         return $this->hasMany(Division::class, 'country_id', 'id');
     }
+
+    /**
+     * Get the cities relation.
+     */
+    public function cities(): HasMany
+    {
+        return $this->hasMany(City::class, 'country_id', 'id');
+    }
 }
