@@ -97,9 +97,6 @@ class City extends Model
 
     /**
      * Order cities by feature code.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeOrderByFeature(Builder $query): Builder
     {
