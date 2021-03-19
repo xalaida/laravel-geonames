@@ -14,12 +14,41 @@ class Geonames
     private $config;
 
     /**
+     * Indicates if nova resources should be booted.
+     *
+     * @var bool
+     */
+    private $bootNovaResources = false;
+
+    /**
      * The geonames config wrapper class.
      */
     public function __construct(array $config)
     {
         $this->config = $config;
         $this->transformCountries();
+    }
+
+    /**
+     * Add nova default resources.
+     *
+     * @return $this
+     */
+    public function withNovaResources(): self
+    {
+        $this->bootNovaResources = true;
+
+        return $this;
+    }
+
+    /**
+     * Determine whether the nova resources should be booted.
+     *
+     * @return bool
+     */
+    public function shouldBootNovaResources(): bool
+    {
+        return $this->bootNovaResources;
     }
 
     /**
