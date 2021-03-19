@@ -30,7 +30,7 @@ class AlternateNameDeletesParser implements Parser
         return [
             'alternateNameId',
             'geonameid',
-            'name',
+            'alternate name',
             'comment',
         ];
     }
