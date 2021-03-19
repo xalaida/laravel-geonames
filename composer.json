@@ -13,7 +13,7 @@
         "php": "^7.2",
         "ext-zip": "*",
         "laravel/framework": "^7.0|^8.0",
-        "nevadskiy/laravel-translatable": "^0.7.1",
+        "nevadskiy/laravel-translatable": "^0.7",
         "nevadskiy/laravel-uuid": "^0.6"
     },
     "require-dev": {
