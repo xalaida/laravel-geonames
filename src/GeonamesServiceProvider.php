@@ -172,6 +172,7 @@ class GeonamesServiceProvider extends ServiceProvider
                 Console\Insert\InsertCommand::class,
                 Console\Insert\InsertTranslationsCommand::class,
                 Console\Update\UpdateCommand::class,
+                Console\Update\UpdateTranslationsCommand::class,
             ]);
         }
     }
