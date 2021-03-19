@@ -19,7 +19,7 @@ class CreateDivisionsTable extends Migration
             $table->string('name');
 
             if (app(Geonames::class)->shouldSupplyCountries()) {
-                $table->foreignUuid('country_id')->references('id')->on(Country::TABLE)->cascadeOnDelete();
+                $table->foreignUuid('country_id')->index()->references('id')->on(Country::TABLE)->cascadeOnDelete();
             }
 
             $table->decimal('latitude', 10, 7);

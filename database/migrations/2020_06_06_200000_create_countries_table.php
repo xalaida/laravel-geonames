@@ -26,7 +26,7 @@ class CreateCountriesTable extends Migration
             $table->string('timezone_id', 32)->nullable()->index();
 
             if (app(Geonames::class)->shouldSupplyContinents()) {
-                $table->foreignUuid('continent_id')->references('id')->on(Continent::TABLE)->cascadeOnDelete();
+                $table->foreignUuid('continent_id')->index()->references('id')->on(Continent::TABLE)->cascadeOnDelete();
             }
 
             $table->string('capital')->nullable(); // Can be normalized using separate table.

@@ -222,12 +222,14 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     private function bootNovaResources(): void
     {
-        Nova::resources([
-            Resources\Continent::class,
-            Resources\Country::class,
-            Resources\Division::class,
-            Resources\City::class,
-        ]);
+        if ($this->app[Geonames::class]->shouldBootNovaResources()) {
+            Nova::resources([
+                Resources\Continent::class,
+                Resources\Country::class,
+                Resources\Division::class,
+                Resources\City::class,
+            ]);
+        }
     }
 
     /**
