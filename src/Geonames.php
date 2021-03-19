@@ -43,8 +43,6 @@ class Geonames
 
     /**
      * Determine whether the nova resources should be booted.
-     *
-     * @return bool
      */
     public function shouldBootNovaResources(): bool
     {
