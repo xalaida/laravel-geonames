@@ -16,8 +16,10 @@ class BaseFileReader implements FileReader
 
     /**
      * The cache repository instance.
+     *
+     * @var Cache
      */
-    private Cache $cache;
+    private $cache;
 
     /**
      * BaseFileReader constructor.
