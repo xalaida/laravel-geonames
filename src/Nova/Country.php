@@ -154,6 +154,8 @@ class Country extends Resource
                 ->onlyOnDetail(),
 
             HasMany::make(__('Divisions')),
+
+            HasMany::make(__('Cities')),
         ];
     }
 
