@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
