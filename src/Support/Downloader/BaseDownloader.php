@@ -99,7 +99,7 @@ class BaseDownloader implements Downloader
         $targetSize = $this->getLocalFileSize($path);
 
         if ($sourceSize === $targetSize) {
-            $this->logger->info("File '{$path}' already exists.");
+            $this->logger->notice("File '{$path}' already exists.");
 
             return $path;
         }
@@ -110,7 +110,7 @@ class BaseDownloader implements Downloader
             return $this->performDownload($url, $path, $sourceSize);
         }
 
-        $this->logger->info("Local file '{$path}' already exists but with different size. You should probably update it.");
+        $this->logger->warning("Local file '{$path}' already exists but with different size. You should probably update it.");
 
         return $path;
     }

@@ -129,7 +129,7 @@ class InsertTranslationsCommand extends Command
     private function insert(): void
     {
         foreach ($this->downloadService->downloaderAlternateNames() as $path) {
-            $this->info("Processing the {$path} file.");
+            $this->info("Start translating from file {$path}.");
             $this->translateService->insert($path);
         }
     }

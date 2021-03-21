@@ -21,8 +21,9 @@ class ConsoleLogger extends AbstractLogger
      * @var string[]
      */
     protected $colors =  [
-        LogLevel::INFO => 'green',
         LogLevel::WARNING => 'yellow',
+        LogLevel::NOTICE => 'cyan',
+        LogLevel::INFO => 'green',
     ];
 
     /**

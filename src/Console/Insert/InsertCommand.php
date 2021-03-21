@@ -129,7 +129,7 @@ class InsertCommand extends Command
         }
 
         foreach ($this->downloadService->downloadSourceFiles() as $path) {
-            $this->info("Start inserting from {$path}.");
+            $this->info("Start inserting from file {$path}.");
             $this->supplyService->insert($path);
         }
     }
