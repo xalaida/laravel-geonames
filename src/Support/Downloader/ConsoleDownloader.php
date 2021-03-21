@@ -44,7 +44,7 @@ class ConsoleDownloader implements Downloader
                 $this->progress->setFormat(
                     "<options=bold;fg=green>Downloading:</> {$url}\n".
                     "%bar% %percent%%\n".
-                    "<info>Remaining Time:</info> %remaining%\n"
+                    "<fg=blue>Remaining Time:</> %remaining%\n"
                 );
             }
         });
