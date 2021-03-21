@@ -139,7 +139,7 @@ class SupplyService
      */
     protected function suppliers(): array
     {
-        return Arr::only($this->allSuppliers(), array_keys($this->geonames->models()));
+        return Arr::only($this->allSuppliers(), array_keys($this->geonames->modelClasses()));
     }
 
     /**

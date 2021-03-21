@@ -142,7 +142,7 @@ class GeonamesServiceProvider extends ServiceProvider
                 'division' => Suppliers\Translations\DivisionTranslationMapper::class,
                 'city' => Suppliers\Translations\CityTranslationMapper::class,
             ])
-                ->only(array_keys($this->app->make(Geonames::class)->models()))
+                ->only(array_keys($this->app->make(Geonames::class)->modelClasses()))
                 ->map(function (string $mapper) {
                     return $this->app->make($mapper);
                 })

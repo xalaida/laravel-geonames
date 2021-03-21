@@ -139,7 +139,7 @@ class InsertTranslationsCommand extends Command
      */
     private function performReset(): void
     {
-        foreach ($this->geonames->models() as $model) {
+        foreach ($this->geonames->modelClasses() as $model) {
             $this->deleteTranslations(new $model());
         }
 

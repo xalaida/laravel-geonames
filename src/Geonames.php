@@ -171,9 +171,9 @@ class Geonames
     }
 
     /*
-     * Get the geonames models.
+     * Get the geonames models classes.
      */
-    public function models(): array
+    public function modelClasses(): array
     {
         return array_filter($this->config['models']);
     }
