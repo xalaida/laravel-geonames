@@ -66,7 +66,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
      */
     protected function getModel(): Model
     {
-        return resolve(Country::class);
+        return $this->geonames->model('country');
     }
 
     /**

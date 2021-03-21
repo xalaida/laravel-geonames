@@ -61,7 +61,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
      */
     protected function getModel(): Model
     {
-        return resolve(Division::class);
+        return $this->geonames->model('division');
     }
 
     /**

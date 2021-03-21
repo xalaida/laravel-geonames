@@ -71,7 +71,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      */
     protected function getModel(): Model
     {
-        return resolve(City::class);
+        return $this->geonames->model('city');
     }
 
     /**

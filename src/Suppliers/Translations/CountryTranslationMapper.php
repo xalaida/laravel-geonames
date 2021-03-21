@@ -3,16 +3,32 @@
 namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 
 class CountryTranslationMapper implements TranslationMapper
 {
+    /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
     /**
      * The countries collection.
      *
      * @var Collection
      */
     protected $countries;
+
+    /**
+     * Make a new translation mapper instance.
+     */
+    public function __construct(Geonames $geonames)
+    {
+        $this->geonames = $geonames;
+    }
 
     /**
      * {@inheritdoc}
@@ -41,7 +57,9 @@ class CountryTranslationMapper implements TranslationMapper
      */
     protected function getCountries(): Collection
     {
-        return Country::query()->get();
+        return $this->geonames->model('country')
+            ->newQuery()
+            ->get();
     }
 
     /**

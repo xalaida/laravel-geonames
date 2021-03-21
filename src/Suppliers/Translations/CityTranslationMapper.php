@@ -3,10 +3,26 @@
 namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 
 class CityTranslationMapper implements TranslationMapper
 {
+    /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
+    /**
+     * Make a new translation mapper instance.
+     */
+    public function __construct(Geonames $geonames)
+    {
+        $this->geonames = $geonames;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -26,7 +42,10 @@ class CityTranslationMapper implements TranslationMapper
      */
     protected function filterCities(Collection $translations): Collection
     {
-        return City::query()->whereIn('geoname_id', $translations->pluck('geonameid'))->get();
+        return $this->geonames->model('city')
+            ->newQuery()
+            ->whereIn('geoname_id', $translations->pluck('geonameid'))
+            ->get();
     }
 
     /**

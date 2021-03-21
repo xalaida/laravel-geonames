@@ -3,10 +3,26 @@
 namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Division;
 
 class DivisionTranslationMapper implements TranslationMapper
 {
+    /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
+    /**
+     * Make a new translation mapper instance.
+     */
+    public function __construct(Geonames $geonames)
+    {
+        $this->geonames = $geonames;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -26,7 +42,10 @@ class DivisionTranslationMapper implements TranslationMapper
      */
     protected function filterDivisions(Collection $translations): Collection
     {
-        return Division::query()->whereIn('geoname_id', $translations->pluck('geonameid'))->get();
+        return $this->geonames->model('division')
+            ->newQuery()
+            ->whereIn('geoname_id', $translations->pluck('geonameid'))
+            ->get();
     }
 
     /**

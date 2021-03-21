@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 
@@ -19,6 +20,13 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     public const FEATURE_CODES = ['CONT'];
 
     /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
+    /**
      * The code generator instance.
      *
      * @var ContinentCodeGenerator
@@ -28,9 +36,10 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     /**
      * Make a new supplier instance.
      */
-    public function __construct(ContinentCodeGenerator $codeGenerator)
+    public function __construct(Geonames $geonames, ContinentCodeGenerator $codeGenerator)
     {
         $this->codeGenerator = $codeGenerator;
+        $this->geonames = $geonames;
     }
 
     /**
@@ -38,7 +47,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      */
     protected function getModel(): Model
     {
-        return resolve(Continent::class);
+        return $this->geonames->model('continent');
     }
 
     /**

@@ -3,16 +3,32 @@
 namespace Nevadskiy\Geonames\Suppliers\Translations;
 
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 
 class ContinentTranslationMapper implements TranslationMapper
 {
+    /**
+     * The geonames instance.
+     *
+     * @var Geonames
+     */
+    private $geonames;
+
     /**
      * The continents collection.
      *
      * @var Collection
      */
     protected $continents;
+
+    /**
+     * Make a new translation mapper instance.
+     */
+    public function __construct(Geonames $geonames)
+    {
+        $this->geonames = $geonames;
+    }
 
     /**
      * {@inheritdoc}
@@ -41,7 +57,9 @@ class ContinentTranslationMapper implements TranslationMapper
      */
     protected function getContinents(): Collection
     {
-        return Continent::query()->get();
+        return $this->geonames->model('continent')
+            ->newQuery()
+            ->get();
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames;
 
 use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\Support\Eloquent\Model;
 
 class Geonames
 {
@@ -167,6 +168,14 @@ class Geonames
     public function models(): array
     {
         return array_filter($this->config['models']);
+    }
+
+    /*
+     * Get the geonames model by the given type.
+     */
+    public function model(string $type): Model
+    {
+        return new ($this->config['models'][$type]);
     }
 
     /**
