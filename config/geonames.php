@@ -54,23 +54,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Geonames tables
+    | Geonames models
     |--------------------------------------------------------------------------
     |
-    | Specify tables that will be used in the application.
-    | By default, there are 4 tables enabled.
+    | Specify models that will be used in the application.
+    | If you do not need any of them, set a model as 'false'.
     |
     */
 
-    'tables' => [
+    'models' => [
 
-        'continents' => true,
+        'continent' => Nevadskiy\Geonames\Models\Continent::class,
 
-        'countries' => true,
+        'country' => Nevadskiy\Geonames\Models\Country::class,
 
-        'divisions' => true,
+        'division' => Nevadskiy\Geonames\Models\Division::class,
 
-        'cities' => true,
+        'city' => Nevadskiy\Geonames\Models\City::class,
 
     ],
 
