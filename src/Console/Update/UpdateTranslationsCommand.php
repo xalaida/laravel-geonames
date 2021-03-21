@@ -9,6 +9,7 @@ use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\TranslateService;
+use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 
 class UpdateTranslationsCommand extends Command
 {
@@ -57,15 +58,23 @@ class UpdateTranslationsCommand extends Command
     protected $translateService;
 
     /**
+     * The directory cleaner instance.
+     *
+     * @var DirectoryCleaner
+     */
+    protected $directoryCleaner;
+
+    /**
      * Execute the console command.
      */
     public function handle(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        TranslateService $translateService
+        TranslateService $translateService,
+        DirectoryCleaner $directoryCleaner
     ): void {
-        $this->init($geonames, $dispatcher, $downloadService, $translateService);
+        $this->init($geonames, $dispatcher, $downloadService, $translateService, $directoryCleaner);
 
         $this->prepare();
         $this->modify();
@@ -82,12 +91,14 @@ class UpdateTranslationsCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        TranslateService $translateService
+        TranslateService $translateService,
+        DirectoryCleaner $directoryCleaner
     ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
         $this->translateService = $translateService;
+        $this->directoryCleaner = $directoryCleaner;
     }
 
     /**

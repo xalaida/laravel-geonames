@@ -12,6 +12,7 @@ use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\SupplyService;
 use Nevadskiy\Geonames\Services\TranslateService;
+use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 
 class InsertCommand extends Command
 {
@@ -68,6 +69,13 @@ class InsertCommand extends Command
     protected $translateService;
 
     /**
+     * The directory cleaner instance.
+     *
+     * @var DirectoryCleaner
+     */
+    protected $directoryCleaner;
+
+    /**
      * Execute the console command.
      */
     public function handle(
@@ -75,13 +83,15 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService,
-        TranslateService $translateService
+        TranslateService $translateService,
+        DirectoryCleaner $directoryCleaner
     ): void {
-        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService);
+        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService, $directoryCleaner);
 
         $this->prepare();
         $this->insert();
         $this->translate();
+        $this->cleanFolder();
 
         $this->info('Geonames dataset has been inserted.');
     }
@@ -94,13 +104,15 @@ class InsertCommand extends Command
         Dispatcher $dispatcher,
         DownloadService $downloadService,
         SupplyService $supplyService,
-        TranslateService $translateService
+        TranslateService $translateService,
+        DirectoryCleaner $directoryCleaner
     ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
         $this->supplyService = $supplyService;
         $this->translateService = $translateService;
+        $this->directoryCleaner = $directoryCleaner;
     }
 
     /**
@@ -136,8 +148,6 @@ class InsertCommand extends Command
             '--reset' => $this->option('reset'),
             '--keep-files' => true,
         ]);
-
-        $this->cleanFolder();
     }
 
     /**

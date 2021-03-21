@@ -9,6 +9,7 @@ use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\SupplyService;
+use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 
 class UpdateCommand extends Command
 {
@@ -57,15 +58,23 @@ class UpdateCommand extends Command
     protected $supplyService;
 
     /**
+     * The directory cleaner instance.
+     *
+     * @var DirectoryCleaner
+     */
+    protected $directoryCleaner;
+
+    /**
      * Execute the console command.
      */
     public function handle(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService
+        SupplyService $supplyService,
+        DirectoryCleaner $directoryCleaner
     ): void {
-        $this->init($geonames, $dispatcher, $downloadService, $supplyService);
+        $this->init($geonames, $dispatcher, $downloadService, $supplyService, $directoryCleaner);
 
         // TODO: check if any items exists in database.
 
@@ -85,12 +94,14 @@ class UpdateCommand extends Command
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
-        SupplyService $supplyService
+        SupplyService $supplyService,
+        DirectoryCleaner $directoryCleaner
     ): void {
         $this->geonames = $geonames;
         $this->dispatcher = $dispatcher;
         $this->downloadService = $downloadService;
         $this->supplyService = $supplyService;
+        $this->directoryCleaner = $directoryCleaner;
     }
 
     /**
