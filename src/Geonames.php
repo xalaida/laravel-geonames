@@ -175,9 +175,9 @@ class Geonames
      */
     public function model(string $type): Model
     {
-        return tap($this->config['models'][$type], static function (string $className) {
-            return new $className;
-        });
+        $class = $this->config['models'][$type];
+
+        return new $class;
     }
 
     /**
