@@ -17,7 +17,13 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
 
         $this->app->setLocale('en');
+    }
 
+    /**
+     * Migrate the database.
+     */
+    protected function migrate(): void
+    {
         $this->artisan('migrate', ['--database' => 'testbench'])->run();
     }
 
