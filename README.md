@@ -139,6 +139,22 @@ For example, most applications probably will not need continent model.
 ],
 ```
 
+#### Overriding migrations
+
+To rename tables or remove unnecessary fields, you can publish migrations and edit them before execution migrations command.
+
+- To publish default migrations, use the following command:
+
+```
+php artisan vendor:publish --tag=geonames-migrations
+```
+
+- Then disable default migrations from being migrated, setting `default_migrations` to `false` in the `geonames` configuration file.
+
+```php
+'default_migrations' => false
+```
+
 #### Inserting custom structure
 
 - After configuring [source](#specifying-source) and [filters](#specifying-filters), you can execute migrations command.
@@ -152,6 +168,14 @@ php artisan migrate
 
 ```bash
 php artisan geonames:insert
+```
+
+#### Reinserting dataset
+
+Sometimes you may need to delete all data and reinsert it again. To do it, pass the `--reset` option to `geonames:insert` command.
+
+```bash
+php artisan geonames:insert --reset
 ```
 
 ## 📑 Changelog
