@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Tests;
 
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
+use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
@@ -27,7 +28,10 @@ class TestCase extends OrchestraTestCase
      */
     protected function getPackageProviders($app): array
     {
-        return [GeonamesServiceProvider::class];
+        return [
+            GeonamesServiceProvider::class,
+            TranslatableServiceProvider::class
+        ];
     }
 
     /**
@@ -43,5 +47,16 @@ class TestCase extends OrchestraTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+    }
+
+    /**
+     * Get the fixture.
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function fixture(string $path): string
+    {
+        return __DIR__ . "/Support/fixtures/{$path}";
     }
 }
