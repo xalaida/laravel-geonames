@@ -22,6 +22,7 @@ use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 use Nevadskiy\Geonames\Support\Output\OutputFactory;
+use Nevadskiy\Translatable\Translatable;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -53,6 +54,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootCommands();
         $this->bootMorphMap();
         $this->bootMigrations();
+        $this->bootTranslatableMigrations();
         $this->bootNovaResources();
         $this->publishConfig();
         $this->publishMigrations();
@@ -72,12 +74,6 @@ class GeonamesServiceProvider extends ServiceProvider
     private function registerGeonames(): void
     {
         $this->app->singleton(Geonames::class);
-
-        $this->app->when(Geonames::class)
-            ->needs('$config')
-            ->give(function () {
-                return $this->app['config']['geonames'];
-            });
     }
 
     /**
@@ -182,7 +178,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     private function bootMigrations(): void
     {
-        $geonames = $this->app->make(Geonames::class);
+        $geonames = $this->app[Geonames::class];
 
         if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
             if ($geonames->shouldSupplyContinents()) {
@@ -201,6 +197,18 @@ class GeonamesServiceProvider extends ServiceProvider
                 $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_400000_create_cities_table.php');
             }
         }
+    }
+
+    /**
+     * Boot any translatable migrations.
+     */
+    public function bootTranslatableMigrations(): void
+    {
+        $this->callAfterResolving(Translatable::class, function (Translatable $translatable) {
+            if (! $this->app[Geonames::class]->shouldSupplyTranslations()) {
+                $translatable->ignoreMigrations();
+            }
+        });
     }
 
     /**
