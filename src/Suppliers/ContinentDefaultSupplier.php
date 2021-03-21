@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
+use Nevadskiy\Geonames\Utils\FeatureCode;
 
 class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSupplier
 {
@@ -13,11 +14,6 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      * Feature class of a continent.
      */
     public const FEATURE_CLASS = 'L';
-
-    /**
-     * Feature codes of a continent.
-     */
-    public const FEATURE_CODES = ['CONT'];
 
     /**
      * The geonames instance.
@@ -56,7 +52,7 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
-            && in_array($data['feature code'], self::FEATURE_CODES, true);
+            && $data['feature code'] === FeatureCode::CONT;
     }
 
     /**

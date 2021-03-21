@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
+use Nevadskiy\Geonames\Utils\FeatureCode;
 
 class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplier
 {
@@ -14,13 +15,6 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
      * The division feature class.
      */
     public const FEATURE_CLASS = 'A';
-
-    /**
-     * The division feature codes.
-     */
-    public const FEATURE_CODES = [
-        'ADM1',
-    ];
 
     /**
      * The geonames instance.
@@ -70,7 +64,7 @@ class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplie
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
-            && in_array($data['feature code'], self::FEATURE_CODES, true)
+            && $data['feature code'] === FeatureCode::ADM1
             && $this->geonames->isCountryAllowed($data['country code']);
     }
 

@@ -8,6 +8,7 @@ use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
+use Nevadskiy\Geonames\Utils\FeatureCode;
 
 class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 {
@@ -15,11 +16,6 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      * The city feature class.
      */
     public const FEATURE_CLASS = 'P';
-
-    /**
-     * The city feature codes.
-     */
-    public const FEATURE_CODES = ['PPL', 'PPLC', 'PPLA', 'PPLA2', 'PPLA3', 'PPLX', 'PPLG'];
 
     /**
      * The geonames instance.
@@ -80,7 +76,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
     protected function shouldSupply(array $data, int $id): bool
     {
         return $data['feature class'] === self::FEATURE_CLASS
-            && in_array($data['feature code'], self::FEATURE_CODES, true)
+            && in_array($data['feature code'], FeatureCode::cities(), true)
             && $this->geonames->isPopulationAllowed($data['population'])
             && $this->geonames->isCountryAllowed($data['country code']);
     }

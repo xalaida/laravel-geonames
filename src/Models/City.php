@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
+use Nevadskiy\Geonames\Utils\FeatureCode;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
 
@@ -100,7 +101,7 @@ class City extends Model
      */
     public function scopeOrderByFeature(Builder $query): Builder
     {
-        foreach (['PPLC', 'PPLA', 'PPLA2', 'PPLA3'] as $feature) {
+        foreach ([FeatureCode::PPLC, FeatureCode::PPLA, FeatureCode::PPLA2, FeatureCode::PPLA3] as $feature) {
             $query->orderByDesc(new Expression("feature_code = '{$feature}'"));
         }
 
