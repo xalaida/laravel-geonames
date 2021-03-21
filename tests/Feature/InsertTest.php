@@ -8,6 +8,7 @@ use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
+use Nevadskiy\Geonames\Tests\Support\Factories\ContinentFactory;
 use Nevadskiy\Geonames\Tests\TestCase;
 use Nevadskiy\Translatable\Models\Translation;
 
@@ -17,9 +18,9 @@ class InsertTest extends TestCase
     public function it_can_insert_geonames_dataset_into_database(): void
     {
         $this->fakeDownloadService();
-
         $this->fakeDirectoryCleaner();
 
+        $this->migrate();
         $this->artisan('geonames:insert');
 
         self::assertCount(3, Continent::all());
@@ -29,6 +30,23 @@ class InsertTest extends TestCase
         self::assertCount(2, Translation::all());
     }
 
+    /** @test */
+    public function it_can_reset_tables_during_insert_process(): void
+    {
+        $this->fakeDownloadService();
+        $this->fakeDirectoryCleaner();
+        $this->migrate();
+
+        $continent = ContinentFactory::new()->create();
+
+        $this->artisan('geonames:insert', ['--reset' => true]);
+
+        self::assertFalse(Continent::all()->contains($continent));
+    }
+
+    /**
+     * Fake the directory cleaner.
+     */
     protected function fakeDirectoryCleaner(): void
     {
         $directoryCleaner = $this->mock(DirectoryCleaner::class);
@@ -43,22 +61,22 @@ class InsertTest extends TestCase
             ->with(config('geonames.directory'));
     }
 
+    /**
+     * Fake download service.
+     */
     protected function fakeDownloadService(): void
     {
         $downloadService = $this->mock(DownloadService::class);
 
         $downloadService->shouldReceive('downloadCountryInfoFile')
-            ->once()
             ->withNoArgs()
             ->andReturn($this->fixture('countryInfo.txt'));
 
         $downloadService->shouldReceive('downloadSourceFiles')
-            ->once()
             ->withNoArgs()
             ->andReturn([$this->fixture('allCountries.txt')]);
 
         $downloadService->shouldReceive('downloaderAlternateNames')
-            ->once()
             ->withNoArgs()
             ->andReturn([$this->fixture('alternateNames.txt')]);
     }
