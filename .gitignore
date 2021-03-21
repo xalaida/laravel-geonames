@@ -1,5 +1,6 @@
 /.idea
 /vendor
+/tests/report
 .php_cs.cache
 .phpunit.result.cache
 TODO.md
