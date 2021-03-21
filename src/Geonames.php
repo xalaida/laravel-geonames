@@ -186,7 +186,7 @@ class Geonames
     {
         $class = $this->config->get("geonames.models.{$type}");
 
-        return new $class;
+        return new $class();
     }
 
     /**

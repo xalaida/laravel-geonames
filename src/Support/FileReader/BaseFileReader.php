@@ -30,7 +30,7 @@ class BaseFileReader implements FileReader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function forEachLine(string $path, string $mode = 'rb'): Generator
     {
@@ -42,7 +42,7 @@ class BaseFileReader implements FileReader
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getLinesCount(string $path): int
     {
@@ -53,13 +53,10 @@ class BaseFileReader implements FileReader
 
     /**
      * Get the lines count cache key.
-     *
-     * @param string $path
-     * @return string
      */
     private function getLinesCountCacheKey(string $path): string
     {
-        $key = sprintf("%s:%s", $path, filesize($path));
+        $key = sprintf('%s:%s', $path, filesize($path));
         clearstatcache(true, $path);
 
         return $key;
@@ -67,9 +64,6 @@ class BaseFileReader implements FileReader
 
     /**
      * Calculate the lines count of a file by the given path.
-     *
-     * @param string $path
-     * @return int
      */
     private function calculateLinesCount(string $path): int
     {
@@ -84,9 +78,6 @@ class BaseFileReader implements FileReader
 
     /**
      * Open the file as resource.
-     *
-     * @param string $path
-     * @param string $mode
      */
     public function open(string $path, string $mode = 'rb'): void
     {
@@ -95,8 +86,6 @@ class BaseFileReader implements FileReader
 
     /**
      * Get the next line of the file resource.
-     *
-     * @return Generator
      */
     public function line(): Generator
     {

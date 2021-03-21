@@ -36,7 +36,7 @@ class TestCase extends OrchestraTestCase
     {
         return [
             GeonamesServiceProvider::class,
-            TranslatableServiceProvider::class
+            TranslatableServiceProvider::class,
         ];
     }
 
@@ -57,12 +57,9 @@ class TestCase extends OrchestraTestCase
 
     /**
      * Get the fixture.
-     *
-     * @param string $path
-     * @return string
      */
     protected function fixture(string $path): string
     {
-        return __DIR__ . "/Support/fixtures/{$path}";
+        return __DIR__."/Support/fixtures/{$path}";
     }
 }

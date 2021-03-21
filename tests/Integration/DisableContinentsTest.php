@@ -12,9 +12,7 @@ class DisableContinentsTest extends TestCase
     /**
      * Define environment setup.
      *
-     * @param  Application  $app
-     *
-     * @return void
+     * @param Application $app
      */
     protected function getEnvironmentSetUp($app): void
     {

@@ -185,14 +185,12 @@ class InsertCommand extends Command
 
     /**
      * Get the tables.
-     *
-     * @return array
      */
     private function getTables(): array
     {
         return collect($this->geonames->modelClasses())
             ->map(function (string $class) {
-                return (new $class)->getTable();
+                return (new $class())->getTable();
             })
             ->toArray();
     }
