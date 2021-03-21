@@ -162,6 +162,14 @@ class Geonames
         return true;
     }
 
+    /**
+     * Determine whether the package should supply translations to the database.
+     */
+    public function shouldSupplyTranslations(): bool
+    {
+        return $this->config['translations'];
+    }
+
     /*
      * Get the geonames models.
      */

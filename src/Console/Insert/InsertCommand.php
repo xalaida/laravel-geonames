@@ -24,7 +24,7 @@ class InsertCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:insert {--reset} {--keep-files} {--without-translations}';
+    protected $signature = 'geonames:insert {--reset} {--keep-files}';
 
     /**
      * The console command description.
@@ -138,16 +138,12 @@ class InsertCommand extends Command
      */
     private function translate(): void
     {
-        if ($this->option('without-translations')) {
-            return;
+        if ($this->geonames->shouldSupplyTranslations()) {
+            $this->call('geonames:translations:insert', [
+                '--reset' => $this->option('reset'),
+                '--keep-files' => true,
+            ]);
         }
-
-        // TODO: check if translations should be supplied at all.
-
-        $this->call('geonames:translations:insert', [
-            '--reset' => $this->option('reset'),
-            '--keep-files' => true,
-        ]);
     }
 
     /**

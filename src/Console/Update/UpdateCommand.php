@@ -20,7 +20,7 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:update {--keep-files} {--without-translations}';
+    protected $signature = 'geonames:update {--keep-files}';
 
     /**
      * The console command description.
@@ -132,9 +132,11 @@ class UpdateCommand extends Command
      */
     protected function updateTranslations(): void
     {
-        $this->call('geonames:translations:update', [
-            '--keep-files' => true,
-        ]);
+        if ($this->geonames->shouldSupplyTranslations()) {
+            $this->call('geonames:translations:update', [
+                '--keep-files' => true,
+            ]);
+        }
     }
 
     /**
