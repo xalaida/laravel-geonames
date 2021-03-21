@@ -11,9 +11,12 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Timezone;
 use Nevadskiy\Geonames\Models\Continent as ContinentModel;
+use Nevadskiy\Geonames\Nova\Traits\ReadOnly;
 
 class Continent extends Resource
 {
+    use ReadOnly;
+
     /**
      * The model the resource corresponds to.
      *

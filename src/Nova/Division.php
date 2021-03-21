@@ -12,9 +12,12 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Timezone;
 use Nevadskiy\Geonames\Models\Division as DivisionModel;
+use Nevadskiy\Geonames\Nova\Traits\ReadOnly;
 
 class Division extends Resource
 {
+    use ReadOnly;
+
     /**
      * The model the resource corresponds to.
      *

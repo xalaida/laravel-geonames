@@ -12,9 +12,12 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Timezone;
 use Nevadskiy\Geonames\Models\Country as CountryModel;
+use Nevadskiy\Geonames\Nova\Traits\ReadOnly;
 
 class Country extends Resource
 {
+    use ReadOnly;
+
     /**
      * The model the resource corresponds to.
      *
