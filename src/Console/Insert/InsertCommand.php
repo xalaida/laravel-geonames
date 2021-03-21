@@ -149,30 +149,46 @@ class InsertCommand extends Command
             return;
         }
 
-        if (! $this->confirmToProceed($this->getResetWarning())) {
+        $tables = $this->getTables();
+
+        if (! $this->confirmToProceed($this->getResetWarning($tables))) {
             return;
         }
 
-        $this->performReset();
+        $this->performReset($tables);
     }
 
     /**
      * Get the reset warning message.
      */
-    private function getResetWarning(): string
+    private function getResetWarning(array $tables): string
     {
-        return sprintf('The following tables will be truncated: %s', implode(', ', $this->geonames->supply()));
+        return sprintf('The following tables will be truncated: %s', implode(', ', $tables));
     }
 
     /**
      * Reset geonames tables.
      */
-    private function performReset(): void
+    private function performReset(array $tables): void
     {
-        foreach ($this->geonames->supply() as $table) {
+        foreach ($tables as $table) {
             DB::table($table)->truncate();
             $this->info("Table {$table} has been truncated.");
         }
+    }
+
+    /**
+     * Get the tables.
+     *
+     * @return array
+     */
+    private function getTables(): array
+    {
+        return collect($this->geonames->models())
+            ->map(function (string $class) {
+                return (new $class)->getTable();
+            })
+            ->toArray();
     }
 
     /**

@@ -110,7 +110,7 @@ class Geonames
             return false;
         }
 
-        if (! $this->config['tables']['continents']) {
+        if (! $this->config['models']['continent']) {
             return false;
         }
 
@@ -126,7 +126,7 @@ class Geonames
             return false;
         }
 
-        if (! $this->config['tables']['countries']) {
+        if (! $this->config['models']['country']) {
             return false;
         }
 
@@ -142,7 +142,7 @@ class Geonames
             return false;
         }
 
-        if (! $this->config['tables']['divisions']) {
+        if (! $this->config['models']['division']) {
             return false;
         }
 
@@ -154,7 +154,7 @@ class Geonames
      */
     public function shouldSupplyCities(): bool
     {
-        if (! $this->config['tables']['cities']) {
+        if (! $this->config['models']['city']) {
             return false;
         }
 
@@ -162,29 +162,11 @@ class Geonames
     }
 
     /*
-     * Get the items to be supplied.
+     * Get the geonames models.
      */
-    public function supply(): array
+    public function models(): array
     {
-        $suppliers = [];
-
-        if ($this->shouldSupplyContinents()) {
-            $suppliers[] = 'continents';
-        }
-
-        if ($this->shouldSupplyCountries()) {
-            $suppliers[] = 'countries';
-        }
-
-        if ($this->shouldSupplyDivisions()) {
-            $suppliers[] = 'divisions';
-        }
-
-        if ($this->shouldSupplyCities()) {
-            $suppliers[] = 'cities';
-        }
-
-        return $suppliers;
+        return array_filter($this->config['models']);
     }
 
     /**

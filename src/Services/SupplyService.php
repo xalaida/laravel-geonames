@@ -139,7 +139,7 @@ class SupplyService
      */
     protected function suppliers(): array
     {
-        return Arr::only($this->allSuppliers(), $this->geonames->supply());
+        return Arr::only($this->allSuppliers(), array_keys($this->geonames->models()));
     }
 
     /**
@@ -148,10 +148,10 @@ class SupplyService
     protected function allSuppliers(): array
     {
         return [
-            'continents' => $this->continentSupplier,
-            'countries' => $this->countrySupplier,
-            'divisions' => $this->divisionSupplier,
-            'cities' => $this->citySupplier,
+            'continent' => $this->continentSupplier,
+            'country' => $this->countrySupplier,
+            'division' => $this->divisionSupplier,
+            'city' => $this->citySupplier,
         ];
     }
 }

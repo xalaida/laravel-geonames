@@ -6,15 +6,10 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
-use Nevadskiy\Geonames\Models\City;
-use Nevadskiy\Geonames\Models\Continent;
-use Nevadskiy\Geonames\Models\Country;
-use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\TranslateService;
 
@@ -133,14 +128,7 @@ class InsertTranslationsCommand extends Command
      */
     private function performReset(): void
     {
-        $models = [
-            'continents' => Continent::class,
-            'countries' => Country::class,
-            'divisions' => Division::class,
-            'cities' => City::class,
-        ];
-
-        foreach (Arr::only($models, $this->geonames->supply()) as $model) {
+        foreach ($this->geonames->models() as $model) {
             $this->deleteTranslations(new $model());
         }
 

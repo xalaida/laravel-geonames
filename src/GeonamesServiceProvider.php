@@ -137,12 +137,12 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->app->bind(TranslationMapper::class, function () {
             $mappers = collect([
-                'continents' => Suppliers\Translations\ContinentTranslationMapper::class,
-                'countries' => Suppliers\Translations\CountryTranslationMapper::class,
-                'divisions' => Suppliers\Translations\DivisionTranslationMapper::class,
-                'cities' => Suppliers\Translations\CityTranslationMapper::class,
+                'continent' => Suppliers\Translations\ContinentTranslationMapper::class,
+                'country' => Suppliers\Translations\CountryTranslationMapper::class,
+                'division' => Suppliers\Translations\DivisionTranslationMapper::class,
+                'city' => Suppliers\Translations\CityTranslationMapper::class,
             ])
-                ->only($this->app->make(Geonames::class)->supply())
+                ->only(array_keys($this->app->make(Geonames::class)->models()))
                 ->map(function (string $mapper) {
                     return $this->app->make($mapper);
                 })
