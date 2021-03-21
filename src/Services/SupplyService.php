@@ -118,7 +118,7 @@ class SupplyService
     public function insert(string $path): void
     {
         foreach ($this->suppliers() as $type => $supplier) {
-            $this->logger->info("Inserting geonames type {$type}.");
+            $this->logger->info("Inserting the {$type} geonames type.");
             $supplier->insertMany($this->geonamesParser->each($path));
         }
     }
