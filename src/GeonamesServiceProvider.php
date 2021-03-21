@@ -22,11 +22,10 @@ use Nevadskiy\Geonames\Support\Downloader\Downloader;
 use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
 use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
+use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
 use Nevadskiy\Geonames\Support\Output\OutputFactory;
 use Nevadskiy\Translatable\Translatable;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -92,7 +91,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $this->app->when(BaseDownloader::class)
                 ->needs(LoggerInterface::class)
                 ->give(function () {
-                    return new ConsoleLogger(OutputFactory::make(OutputInterface::VERBOSITY_VERY_VERBOSE));
+                    return new ConsoleLogger(OutputFactory::make());
                 });
         }
 
@@ -148,7 +147,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $this->app->when(SupplyService::class)
                 ->needs(LoggerInterface::class)
                 ->give(function () {
-                    return new ConsoleLogger(OutputFactory::make(OutputInterface::VERBOSITY_VERY_VERBOSE));
+                    return new ConsoleLogger(OutputFactory::make());
                 });
         }
     }
