@@ -88,12 +88,14 @@ class InsertCommand extends Command
     ): void {
         $this->init($geonames, $dispatcher, $downloadService, $supplyService, $translateService, $directoryCleaner);
 
+        $this->info('Start inserting the geonames database.');
+
         $this->prepare();
         $this->insert();
         $this->translate();
         $this->cleanFolder();
 
-        $this->info('Geonames dataset has been inserted.');
+        $this->info('The geonames dataset has been inserted.');
     }
 
     /**
@@ -123,12 +125,11 @@ class InsertCommand extends Command
         $this->reset();
 
         if ($this->geonames->shouldSupplyCountries()) {
-            $this->info('Add country info.');
             $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
         }
 
         foreach ($this->downloadService->downloadSourceFiles() as $path) {
-            $this->info("Processing the {$path} file.");
+            $this->info("Start inserting from {$path}.");
             $this->supplyService->insert($path);
         }
     }

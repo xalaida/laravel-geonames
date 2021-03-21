@@ -88,7 +88,7 @@ class ProgressParser implements Parser
             $this->progress->setFormat(
                 "<options=bold;fg=green>Processing:</> {$path}\n".
                 "%bar% %percent%%\n".
-                "<options=bold;fg=green>Remaining Time:</> %remaining%\n"
+                "<fg=blue>Remaining Time:</> %remaining%\n"
             );
         }
     }

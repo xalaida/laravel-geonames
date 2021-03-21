@@ -13,6 +13,7 @@ use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
+use Nevadskiy\Geonames\Services\SupplyService;
 use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
 use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
@@ -23,6 +24,9 @@ use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 use Nevadskiy\Geonames\Support\Output\OutputFactory;
 use Nevadskiy\Translatable\Translatable;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -42,6 +46,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerFileReader();
         $this->registerParser();
         $this->registerSuppliers();
+        $this->registerSupplyService();
         $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
@@ -83,6 +88,14 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->app->bind(Downloader::class, BaseDownloader::class);
 
+        if ($this->app->runningInConsole()) {
+            $this->app->when(BaseDownloader::class)
+                ->needs(LoggerInterface::class)
+                ->give(function () {
+                    return new ConsoleLogger(OutputFactory::make(OutputInterface::VERBOSITY_VERY_VERBOSE));
+                });
+        }
+
         $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
         });
@@ -123,6 +136,20 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
             $this->app->bind($supplier, $implementation);
+        }
+    }
+
+    /**
+     * Register the supply service.
+     */
+    private function registerSupplyService(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->app->when(SupplyService::class)
+                ->needs(LoggerInterface::class)
+                ->give(function () {
+                    return new ConsoleLogger(OutputFactory::make(OutputInterface::VERBOSITY_VERY_VERBOSE));
+                });
         }
     }
 

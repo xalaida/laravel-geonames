@@ -12,6 +12,7 @@ use Nevadskiy\Geonames\Suppliers\ContinentSupplier;
 use Nevadskiy\Geonames\Suppliers\CountrySupplier;
 use Nevadskiy\Geonames\Suppliers\DivisionSupplier;
 use Nevadskiy\Geonames\Suppliers\Supplier;
+use Psr\Log\LoggerInterface;
 
 class SupplyService
 {
@@ -21,6 +22,13 @@ class SupplyService
      * @var Geonames
      */
     private $geonames;
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * The geonames parser instance.
@@ -76,6 +84,7 @@ class SupplyService
      */
     public function __construct(
         Geonames $geonames,
+        LoggerInterface $logger,
         GeonamesParser $geonamesParser,
         CountryInfoParser $countryInfoParser,
         GeonamesDeletesParser $geonamesDeletesParser,
@@ -85,6 +94,7 @@ class SupplyService
         CitySupplier $citySupplier
     ) {
         $this->geonames = $geonames;
+        $this->logger = $logger;
         $this->geonamesParser = $geonamesParser;
         $this->countryInfoParser = $countryInfoParser;
         $this->geonamesDeletesParser = $geonamesDeletesParser;
@@ -107,7 +117,8 @@ class SupplyService
      */
     public function insert(string $path): void
     {
-        foreach ($this->suppliers() as $supplier) {
+        foreach ($this->suppliers() as $type => $supplier) {
+            $this->logger->info("Inserting geonames type {$type}.");
             $supplier->insertMany($this->geonamesParser->each($path));
         }
     }
