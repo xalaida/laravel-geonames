@@ -33,7 +33,7 @@ class CreateCitiesTable extends Migration
             $table->bigInteger('population')->unsigned()->nullable();
             $table->smallInteger('elevation')->unsigned()->nullable()->comment('In meters.');
             $table->smallInteger('dem')->nullable()->comment('Digital elevation model, srtm3 or gtopo30.');
-            $table->string('feature_code', 10)->nullable()->comment('See: https://www.geonames.org/export/codes.html');
+            $table->string('feature_code', 10)->nullable()->index()->comment('See: https://www.geonames.org/export/codes.html');
             $table->integer('geoname_id')->unsigned()->unique()->comment('Geonames database identifier.');
             $table->date('modified_at')->comment('Date of last modification in the geonames database.');
             $table->timestamps();
