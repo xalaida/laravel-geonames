@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic tests with fixtures
 - Add insert process logging
 
+### Fixed
+- Code style
+
 ## [0.1.3] - 2020-03-19
 ### Fixed
 - Update geonames command
