@@ -13,7 +13,7 @@ By default, the package provides 5 tables: `continents`, `countries`, `divisions
 
 It also allows to keep the data **up-to-date**, so the package fetches all daily modifications provided by the [geonames](https://www.geonames.org/) service and use them to synchronize your own database.
 
-You can also set up package to seed only data that belongs to specific countries, disable unneeded tables, set up minimal population filter and use your own custom models.
+You can also set up the package to seed only data that belongs to specific countries, disable unneeded tables, set up minimal population filter and use your own custom models.
 
 Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable).
 
@@ -35,13 +35,13 @@ composer require nevadskiy/laravel-geonames
 
 ### Default structure and behaviour
 
-#### Migrate the database
+- Migrate the database
 
 ```bash
 php artisan migrate
 ```
 
-#### Run insert process
+- Run insert process
 
 ```bash
 php artisan geonames:insert
@@ -49,7 +49,9 @@ php artisan geonames:insert
 
 It will insert download and insert the geonames dataset into your database.
 
-#### Schedule updates
+> Note that the insert process may take some time. On average, it is about 15 minutes (without downloading time). 
+
+### Schedule updates
 
 Add the following code to your console kernel (`app/Console/Kernel.php`) if you want to receive geonames daily updates.
 
@@ -62,16 +64,95 @@ protected function schedule(Schedule $schedule)
 
 > Note, that time is specified for the `UTC` timezone, so if you run server on another timezone, you need to convert time according to it. 
 
-#### Insert custom structure
+### Configure custom structure
 
-If you want to disable specific tables to be migrated, publish the package configuration
+If you want to configure package according to your needs, you need to publish the package configuration first.
 
 ```
 php artisan vendor:publish --tag=geonames-config
 ```
 
-...to be continued
+#### Specifying source
 
+You can choose appropriate data source for seeding as one of `SOURCE_ALL_COUNTRIES`, `SOURCE_SINGLE_COUNTRY` or `SOURCE_ONLY_CITIES`.
+
+The default is `SOURCE_ALL_COUNTRIES` that indicates to fetch data from the [allCountries.zip](http://download.geonames.org/export/dump/) file.
+It contains all 4 models (`continents`, `countries`, `divisions` and `cities`). 
+You can configure [filters](#specifying-filters)  in the `geonames` configuration file to specify [countries](#countries-filter) that is going to be seeded and [minimal population](#population-filter).
+
+The `SOURCE_SINGLE_COUNTRY` source is used to fetch data from country-based files (e.g. [US.zip](http://download.geonames.org/export/dump/)).
+The `continents` table will not be seeded with this source.
+You can specify which country (or countries) you are going to seed specifying [countries filter](#countries-filter) in the `geonames` configuration file.
+
+The `SOURCE_ONLY_CITIES` source is used to fetch data from city-based files (e.g. [cities500.zip](http://download.geonames.org/export/dump/)).
+There is only `cities` table available with this source type.
+You can specify [minimal population filter](#population-filter) to indicate which file it is going to fetch by population.
+It is also possible to use countries filter to seed cities that belongs only to specific countries.
+
+#### Specifying filters
+
+By default, there are two filters which you can use to filter data being seeded.
+
+#### Countries filter
+
+The `countries` filter is used to filter data that belongs only to specific country (or countries).
+If the `SOURCE_SINGLE_COUNTRY` [source](#specifying-source) is specified, this filter will be used to download a country-based data source.
+The default is `*` that indicates that all countries are allowed. Multiple countries can be specified as an array of ISO country codes.
+
+Example:
+```php
+'filters' => [
+    'countries' => ['AU', 'US']
+]
+```
+
+#### Population filter
+
+The `population` filter is used to filter cities by the indicated minimal population.
+If the `SOURCE_ONLY_CITIES` [source](#specifying-source) is specified, this filter will be used to download a city-based data source.
+Any value from `0` and higher has be used, but in combination with the `SOURCE_ONLY_CITIES` source, available values are only `500`, `1000`, `5000` and `15000`.
+
+Example:
+
+```php
+'filters' => [
+    'population' => 15000
+]
+```
+
+#### Overriding models
+
+Most likely you will need your own models with their own behaviour and relations instead of provided ones by default.
+
+To override them, use `models` key in the `geonames` configuration file.
+
+If you are not going to use any model, you can switch the value to `false` and then corresponding tables will not be migrated at all.
+
+For example, most applications probably will not need continent model.
+
+```php
+'models' => [
+    'continent' => false,
+    'country' => App\Models\Country::class,
+    'division' => App\Models\Division::class,
+    'city' => App\Models\City::class,
+],
+```
+
+#### Inserting custom structure
+
+- After configuring [source](#specifying-source) and [filters](#specifying-filters), you can execute migrations command.
+It will determine which tables should be migrated and create them in the database.
+
+```bash
+php artisan migrate
+```
+
+- Then you can run insert command.
+
+```bash
+php artisan geonames:insert
+```
 
 ## 📑 Changelog
 
