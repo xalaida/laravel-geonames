@@ -35,6 +35,7 @@ class InsertTest extends TestCase
 
         $directoryCleaner->shouldReceive('keepGitignore')
             ->once()
+            ->withNoArgs()
             ->andReturnSelf();
 
         $directoryCleaner->shouldReceive('clean')
@@ -48,14 +49,17 @@ class InsertTest extends TestCase
 
         $downloadService->shouldReceive('downloadCountryInfoFile')
             ->once()
+            ->withNoArgs()
             ->andReturn($this->fixture('countryInfo.txt'));
 
         $downloadService->shouldReceive('downloadSourceFiles')
             ->once()
+            ->withNoArgs()
             ->andReturn([$this->fixture('allCountries.txt')]);
 
         $downloadService->shouldReceive('downloaderAlternateNames')
             ->once()
+            ->withNoArgs()
             ->andReturn([$this->fixture('alternateNames.txt')]);
     }
 }
