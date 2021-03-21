@@ -90,7 +90,7 @@ class BaseDownloader implements Downloader
         $path = $this->getTargetPath($url, $directory, $name);
 
         if ($this->overwriteFiles || ! file_exists($path)) {
-            $this->logger->info("Start downloading file by url.", ['url' => $url]);
+            $this->logger->info('Start downloading file by url.', ['url' => $url]);
 
             return $this->performDownload($url, $path, $this->getFileSizeByUrl($url));
         }

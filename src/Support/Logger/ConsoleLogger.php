@@ -20,7 +20,7 @@ class ConsoleLogger extends AbstractLogger
      *
      * @var string[]
      */
-    protected $colors =  [
+    protected $colors = [
         LogLevel::WARNING => 'yellow',
         LogLevel::NOTICE => 'cyan',
         LogLevel::INFO => 'green',
@@ -46,8 +46,6 @@ class ConsoleLogger extends AbstractLogger
      * Format the message by the level.
      *
      * @param $level
-     * @param string $message
-     * @return string
      */
     protected function format(string $level, string $message): string
     {
@@ -56,9 +54,6 @@ class ConsoleLogger extends AbstractLogger
 
     /**
      * Get a style for the level.
-     *
-     * @param string $level
-     * @return string
      */
     public function style(string $level): string
     {
@@ -68,14 +63,13 @@ class ConsoleLogger extends AbstractLogger
             return '%s';
         }
 
-        return "<options=bold,reverse;fg={$color}> ". strtoupper($level) . " </> %s";
+        return "<options=bold,reverse;fg={$color}> ".strtoupper($level).' </> %s';
     }
 
     /**
      * Get a color by the given level.
      *
      * @param $level
-     * @return string|null
      */
     protected function color($level): ?string
     {

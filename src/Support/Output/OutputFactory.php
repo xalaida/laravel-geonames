@@ -13,7 +13,6 @@ class OutputFactory
      * Make the output style.
      *
      * @param int $verbosity
-     * @return OutputStyle
      */
     public static function make($verbosity = OutputInterface::VERBOSITY_NORMAL): OutputStyle
     {
