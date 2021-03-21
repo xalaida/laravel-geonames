@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Support\Downloader;
 
 use Illuminate\Support\Facades\Http;
 use Nevadskiy\Geonames\Support\Traits\Events;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class BaseDownloader implements Downloader
@@ -32,11 +33,19 @@ class BaseDownloader implements Downloader
     protected $updateFiles = true;
 
     /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * FileDownloader constructor.
      */
-    public function __construct(int $bufferSize = 1024 * 1024)
+    public function __construct(LoggerInterface $logger, int $bufferSize = 1024 * 1024)
     {
         $this->bufferSize = $bufferSize;
+        $this->logger = $logger;
     }
 
     /**
@@ -81,7 +90,8 @@ class BaseDownloader implements Downloader
         $path = $this->getTargetPath($url, $directory, $name);
 
         if ($this->overwriteFiles || ! file_exists($path)) {
-            // TODO log: file not exists or overwrite enabled, start downloading
+            $this->logger->info("Start downloading file by url.", ['url' => $url]);
+
             return $this->performDownload($url, $path, $this->getFileSizeByUrl($url));
         }
 
@@ -89,15 +99,18 @@ class BaseDownloader implements Downloader
         $targetSize = $this->getLocalFileSize($path);
 
         if ($sourceSize === $targetSize) {
+            $this->logger->info("File '{$path}' already exists.");
+
             return $path;
         }
 
         if ($this->updateFiles) {
-            // TODO log: file exists but with different size, but update enabled, so start downloading
+            $this->logger->info("File '{$path}' already exists, but has different size.");
+
             return $this->performDownload($url, $path, $sourceSize);
         }
 
-        // TODO log: file exists with different size, you should probably update it
+        $this->logger->info("Local file '{$path}' already exists but with different size. You should probably update it.");
 
         return $path;
     }
