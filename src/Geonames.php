@@ -2,15 +2,16 @@
 
 namespace Nevadskiy\Geonames;
 
+use Illuminate\Contracts\Config\Repository;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 
 class Geonames
 {
     /**
-     * The configuration array.
+     * The configuration repository.
      *
-     * @var array
+     * @var Repository
      */
     private $config;
 
@@ -24,7 +25,7 @@ class Geonames
     /**
      * The geonames config wrapper class.
      */
-    public function __construct(array $config)
+    public function __construct(Repository $config)
     {
         $this->config = $config;
         $this->transformCountries();
@@ -55,7 +56,7 @@ class Geonames
      */
     public function shouldUseDefaultMigrations(): bool
     {
-        return $this->config['default_migrations'];
+        return $this->config->get('geonames.default_migrations');
     }
 
     /**
@@ -63,7 +64,7 @@ class Geonames
      */
     public function directory(): string
     {
-        return $this->config['directory'];
+        return $this->config->get('geonames.directory');
     }
 
     /**
@@ -71,7 +72,7 @@ class Geonames
      */
     public function isAllCountriesSource(): bool
     {
-        return $this->config['source'] === DownloadService::SOURCE_ALL_COUNTRIES;
+        return $this->config->get('geonames.source') === DownloadService::SOURCE_ALL_COUNTRIES;
     }
 
     /**
@@ -79,7 +80,7 @@ class Geonames
      */
     public function isOnlyCitiesSource(): bool
     {
-        return $this->config['source'] === DownloadService::SOURCE_ONLY_CITIES;
+        return $this->config->get('geonames.source') === DownloadService::SOURCE_ONLY_CITIES;
     }
 
     /**
@@ -87,7 +88,7 @@ class Geonames
      */
     public function isSingleCountrySource(): bool
     {
-        return $this->config['source'] === DownloadService::SOURCE_SINGLE_COUNTRY;
+        return $this->config->get('geonames.source') === DownloadService::SOURCE_SINGLE_COUNTRY;
     }
 
     /**
@@ -95,7 +96,7 @@ class Geonames
      */
     public function isAllCountriesAllowed(): bool
     {
-        return (array) $this->config['filters']['countries'] === ['*'];
+        return $this->config->get('geonames.filters.countries') === ['*'];
     }
 
     /**
@@ -111,7 +112,7 @@ class Geonames
             return false;
         }
 
-        if (! $this->config['models']['continent']) {
+        if (! $this->config->get('geonames.models.continent')) {
             return false;
         }
 
@@ -123,11 +124,11 @@ class Geonames
      */
     public function shouldSupplyCountries(): bool
     {
-        if ($this->config['source'] === DownloadService::SOURCE_ONLY_CITIES) {
+        if ($this->isOnlyCitiesSource()) {
             return false;
         }
 
-        if (! $this->config['models']['country']) {
+        if (! $this->config->get('geonames.models.country')) {
             return false;
         }
 
@@ -139,11 +140,11 @@ class Geonames
      */
     public function shouldSupplyDivisions(): bool
     {
-        if ($this->config['source'] === DownloadService::SOURCE_ONLY_CITIES) {
+        if ($this->isOnlyCitiesSource()) {
             return false;
         }
 
-        if (! $this->config['models']['division']) {
+        if (! $this->config->get('geonames.models.division')) {
             return false;
         }
 
@@ -155,7 +156,7 @@ class Geonames
      */
     public function shouldSupplyCities(): bool
     {
-        if (! $this->config['models']['city']) {
+        if (! $this->config->get('geonames.models.city')) {
             return false;
         }
 
@@ -167,7 +168,7 @@ class Geonames
      */
     public function shouldSupplyTranslations(): bool
     {
-        return $this->config['translations'];
+        return $this->config->get('geonames.translations');
     }
 
     /*
@@ -175,7 +176,7 @@ class Geonames
      */
     public function modelClasses(): array
     {
-        return array_filter($this->config['models']);
+        return array_filter($this->config->get('geonames.models'));
     }
 
     /*
@@ -183,7 +184,7 @@ class Geonames
      */
     public function model(string $type): Model
     {
-        $class = $this->config['models'][$type];
+        $class = $this->config->get("geonames.models.{$type}");
 
         return new $class;
     }
@@ -193,7 +194,7 @@ class Geonames
      */
     public function getPopulation(): int
     {
-        return $this->config['filters']['population'];
+        return $this->config->get('geonames.filters.population');
     }
 
     /**
@@ -209,7 +210,7 @@ class Geonames
      */
     public function getCountries(): array
     {
-        return $this->config['filters']['countries'];
+        return $this->config->get('geonames.filters.countries');
     }
 
     /**
@@ -217,7 +218,7 @@ class Geonames
      */
     public function isCountryAllowed(string $code): bool
     {
-        if ($this->getCountries() === ['*']) {
+        if ($this->isAllCountriesAllowed()) {
             return true;
         }
 
@@ -229,8 +230,8 @@ class Geonames
      */
     public function isLanguageAllowed(?string $code): bool
     {
-        return (is_null($code) && $this->config['nullable_language'])
-            || in_array($code, $this->config['languages'], true);
+        return (is_null($code) && $this->config->get('geonames.nullable_language'))
+            || in_array($code, $this->config->get('geonames.languages'), true);
     }
 
     /**
@@ -238,6 +239,9 @@ class Geonames
      */
     protected function transformCountries(): void
     {
-        $this->config['filters']['countries'] = array_map('strtoupper', (array) $this->config['filters']['countries']);
+        $this->config->set(
+            'geonames.filters.countries',
+            array_map('strtoupper', (array) $this->config->get('geonames.filters.countries'))
+        );
     }
 }
