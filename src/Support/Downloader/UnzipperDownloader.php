@@ -11,14 +11,14 @@ class UnzipperDownloader implements Downloader
      *
      * @var Downloader
      */
-    private $downloader;
+    protected $downloader;
 
     /**
      * The unzipper instance.
      *
      * @var Unzipper
      */
-    private $unzipper;
+    protected $unzipper;
 
     /**
      * UnzipperDownloader constructor.

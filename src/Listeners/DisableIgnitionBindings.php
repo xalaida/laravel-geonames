@@ -11,7 +11,7 @@ class DisableIgnitionBindings
      *
      * @var QueryRecorder
      */
-    private $queryRecorder;
+    protected $queryRecorder;
 
     /**
      * DisableIgnitionBindings constructor.

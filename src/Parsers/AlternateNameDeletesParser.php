@@ -12,7 +12,7 @@ class AlternateNameDeletesParser implements Parser
      *
      * @var Parser
      */
-    private $parser;
+    protected $parser;
 
     /**
      * Make a new alternate name parser instance.

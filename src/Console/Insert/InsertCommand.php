@@ -101,7 +101,7 @@ class InsertCommand extends Command
     /**
      * Init the command instance with all required services.
      */
-    private function init(
+    protected function init(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
@@ -120,7 +120,7 @@ class InsertCommand extends Command
     /**
      * Insert the geonames dataset.
      */
-    private function insert(): void
+    protected function insert(): void
     {
         $this->reset();
 
@@ -137,7 +137,7 @@ class InsertCommand extends Command
     /**
      * Translate inserted data.
      */
-    private function translate(): void
+    protected function translate(): void
     {
         if ($this->geonames->shouldSupplyTranslations()) {
             $this->call('geonames:translations:insert', [
@@ -168,7 +168,7 @@ class InsertCommand extends Command
     /**
      * Get the reset warning message.
      */
-    private function getResetWarning(array $tables): string
+    protected function getResetWarning(array $tables): string
     {
         return sprintf('The following tables will be truncated: %s', implode(', ', $tables));
     }
@@ -176,7 +176,7 @@ class InsertCommand extends Command
     /**
      * Reset geonames tables.
      */
-    private function performReset(array $tables): void
+    protected function performReset(array $tables): void
     {
         foreach ($tables as $table) {
             DB::table($table)->truncate();
@@ -187,7 +187,7 @@ class InsertCommand extends Command
     /**
      * Get the tables.
      */
-    private function getTables(): array
+    protected function getTables(): array
     {
         return collect($this->geonames->modelClasses())
             ->map(function (string $class) {
@@ -199,7 +199,7 @@ class InsertCommand extends Command
     /**
      * Prepare the command.
      */
-    private function prepare(): void
+    protected function prepare(): void
     {
         $this->dispatcher->dispatch(new GeonamesCommandReady());
     }

@@ -28,14 +28,14 @@ class ProgressParser implements Parser
      *
      * @var OutputStyle
      */
-    private $output;
+    protected $output;
 
     /**
      * The progress step.
      *
      * @var int
      */
-    private $step;
+    protected $step;
 
     /**
      * Make a new progress parser instance.

@@ -24,14 +24,14 @@ class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSuppl
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The code generator instance.
      *
      * @var ContinentCodeGenerator
      */
-    private $codeGenerator;
+    protected $codeGenerator;
 
     /**
      * Make a new supplier instance.

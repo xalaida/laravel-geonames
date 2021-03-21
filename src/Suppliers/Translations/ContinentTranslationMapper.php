@@ -13,7 +13,7 @@ class ContinentTranslationMapper implements TranslationMapper
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The continents collection.

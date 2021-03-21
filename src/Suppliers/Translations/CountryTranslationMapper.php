@@ -13,7 +13,7 @@ class CountryTranslationMapper implements TranslationMapper
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The countries collection.

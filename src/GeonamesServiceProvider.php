@@ -32,7 +32,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * The module's name.
      */
-    private const PACKAGE = 'geonames';
+    protected const PACKAGE = 'geonames';
 
     /**
      * Register any module services.
@@ -67,7 +67,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register any module configurations.
      */
-    private function registerConfig(): void
+    protected function registerConfig(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', self::PACKAGE);
     }
@@ -75,7 +75,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the geonames.
      */
-    private function registerGeonames(): void
+    protected function registerGeonames(): void
     {
         $this->app->singleton(Geonames::class);
     }
@@ -83,7 +83,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the downloader.
      */
-    private function registerDownloader(): void
+    protected function registerDownloader(): void
     {
         $this->app->bind(Downloader::class, BaseDownloader::class);
 
@@ -109,7 +109,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the file reader.
      */
-    private function registerFileReader(): void
+    protected function registerFileReader(): void
     {
         $this->app->bind(FileReader::class, BaseFileReader::class);
     }
@@ -117,7 +117,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the resource parser.
      */
-    private function registerParser(): void
+    protected function registerParser(): void
     {
         $this->app->bind(Parser::class, FileParser::class);
 
@@ -131,7 +131,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register any module suppliers.
      */
-    private function registerSuppliers(): void
+    protected function registerSuppliers(): void
     {
         foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
             $this->app->bind($supplier, $implementation);
@@ -141,7 +141,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the supply service.
      */
-    private function registerSupplyService(): void
+    protected function registerSupplyService(): void
     {
         if ($this->app->runningInConsole()) {
             $this->app->when(SupplyService::class)
@@ -155,7 +155,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the translation mapper.
      */
-    private function registerTranslationMapper(): void
+    protected function registerTranslationMapper(): void
     {
         $this->app->bind(TranslationMapper::class, function () {
             $mappers = collect([
@@ -177,7 +177,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register ignition memory limit fixer.
      */
-    private function registerIgnitionFixer(): void
+    protected function registerIgnitionFixer(): void
     {
         if (class_exists(QueryRecorder::class)) {
             $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
@@ -187,7 +187,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Boot any module commands.
      */
-    private function bootCommands(): void
+    protected function bootCommands(): void
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -202,7 +202,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Boot any module migrations.
      */
-    private function bootMigrations(): void
+    protected function bootMigrations(): void
     {
         $geonames = $this->app[Geonames::class];
 
@@ -240,7 +240,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Boot module morph map.
      */
-    private function bootMorphMap(): void
+    protected function bootMorphMap(): void
     {
         if ($this->app['config']['geonames']['default_morph_map']) {
             Relation::morphMap([
@@ -255,7 +255,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Boot any module nova resources.
      */
-    private function bootNovaResources(): void
+    protected function bootNovaResources(): void
     {
         if ($this->app[Geonames::class]->shouldBootNovaResources()) {
             Nova::resources([
@@ -270,7 +270,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Publish any module configurations.
      */
-    private function publishConfig(): void
+    protected function publishConfig(): void
     {
         $this->publishes([
             __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
@@ -280,7 +280,7 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Publish any module migrations.
      */
-    private function publishMigrations(): void
+    protected function publishMigrations(): void
     {
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations'),

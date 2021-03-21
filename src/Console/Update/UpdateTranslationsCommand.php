@@ -87,7 +87,7 @@ class UpdateTranslationsCommand extends Command
     /**
      * Init the command instance with all required services.
      */
-    private function init(
+    protected function init(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
@@ -104,7 +104,7 @@ class UpdateTranslationsCommand extends Command
     /**
      * Modify translations according to the geonames resource.
      */
-    private function modify(): void
+    protected function modify(): void
     {
         $this->info('Start processing alternate names daily modifications.');
         $this->translateService->modify($this->downloadService->downloadDailyAlternateNamesModifications());
@@ -113,7 +113,7 @@ class UpdateTranslationsCommand extends Command
     /**
      * Delete translations according to the geonames resource.
      */
-    private function delete(): void
+    protected function delete(): void
     {
         $this->info('Start processing alternate names daily deletes.');
         $this->translateService->delete($this->downloadService->downloadDailyAlternateNamesDeletes());
@@ -122,7 +122,7 @@ class UpdateTranslationsCommand extends Command
     /**
      * Prepare the command.
      */
-    private function prepare(): void
+    protected function prepare(): void
     {
         $this->info('Start daily updating.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());

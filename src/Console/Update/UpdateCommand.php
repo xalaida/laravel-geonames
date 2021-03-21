@@ -90,7 +90,7 @@ class UpdateCommand extends Command
     /**
      * Init the command instance with all required services.
      */
-    private function init(
+    protected function init(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
@@ -107,7 +107,7 @@ class UpdateCommand extends Command
     /**
      * Delete items according to the geonames resource.
      */
-    private function modify(): void
+    protected function modify(): void
     {
         $this->info('Start processing daily modifications.');
 
@@ -121,7 +121,7 @@ class UpdateCommand extends Command
     /**
      * Delete items according to the geonames resource.
      */
-    private function delete(): void
+    protected function delete(): void
     {
         $this->info('Start processing daily deletes.');
         $this->supplyService->delete($this->downloadService->downloadDailyDeletes());
@@ -142,7 +142,7 @@ class UpdateCommand extends Command
     /**
      * Prepare the command.
      */
-    private function prepare(): void
+    protected function prepare(): void
     {
         $this->info('Start daily updating.');
         $this->dispatcher->dispatch(new GeonamesCommandReady());

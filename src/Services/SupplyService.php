@@ -21,14 +21,14 @@ class SupplyService
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The logger instance.
      *
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * The geonames parser instance.

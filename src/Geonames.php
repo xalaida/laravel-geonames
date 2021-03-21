@@ -13,14 +13,14 @@ class Geonames
      *
      * @var Repository
      */
-    private $config;
+    protected $config;
 
     /**
      * Indicates if nova resources should be booted.
      *
      * @var bool
      */
-    private $bootNovaResources = false;
+    protected $bootNovaResources = false;
 
     /**
      * The geonames config wrapper class.

@@ -93,7 +93,7 @@ class InsertTranslationsCommand extends Command
     /**
      * Init the command instance with all required services.
      */
-    private function init(
+    protected function init(
         Geonames $geonames,
         Dispatcher $dispatcher,
         DownloadService $downloadService,
@@ -110,7 +110,7 @@ class InsertTranslationsCommand extends Command
     /**
      * Insert the geonames dataset.
      */
-    private function reset(): void
+    protected function reset(): void
     {
         if (! $this->option('reset')) {
             return;
@@ -126,7 +126,7 @@ class InsertTranslationsCommand extends Command
     /**
      * Insert the geonames alternate names dataset.
      */
-    private function insert(): void
+    protected function insert(): void
     {
         foreach ($this->downloadService->downloaderAlternateNames() as $path) {
             $this->info("Start translating from file {$path}.");
@@ -137,7 +137,7 @@ class InsertTranslationsCommand extends Command
     /**
      * Reset the current translations.
      */
-    private function performReset(): void
+    protected function performReset(): void
     {
         foreach ($this->geonames->modelClasses() as $model) {
             $this->deleteTranslations(new $model());
@@ -151,7 +151,7 @@ class InsertTranslationsCommand extends Command
      *
      * @param $model
      */
-    private function deleteTranslations(Model $model): void
+    protected function deleteTranslations(Model $model): void
     {
         DB::table('translations')
             ->where('translatable_type', $model->getMorphClass())
@@ -161,7 +161,7 @@ class InsertTranslationsCommand extends Command
     /**
      * Prepare the command.
      */
-    private function prepare(): void
+    protected function prepare(): void
     {
         $this->dispatcher->dispatch(new GeonamesCommandReady());
     }

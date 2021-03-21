@@ -11,7 +11,7 @@ class CompositeTranslationMapper implements TranslationMapper
      *
      * @var array<TranslationMapper>
      */
-    private $mappers;
+    protected $mappers;
 
     /**
      * Make a new composite mapper instance.

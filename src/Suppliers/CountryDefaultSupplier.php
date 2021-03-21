@@ -15,7 +15,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The country information list.
@@ -108,7 +108,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     /**
      * Map country table fields.
      */
-    private function mapCountryFields(array $data, int $id): array
+    protected function mapCountryFields(array $data, int $id): array
     {
         return [
             'name_official' => $data['asciiname'] ?: $data['name'],
@@ -125,7 +125,7 @@ class CountryDefaultSupplier extends DefaultSupplier implements CountrySupplier
     /**
      * Map country info table fields.
      */
-    private function mapCountryInfoFields(array $data): array
+    protected function mapCountryInfoFields(array $data): array
     {
         return [
             'code' => $data['ISO'],

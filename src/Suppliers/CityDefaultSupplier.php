@@ -26,7 +26,7 @@ class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * The available countries collection.

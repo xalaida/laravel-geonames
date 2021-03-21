@@ -12,14 +12,14 @@ class BaseFileReader implements FileReader
      *
      * @var resource
      */
-    private $file;
+    protected $file;
 
     /**
      * The cache repository instance.
      *
      * @var Cache
      */
-    private $cache;
+    protected $cache;
 
     /**
      * BaseFileReader constructor.
@@ -54,7 +54,7 @@ class BaseFileReader implements FileReader
     /**
      * Get the lines count cache key.
      */
-    private function getLinesCountCacheKey(string $path): string
+    protected function getLinesCountCacheKey(string $path): string
     {
         $key = sprintf('%s:%s', $path, filesize($path));
         clearstatcache(true, $path);
@@ -65,7 +65,7 @@ class BaseFileReader implements FileReader
     /**
      * Calculate the lines count of a file by the given path.
      */
-    private function calculateLinesCount(string $path): int
+    protected function calculateLinesCount(string $path): int
     {
         $count = 0;
 

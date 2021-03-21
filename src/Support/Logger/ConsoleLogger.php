@@ -13,7 +13,7 @@ class ConsoleLogger extends AbstractLogger
      *
      * @var OutputInterface
      */
-    private $output;
+    protected $output;
 
     /**
      * The level colors map.

@@ -19,7 +19,7 @@ class ContinentCodeGenerator
     /**
      * Format the given name.
      */
-    private function format(string $name): string
+    protected function format(string $name): string
     {
         return strtoupper(substr($name, 0, 2));
     }
@@ -27,7 +27,7 @@ class ContinentCodeGenerator
     /**
      * Get an abbreviation by the given name.
      */
-    private function getAbbreviation(string $name): string
+    protected function getAbbreviation(string $name): string
     {
         $slug = '';
 

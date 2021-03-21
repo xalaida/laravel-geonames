@@ -37,7 +37,7 @@ class BaseDownloader implements Downloader
      *
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * FileDownloader constructor.
@@ -118,7 +118,7 @@ class BaseDownloader implements Downloader
     /**
      * Perform file download process.
      */
-    private function performDownload(string $sourceUrl, string $targetPath, int $sourceSize): string
+    protected function performDownload(string $sourceUrl, string $targetPath, int $sourceSize): string
     {
         $sourceResource = $this->openSourceResource($sourceUrl);
         $targetResource = $this->openTargetResource($targetPath);
@@ -155,7 +155,7 @@ class BaseDownloader implements Downloader
     /**
      * Get size of the local file by the given path.
      */
-    private function getLocalFileSize(string $path): int
+    protected function getLocalFileSize(string $path): int
     {
         // TODO: test if path is invalid
         $size = filesize($path);

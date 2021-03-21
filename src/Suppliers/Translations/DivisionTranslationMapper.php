@@ -13,7 +13,7 @@ class DivisionTranslationMapper implements TranslationMapper
      *
      * @var Geonames
      */
-    private $geonames;
+    protected $geonames;
 
     /**
      * Make a new translation mapper instance.

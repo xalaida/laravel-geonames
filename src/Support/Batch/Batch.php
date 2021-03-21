@@ -9,28 +9,28 @@ class Batch
      *
      * @var callable
      */
-    private $handler;
+    protected $handler;
 
     /**
      * The batch buffer items.
      *
      * @var array
      */
-    private $buffer = [];
+    protected $buffer = [];
 
     /**
      * The current size of the buffer.
      *
      * @var int
      */
-    private $currentSize = 0;
+    protected $currentSize = 0;
 
     /**
      * The max size of the buffer.
      *
      * @var int
      */
-    private $maxSize;
+    protected $maxSize;
 
     /**
      * Make a new batch instance with the given handler and size.
@@ -62,7 +62,7 @@ class Batch
      * @param mixed $item
      * @param null $key
      */
-    private function add($item, $key = null): void
+    protected function add($item, $key = null): void
     {
         if ($key) {
             $this->buffer[$key] = $item;
@@ -76,7 +76,7 @@ class Batch
     /**
      * Reset the batch buffer.
      */
-    private function reset(): void
+    protected function reset(): void
     {
         $this->buffer = [];
         $this->currentSize = 0;
