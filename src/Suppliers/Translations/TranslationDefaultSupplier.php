@@ -293,23 +293,23 @@ class TranslationDefaultSupplier implements TranslationSupplier
             return true;
         }
 
-        if ($translation['isolanguage'] === 'en') {
+        if (isset($translation['isolanguage']) && $translation['isolanguage'] === 'en') {
             return true;
         }
 
-        if ($translation['isPreferredName'] === '1') {
+        if (isset($translation['isPreferredName']) && $translation['isPreferredName'] === '1') {
             return false;
         }
 
-        if ($translation['isShortName'] === '1') {
+        if (isset($translation['isShortName']) && $translation['isShortName'] === '1') {
             return false;
         }
 
-        if ($translation['isColloquial'] === '1') {
+        if (isset($translation['isColloquial']) && $translation['isColloquial'] === '1') {
             return true;
         }
 
-        if ($translation['isHistoric'] === '1') {
+        if (isset($translation['isHistoric']) && $translation['isHistoric'] === '1') {
             return true;
         }
 
