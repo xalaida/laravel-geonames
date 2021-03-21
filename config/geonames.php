@@ -15,10 +15,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Geonames source.
+    | Geonames source
     |--------------------------------------------------------------------------
     |
-    | TODO: add description
+    | You can choose appropriate data source for seeding as one of
+    | SOURCE_ALL_COUNTRIES, SOURCE_SINGLE_COUNTRY or SOURCE_ONLY_CITIES.
+    |
+    | - SOURCE_ALL_COUNTRIES has the biggest database size but contains the most items.
+    |
+    | - SOURCE_SINGLE_COUNTRY contains only items that belongs to the specific country.
+    | You can specify which country (or countries) you are going to seed in filters array by ISO code (e.g. US, GB).
+    |
+    | - SOURCE_ONLY_CITIES has the smallest size and contains only cities.
+    | Other tables (continents, countries, divisions) will not be seeded.
+    |
     | More info: http://download.geonames.org/export/dump/
     |
     */
@@ -27,7 +37,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Seeding filters.
+    | Seed filters
     |--------------------------------------------------------------------------
     |
     | Specify filters for geonames data seeding.
@@ -44,7 +54,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Geonames tables.
+    | Geonames tables
     |--------------------------------------------------------------------------
     |
     | Specify tables that will be used in the application.
@@ -83,7 +93,8 @@ return [
     | Translations
     |--------------------------------------------------------------------------
     |
-    | TODO: add description
+    | Set up translations configurations.
+    | You can disable translations or specify your own languages list for translations.
     |
     */
 
@@ -93,13 +104,14 @@ return [
     'translations' => true,
 
     /*
-     * Indicates the languages list that should translate into.
+     * Indicates the language list for translations.
      */
     'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
 
     /*
      * Indicates if nullable languages should be supplied.
-     * Can be useful for searching, but increase the database size.
+     * Some geonames alternate names have no defined concrete language.
+     * Its can be useful for searching, but it increases the database size.
      */
     'nullable_language' => true,
 
