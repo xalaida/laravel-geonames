@@ -75,76 +75,76 @@ class Country extends Resource
             ID::make(__('ID'), 'id')
                 ->onlyOnDetail(),
 
-            Text::make(__('Code'))
+            Text::make(__('Code'), 'code')
                 ->sortable(),
 
-            Text::make(__('ISO'))
+            Text::make(__('ISO'), 'iso')
                 ->sortable(),
 
-            Text::make(__('ISO numeric'))
+            Text::make(__('ISO numeric'), 'iso_numeric')
                 ->sortable(),
 
-            Text::make(__('Name'))
+            Text::make(__('Name'), 'name')
                 ->sortable(),
 
             Text::make(__('Official name'), 'name_official')
                 ->onlyOnDetail(),
 
-            Number::make(__('Latitude'))
+            Number::make(__('Latitude'), 'latitude')
                 ->sortable(),
 
-            Number::make(__('Longitude'))
+            Number::make(__('Longitude'), 'longitude')
                 ->sortable(),
 
-            Timezone::make(__('Timezone ID'))
+            Timezone::make(__('Timezone ID'), 'timezone_id')
                 ->onlyOnDetail(),
 
-            BelongsTo::make(__('Continent'))
+            BelongsTo::make(__('Continent'), 'continent')
                 ->sortable(),
 
-            Text::make(__('Capital'))
+            Text::make(__('Capital'), 'capital')
                 ->sortable(),
 
-            Text::make(__('Currency code'))
+            Text::make(__('Currency code'), 'currency_code')
                 ->sortable(),
 
-            Text::make(__('Currency name'))
+            Text::make(__('Currency name'), 'currency_name')
                 ->sortable(),
 
-            Text::make(__('TLD'))
+            Text::make(__('TLD'), 'tld')
                 ->onlyOnDetail(),
 
-            Text::make(__('Phone code'))
+            Text::make(__('Phone code'), 'phone_code')
                 ->sortable(),
 
-            Text::make(__('Postal code format'))
+            Text::make(__('Postal code format'), 'postal_code_format')
                 ->onlyOnDetail(),
 
-            Text::make(__('Postal code regex'))
+            Text::make(__('Postal code regex'), 'postal_code_regex')
                 ->onlyOnDetail(),
 
-            Text::make(__('Languages'))
+            Text::make(__('Languages'), 'languages')
                 ->onlyOnDetail(),
 
-            Text::make(__('Neighbours'))
+            Text::make(__('Neighbours'), 'neighbours')
                 ->onlyOnDetail(),
 
-            Number::make(__('Area'))
+            Number::make(__('Area'), 'area')
                 ->sortable(),
 
             Text::make(__('Fips'))
                 ->onlyOnDetail(),
 
-            Number::make(__('Population'))
+            Number::make(__('Population'), 'population')
                 ->sortable(),
 
-            Number::make(__('Dem'))
+            Number::make(__('Dem'), 'dem')
                 ->sortable(),
 
-            Text::make(__('Feature code'))
+            Text::make(__('Feature code'), 'feature_code')
                 ->sortable(),
 
-            Number::make(__('Geoname ID'))
+            Number::make(__('Geoname ID'), 'geoname_id')
                 ->sortable(),
 
             Date::make(__('Date of modification'), 'modified_at')
@@ -156,47 +156,9 @@ class Country extends Resource
             DateTime::make(__('Date of update'), 'created_at')
                 ->onlyOnDetail(),
 
-            HasMany::make(__('Divisions')),
+            HasMany::make(__('Divisions'), 'divisions', Division::class),
 
-            HasMany::make(__('Cities')),
+            HasMany::make(__('Cities'), 'cities', City::class),
         ];
-    }
-
-    /**
-     * Get the cards available for the request.
-     */
-    public function cards(Request $request): array
-    {
-        return [];
-    }
-
-    /**
-     * Get the filters available for the resource.
-     *
-     * @return array
-     */
-    public function filters(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the lenses available for the resource.
-     *
-     * @return array
-     */
-    public function lenses(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the actions available for the resource.
-     *
-     * @return array
-     */
-    public function actions(Request $request)
-    {
-        return [];
     }
 }

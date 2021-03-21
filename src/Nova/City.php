@@ -75,37 +75,37 @@ class City extends Resource
             ID::make(__('ID'), 'id')
                 ->onlyOnDetail(),
 
-            Text::make(__('Name'))
+            Text::make(__('Name'), 'name')
                 ->sortable(),
 
-            BelongsTo::make(__('Country'))
+            BelongsTo::make(__('Country'), 'country', Country::class)
                 ->sortable(),
 
-            BelongsTo::make(__('Division'))
+            BelongsTo::make(__('Division'), 'division', Division::class)
                 ->sortable(),
 
-            Number::make(__('Latitude'))
+            Number::make(__('Latitude'), 'latitude')
                 ->sortable(),
 
-            Number::make(__('Longitude'))
+            Number::make(__('Longitude'), 'longitude')
                 ->sortable(),
 
-            Timezone::make(__('Timezone ID'))
+            Timezone::make(__('Timezone ID'), 'timezone_id')
                 ->onlyOnDetail(),
 
-            Number::make(__('Population'))
+            Number::make(__('Population'), 'population')
                 ->sortable(),
 
-            Number::make(__('Elevation'))
+            Number::make(__('Elevation'), 'elevation')
                 ->sortable(),
 
-            Number::make(__('Dem'))
+            Number::make(__('Dem'), 'dem')
                 ->sortable(),
 
-            Text::make(__('Feature code'))
+            Text::make(__('Feature code'), 'feature_code')
                 ->sortable(),
 
-            Number::make(__('Geoname ID'))
+            Number::make(__('Geoname ID'), 'geoname_id')
                 ->sortable(),
 
             Date::make(__('Date of modification'), 'modified_at')
@@ -117,43 +117,5 @@ class City extends Resource
             DateTime::make(__('Date of update'), 'created_at')
                 ->onlyOnDetail(),
         ];
-    }
-
-    /**
-     * Get the cards available for the request.
-     */
-    public function cards(Request $request): array
-    {
-        return [];
-    }
-
-    /**
-     * Get the filters available for the resource.
-     *
-     * @return array
-     */
-    public function filters(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the lenses available for the resource.
-     *
-     * @return array
-     */
-    public function lenses(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the actions available for the resource.
-     *
-     * @return array
-     */
-    public function actions(Request $request)
-    {
-        return [];
     }
 }
