@@ -80,13 +80,17 @@ class ProgressParser implements Parser
      */
     protected function startProgress(string $path): void
     {
-        $this->progress = $this->output->createProgressBar(
-            $this->getFileReader()->getLinesCount($path)
-        );
+        $steps = $this->getFileReader()->getLinesCount($path);
 
-        // TODO: add format with path of file that is being parsed (similar to downloader progress).
+        $this->progress = $this->output->createProgressBar($steps);
 
-        $this->progress->setFormat('very_verbose');
+        if ($steps) {
+            $this->progress->setFormat(
+                "<options=bold;fg=green>Processing:</> {$path}\n".
+                "%bar% %percent%%\n".
+                "<options=bold;fg=green>Remaining Time:</> %remaining%\n"
+            );
+        }
     }
 
     /**
