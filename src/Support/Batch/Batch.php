@@ -87,8 +87,10 @@ class Batch
      */
     public function commit(): void
     {
-        call_user_func($this->handler, $this->buffer);
-        $this->reset();
+        if (! empty($this->buffer)) {
+            call_user_func($this->handler, $this->buffer);
+            $this->reset();
+        }
     }
 
     /**
