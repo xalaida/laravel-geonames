@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Possibility to define custom models
 - Basic tests with fixtures
 - Add insert process logging
+- Index in `cities` table to `feature_code` column
+
+### Changed
+- Nova resources now is read only by default
 
 ### Fixed
 - Code style
