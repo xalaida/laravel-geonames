@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Support\Eloquent;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Nevadskiy\Uuid\Uuid;
 
@@ -11,8 +10,7 @@ use Nevadskiy\Uuid\Uuid;
  */
 abstract class Model extends EloquentModel
 {
-    use HasFactory,
-        Uuid;
+    use Uuid;
 
     /**
      * The attributes that aren't mass assignable.
