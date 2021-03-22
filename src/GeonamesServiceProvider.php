@@ -287,11 +287,9 @@ class GeonamesServiceProvider extends ServiceProvider
 
     /**
      * Get the migration file with the given file name.
-     *
-     * @return string
      */
     protected function migration(string $file): string
     {
-        return __DIR__ . "/../database/migrations/{$file}";
+        return __DIR__."/../database/migrations/{$file}";
     }
 }
