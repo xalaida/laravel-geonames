@@ -30,28 +30,28 @@ use Psr\Log\LoggerInterface;
 class GeonamesServiceProvider extends ServiceProvider
 {
     /**
-     * The module's name.
+     * The package's name.
      */
     protected const PACKAGE = 'geonames';
 
     /**
-     * Register any module services.
+     * Register any package services.
      */
     public function register(): void
     {
         $this->registerConfig();
         $this->registerGeonames();
+        $this->registerLogger();
         $this->registerDownloader();
         $this->registerFileReader();
         $this->registerParser();
         $this->registerSuppliers();
-        $this->registerSupplyService();
         $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
 
     /**
-     * Bootstrap any module services.
+     * Bootstrap any package services.
      */
     public function boot(): void
     {
@@ -65,7 +65,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any module configurations.
+     * Register any package configurations.
      */
     protected function registerConfig(): void
     {
@@ -81,19 +81,31 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the downloader.
+     * Register any package logger.
      */
-    protected function registerDownloader(): void
+    protected function registerLogger(): void
     {
-        $this->app->bind(Downloader::class, BaseDownloader::class);
+        $this->app->singleton(ConsoleLogger::class, function () {
+            return new ConsoleLogger(OutputFactory::make());
+        });
 
         if ($this->app->runningInConsole()) {
             $this->app->when(BaseDownloader::class)
                 ->needs(LoggerInterface::class)
-                ->give(function () {
-                    return new ConsoleLogger(OutputFactory::make());
-                });
+                ->give(ConsoleLogger::class);
+
+            $this->app->when(SupplyService::class)
+                ->needs(LoggerInterface::class)
+                ->give(ConsoleLogger::class);
         }
+    }
+
+    /**
+     * Register any package downloader.
+     */
+    protected function registerDownloader(): void
+    {
+        $this->app->bind(Downloader::class, BaseDownloader::class);
 
         $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
@@ -107,7 +119,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the file reader.
+     * Register any package file reader.
      */
     protected function registerFileReader(): void
     {
@@ -115,7 +127,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the resource parser.
+     * Register any package resource parser.
      */
     protected function registerParser(): void
     {
@@ -129,7 +141,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any module suppliers.
+     * Register any package suppliers.
      */
     protected function registerSuppliers(): void
     {
@@ -139,21 +151,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the supply service.
-     */
-    protected function registerSupplyService(): void
-    {
-        if ($this->app->runningInConsole()) {
-            $this->app->when(SupplyService::class)
-                ->needs(LoggerInterface::class)
-                ->give(function () {
-                    return new ConsoleLogger(OutputFactory::make());
-                });
-        }
-    }
-
-    /**
-     * Register the translation mapper.
+     * Register any package translation mapper.
      */
     protected function registerTranslationMapper(): void
     {
@@ -185,7 +183,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot any module commands.
+     * Boot any package commands.
      */
     protected function bootCommands(): void
     {
@@ -200,7 +198,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot any module migrations.
+     * Boot any package migrations.
      */
     protected function bootMigrations(): void
     {
@@ -208,19 +206,19 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
             if ($geonames->shouldSupplyContinents()) {
-                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_100000_create_continents_table.php');
+                $this->loadMigrationsFrom($this->migration('2020_06_06_100000_create_continents_table.php'));
             }
 
             if ($geonames->shouldSupplyCountries()) {
-                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_200000_create_countries_table.php');
+                $this->loadMigrationsFrom($this->migration('2020_06_06_200000_create_countries_table.php'));
             }
 
             if ($geonames->shouldSupplyDivisions()) {
-                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_300000_create_divisions_table.php');
+                $this->loadMigrationsFrom($this->migration('2020_06_06_300000_create_divisions_table.php'));
             }
 
             if ($geonames->shouldSupplyCities()) {
-                $this->loadMigrationsFrom(__DIR__.'/../database/migrations/2020_06_06_400000_create_cities_table.php');
+                $this->loadMigrationsFrom($this->migration('2020_06_06_400000_create_cities_table.php'));
             }
         }
     }
@@ -238,7 +236,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot module morph map.
+     * Boot package morph map.
      */
     protected function bootMorphMap(): void
     {
@@ -253,7 +251,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot any module nova resources.
+     * Boot any package nova resources.
      */
     protected function bootNovaResources(): void
     {
@@ -268,7 +266,7 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Publish any module configurations.
+     * Publish any package configurations.
      */
     protected function publishConfig(): void
     {
@@ -278,12 +276,22 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Publish any module migrations.
+     * Publish any package migrations.
      */
     protected function publishMigrations(): void
     {
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ], self::PACKAGE.'-migrations');
+    }
+
+    /**
+     * Get the migration file with the given file name.
+     *
+     * @return string
+     */
+    protected function migration(string $file): string
+    {
+        return __DIR__ . "/../database/migrations/{$file}";
     }
 }

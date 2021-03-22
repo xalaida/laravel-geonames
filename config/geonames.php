@@ -1,5 +1,7 @@
 <?php
 
+use Nevadskiy\Geonames\Suppliers;
+
 return [
 
     /*
@@ -124,12 +126,13 @@ return [
     | with own custom insert, update and delete logic.
     |
     */
+
     'suppliers' => [
-        Nevadskiy\Geonames\Suppliers\ContinentSupplier::class => Nevadskiy\Geonames\Suppliers\ContinentDefaultSupplier::class,
-        Nevadskiy\Geonames\Suppliers\CountrySupplier::class => Nevadskiy\Geonames\Suppliers\CountryDefaultSupplier::class,
-        Nevadskiy\Geonames\Suppliers\DivisionSupplier::class => Nevadskiy\Geonames\Suppliers\DivisionDefaultSupplier::class,
-        Nevadskiy\Geonames\Suppliers\CitySupplier::class => Nevadskiy\Geonames\Suppliers\CityDefaultSupplier::class,
-        Nevadskiy\Geonames\Suppliers\Translations\TranslationSupplier::class => Nevadskiy\Geonames\Suppliers\Translations\TranslationDefaultSupplier::class,
+        Suppliers\ContinentSupplier::class => Suppliers\ContinentDefaultSupplier::class,
+        Suppliers\CountrySupplier::class => Suppliers\CountryDefaultSupplier::class,
+        Suppliers\DivisionSupplier::class => Suppliers\DivisionDefaultSupplier::class,
+        Suppliers\CitySupplier::class => Suppliers\CityDefaultSupplier::class,
+        Suppliers\Translations\TranslationSupplier::class => Suppliers\Translations\TranslationDefaultSupplier::class,
     ],
 
 ];
