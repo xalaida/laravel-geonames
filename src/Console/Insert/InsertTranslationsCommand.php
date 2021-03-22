@@ -6,13 +6,13 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Console\Traits\CleanFolder;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\TranslateService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
+use Nevadskiy\Translatable\Models\Translation;
 
 class InsertTranslationsCommand extends Command
 {
@@ -153,7 +153,7 @@ class InsertTranslationsCommand extends Command
      */
     protected function deleteTranslations(Model $model): void
     {
-        DB::table('translations')
+        Translation::query()
             ->where('translatable_type', $model->getMorphClass())
             ->delete();
     }
