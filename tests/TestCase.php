@@ -4,8 +4,10 @@ namespace Nevadskiy\Geonames\Tests;
 
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
+use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Psr\Log\NullLogger;
 
 class TestCase extends OrchestraTestCase
 {
@@ -17,6 +19,8 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
 
         $this->app->setLocale('en');
+
+        $this->fakeLogger();
     }
 
     /**
@@ -61,5 +65,13 @@ class TestCase extends OrchestraTestCase
     protected function fixture(string $path): string
     {
         return __DIR__."/Support/fixtures/{$path}";
+    }
+
+    /**
+     * Fake the logger.
+     */
+    protected function fakeLogger(): void
+    {
+        $this->app->instance(ConsoleLogger::class, new NullLogger);
     }
 }

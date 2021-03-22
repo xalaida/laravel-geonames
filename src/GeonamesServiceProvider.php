@@ -111,7 +111,7 @@ class GeonamesServiceProvider extends ServiceProvider
             return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
         });
 
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
             $this->app->extend(Downloader::class, function (Downloader $downloader) {
                 return new ConsoleDownloader($downloader, OutputFactory::make());
             });
@@ -133,7 +133,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->app->bind(Parser::class, FileParser::class);
 
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
             $this->app->extend(Parser::class, function (Parser $parser) {
                 return new ProgressParser($parser, OutputFactory::make());
             });
