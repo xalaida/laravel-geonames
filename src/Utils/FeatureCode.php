@@ -30,7 +30,7 @@ class FeatureCode
     public const PPLX = 'PPLX';
 
     /**
-     * Seat of government of a political entity
+     * Seat of government of a political entity.
      */
     public const PPLG = 'PPLG';
 
