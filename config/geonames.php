@@ -108,7 +108,7 @@ return [
     /*
      * Indicates the language list for translations.
      */
-    'languages' => ['en', 'es', 'fr', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
+    'languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
 
     /*
      * Indicates if nullable languages should be supplied.
