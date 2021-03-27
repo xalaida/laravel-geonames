@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\Arr;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
 
@@ -176,7 +177,15 @@ class Geonames
      */
     public function modelClasses(): array
     {
-        return array_filter($this->config->get('geonames.models'));
+        return Arr::only(
+            array_filter($this->config->get('geonames.models')),
+            array_keys(array_filter([
+                'continent' => $this->shouldSupplyContinents(),
+                'country' => $this->shouldSupplyCountries(),
+                'division' => $this->shouldSupplyDivisions(),
+                'city' => $this->shouldSupplyCities(),
+            ]))
+        );
     }
 
     /*
@@ -230,8 +239,23 @@ class Geonames
      */
     public function isLanguageAllowed(?string $code): bool
     {
-        return (is_null($code) && $this->config->get('geonames.nullable_language'))
-            || in_array($code, $this->config->get('geonames.languages'), true);
+        if (is_null($code) && $this->config->get('geonames.nullable_language')) {
+            return true;
+        }
+
+        if ($this->isAllLanguagesAllowed()) {
+            return true;
+        }
+
+        return in_array($code, $this->config->get('geonames.languages'), true);
+    }
+
+    /**
+     * Determine whether the all languages is allowed.
+     */
+    public function isAllLanguagesAllowed(): bool
+    {
+        return $this->config->get('geonames.languages') === ['*'];
     }
 
     /**
