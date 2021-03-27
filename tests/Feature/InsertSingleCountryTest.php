@@ -3,17 +3,16 @@
 namespace Nevadskiy\Geonames\Tests\Feature;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Schema;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
-use Nevadskiy\Geonames\Tests\Support\Factories\ContinentFactory;
 use Nevadskiy\Geonames\Tests\TestCase;
 use Nevadskiy\Translatable\Models\Translation;
 
-class InsertAllTest extends TestCase
+class InsertSingleCountryTest extends TestCase
 {
     /**
      * Define environment setup.
@@ -22,9 +21,9 @@ class InsertAllTest extends TestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app['config']->set('geonames.source', DownloadService::SOURCE_ALL_COUNTRIES);
+        $app['config']->set('geonames.source', DownloadService::SOURCE_SINGLE_COUNTRY);
         $app['config']->set('geonames.filters.population', 500);
-        $app['config']->set('geonames.filters.countries', ['*']);
+        $app['config']->set('geonames.filters.countries', ['AE']);
         $app['config']->set('geonames.translations', true);
         $app['config']->set('geonames.languages', ['*']);
 
@@ -32,32 +31,21 @@ class InsertAllTest extends TestCase
     }
 
     /** @test */
-    public function it_can_insert_geonames_dataset_into_database(): void
+    public function it_can_insert_dataset_from_single_country_source(): void
     {
         $this->fakeDownloadService();
         $this->fakeDirectoryCleaner();
 
         $this->migrate();
+
         $this->artisan('geonames:insert');
 
-        self::assertCount(3, Continent::all());
+        self::assertFalse(Schema::hasTable(Continent::TABLE));
+        self::assertTrue(Schema::hasTable(Country::TABLE));
+        self::assertTrue(Schema::hasTable(Division::TABLE));
+        self::assertTrue(Schema::hasTable(City::TABLE));
         self::assertCount(1, Country::all());
-        self::assertCount(1, Division::all());
         self::assertCount(1, City::all());
         self::assertCount(3, Translation::all());
-    }
-
-    /** @test */
-    public function it_can_reset_tables_during_insert_process(): void
-    {
-        $this->fakeDownloadService();
-        $this->fakeDirectoryCleaner();
-        $this->migrate();
-
-        $continent = ContinentFactory::new()->create();
-
-        $this->artisan('geonames:insert', ['--reset' => true]);
-
-        self::assertFalse(Continent::all()->contains($continent));
     }
 }
