@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Tests\Feature;
 
+use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
@@ -12,8 +13,24 @@ use Nevadskiy\Geonames\Tests\Support\Factories\ContinentFactory;
 use Nevadskiy\Geonames\Tests\TestCase;
 use Nevadskiy\Translatable\Models\Translation;
 
-class InsertTest extends TestCase
+class InsertAllTest extends TestCase
 {
+    /**
+     * Define environment setup.
+     *
+     * @param Application $app
+     */
+    protected function getEnvironmentSetUp($app): void
+    {
+        $app['config']->set('geonames.source', DownloadService::SOURCE_ALL_COUNTRIES);
+        $app['config']->set('geonames.filters.population', 500);
+        $app['config']->set('geonames.filters.countries', ['*']);
+        $app['config']->set('geonames.translations', true);
+        $app['config']->set('geonames.languages', ['*']);
+
+        parent::getEnvironmentSetUp($app);
+    }
+
     /** @test */
     public function it_can_insert_geonames_dataset_into_database(): void
     {
@@ -27,7 +44,7 @@ class InsertTest extends TestCase
         self::assertCount(1, Country::all());
         self::assertCount(1, Division::all());
         self::assertCount(1, City::all());
-        self::assertCount(2, Translation::all());
+        self::assertCount(3, Translation::all());
     }
 
     /** @test */
