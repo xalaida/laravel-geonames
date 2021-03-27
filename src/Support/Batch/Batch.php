@@ -87,17 +87,10 @@ class Batch
      */
     public function commit(): void
     {
-        if (! empty($this->buffer)) {
+        if ($this->currentSize > 0) {
             call_user_func($this->handler, $this->buffer);
-            $this->reset();
         }
-    }
 
-    /**
-     * Destroy the batch instance.
-     */
-    public function __destruct()
-    {
-        $this->commit();
+        $this->reset();
     }
 }
