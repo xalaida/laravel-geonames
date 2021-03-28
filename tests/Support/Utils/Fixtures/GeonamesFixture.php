@@ -2,56 +2,12 @@
 
 namespace Nevadskiy\Geonames\Tests\Support\Utils\Fixtures;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
-use Nevadskiy\Geonames\Tests\Support\Utils\FixtureFileBuilder;
 
-class GeonamesFixture
+class GeonamesFixture extends Fixture
 {
-    use WithFaker;
-
-    /**
-     * @var FixtureFileBuilder
-     */
-    private $builder;
-
-    /**
-     * DailyDeletesFixture constructor.
-     */
-    public function __construct(FixtureFileBuilder $builder)
-    {
-        $this->builder = $builder;
-        $this->setUpFaker();
-    }
-
-    /**
-     * Create fixture file from the given data.
-     *
-     * @param array $data
-     * @return string
-     */
-    public function create(array $data, string $filename = 'geonames-txt.txt'): string
-    {
-        return $this->builder->build($filename, $this->mergeData($data));
-    }
-
-    /**
-     * Merge data with default attributes.
-     *
-     * @param array $data
-     * @return array|array[]
-     */
-    protected function mergeData(array $data): array
-    {
-        return array_map(function ($row) {
-            return array_merge($this->defaults(), $row);
-        }, $data);
-    }
-
     /**
      * Get default attributes.
-     *
-     * @return array
      */
     protected function defaults(): array
     {
@@ -76,5 +32,13 @@ class GeonamesFixture
             'timezone' => $this->faker->timezone,
             'modification date' => $this->faker->date(),
         ];
+    }
+
+    /**
+     * Get the default filename.
+     */
+    protected function filename(): string
+    {
+        return 'geonames.txt';
     }
 }
