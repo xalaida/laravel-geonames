@@ -10,7 +10,8 @@ use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 use Nevadskiy\Geonames\Tests\DatabaseTestCase;
 use Nevadskiy\Geonames\Tests\Support\Factories\CountryFactory;
-use Nevadskiy\Geonames\Tests\Support\FakeDownloadService;
+use Nevadskiy\Geonames\Tests\Support\Utils\FakeDownloadService;
+use Nevadskiy\Geonames\Tests\Support\Utils\FixtureFileBuilder;
 
 class UpdateTest extends DatabaseTestCase
 {
@@ -24,7 +25,7 @@ class UpdateTest extends DatabaseTestCase
     protected $config = [
         'geonames.source' => DownloadService::SOURCE_SINGLE_COUNTRY,
         'geonames.filters.population' => 500,
-        'geonames.filters.countries' => ['AE'],
+        'geonames.filters.countries' => ['TS'],
         'geonames.translations' => true,
         'geonames.languages' => ['*'],
     ];
@@ -39,7 +40,7 @@ class UpdateTest extends DatabaseTestCase
     // TODO: test that directory is empty
 
     /** @test */
-    public function it_can_update_database_from_daily_modification_files_v2(): void
+    public function it_can_update_database_from_daily_modification_files(): void
     {
         $country = CountryFactory::new()->create([
             'name' => 'Testing country (OLD)',
@@ -51,7 +52,7 @@ class UpdateTest extends DatabaseTestCase
                 [
                     'geonameid' => $country->geoname_id,
                     'Country' => 'Testing country (NEW)',
-                    'ISO' => 'AE',
+                    'ISO' => 'TS',
                 ],
             ]))
             ->dailyModifications($this->createDailyModificationsFile([
@@ -158,17 +159,9 @@ class UpdateTest extends DatabaseTestCase
             return array_merge($this->defaultsGeonames(), $row);
         }, $data);
 
-        $path = "{$this->app->make(Geonames::class)->directory()}/daily-modifications.txt";
-
-        $dir = dirname($path);
-
-        if (! is_dir($dir)) {
-            mkdir(dirname($path), 0, true);
-        }
-
-        file_put_contents($path, $this->buildTextTable($data));
-
-        return $path;
+        return app(FixtureFileBuilder::class)
+            ->withHeaders()
+            ->build('daily-modifications.txt', $data);
     }
 
     protected function createCountryInfoFile(array $data): string
@@ -177,16 +170,7 @@ class UpdateTest extends DatabaseTestCase
             return array_merge($this->defaultsCountryInfo(), $row);
         }, $data);
 
-        $path = "{$this->app->make(Geonames::class)->directory()}/country-info.txt";
-
-        $dir = dirname($path);
-
-        if (! is_dir($dir)) {
-            mkdir(dirname($path), 0, true);
-        }
-
-        file_put_contents($path, $this->buildTextTable($data, false));
-
-        return $path;
+        return app(FixtureFileBuilder::class)
+            ->build('country-info.txt', $data);
     }
 }

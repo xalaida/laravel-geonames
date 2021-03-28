@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Geonames\Tests\Support;
+namespace Nevadskiy\Geonames\Tests\Support\Utils;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithContainer;
@@ -123,6 +123,6 @@ class FakeDownloadService
      */
     public static function fixture(string $path): string
     {
-        return __DIR__."/fixtures/{$path}";
+        return __DIR__."/../fixtures/{$path}";
     }
 }
