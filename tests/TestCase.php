@@ -101,7 +101,7 @@ class TestCase extends OrchestraTestCase
     {
         $downloadService = $this->mock(DownloadService::class);
 
-        $downloadService->shouldReceive('downloadCountryInfoFile')
+        $downloadService->shouldReceive('downloadCountryInfo')
             ->withNoArgs()
             ->andReturn($this->fixture('countryInfo.txt'));
 

@@ -2,14 +2,20 @@
 
 namespace Nevadskiy\Geonames\Tests\Feature;
 
+use Illuminate\Foundation\Testing\WithFaker;
+use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
+use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 use Nevadskiy\Geonames\Tests\DatabaseTestCase;
 use Nevadskiy\Geonames\Tests\Support\Factories\CountryFactory;
+use Nevadskiy\Geonames\Tests\Support\FakeDownloadService;
 
 class UpdateTest extends DatabaseTestCase
 {
+    use WithFaker;
+
     /**
      * Default configurations.
      *
@@ -23,21 +29,110 @@ class UpdateTest extends DatabaseTestCase
         'geonames.languages' => ['*'],
     ];
 
+    // TODO: test that model is updated
+    // TODO: test that new model is added
+    // TODO: test that model is deleted
+
+    // TODO: test that translation is updated
+    // TODO: test that new translation is added
+    // TODO: test that translation is deleted
+    // TODO: test that directory is empty
+
     /** @test */
-    public function it_can_update_database_from_daily_modification_files(): void
+    public function it_can_update_database_from_daily_modification_files_v2(): void
     {
         $country = CountryFactory::new()->create([
-            'geoname_id' => 290557,
-            'name' => 'United Arab Emirates (OLD)'
+            'name' => 'Testing country (OLD)',
+            'population' => 3232,
         ]);
 
-        $this->fakeDirectoryCleaner();
-        $this->fakeDownloadService();
+        FakeDownloadService::new($this->app)
+            ->countryInfo($this->createCountryInfoFile([
+                [
+                    'geonameid' => $country->geoname_id,
+                    'Country' => 'Testing country (NEW)',
+                    'ISO' => 'AE',
+                ]
+            ]))
+            ->dailyModifications($this->createDailyModificationsFile([
+                [
+                    'geonameid' => $country->geoname_id,
+                    'population' => 4545
+                ],
+            ]))
+            ->swap();
 
         $this->artisan('geonames:update');
 
         self::assertCount(1, Country::all());
-        self::assertEquals('United Arab Emirates', $country->fresh()->name);
+
+        tap($country->fresh(), static function ($country) {
+            self::assertEquals('Testing country (NEW)', $country->name);
+            self::assertEquals(4545, $country->population);
+        });
+    }
+
+    protected function defaultsGeonames(): array
+    {
+        return [
+            'geonameid' => $this->faker->unique()->randomNumber(6),
+            'name' => $this->faker->word,
+            'asciiname' => $this->faker->word,
+            'alternatenames' => '',
+            'latitude' => $this->faker->randomFloat(),
+            'longitude' => $this->faker->randomFloat(),
+            'feature class' => $this->faker->randomElement(['A', 'P']),
+            'feature code' => $this->faker->randomElement([FeatureCode::PPLC, FeatureCode::PCLI]),
+            'country code' => $this->faker->countryCode,
+            'cc2' => '',
+            'admin1 code' => '',
+            'admin2 code' => '',
+            'admin3 code' => '',
+            'admin4 code' => '',
+            'population' => $this->faker->randomNumber(6),
+            'elevation' => '',
+            'dem' => '',
+            'timezone' => $this->faker->timezone,
+            'modification date' => $this->faker->date(),
+        ];
+    }
+
+    protected function defaultsCountryInfo(): array
+    {
+        return [
+            'ISO' => 'AE',
+            'ISO3' => 'ARE',
+            'ISO-Numeric' => '784',
+            'fips' => 'AE',
+            'Country' => 'United Arab Emirates',
+            'Capital' => 'Abu Dhabi',
+            'Area(in sq km)' => '82880',
+            'Population' => '9630959',
+            'Continent' => 'AS',
+            'tld' => '.ae',
+            'CurrencyCode' => 'AED',
+            'CurrencyName' => 'Dirham',
+            'Phone' => '',
+            'Postal Code Format' => '',
+            'Postal Code Regex' => '',
+            'Languages' => 'ar-AE,fa,en,hi,ur',
+            'geonameid' => '290557',
+            'neighbours' => 'SA,OM',
+            'EquivalentFipsCode' => '',
+        ];
+    }
+
+    protected function buildTextTable(array $table, bool $headers = true, string $rowSeparator = "\n", string $colSeparator = "\t"): string
+    {
+        if ($headers) {
+            // Prepare headers
+            array_unshift($table, array_keys(reset($table)));
+        }
+
+        // Build content
+        return implode($rowSeparator, array_map(static function ($row) use ($colSeparator) {
+            return implode($colSeparator, $row);
+        }, $table));
     }
 
     /**
@@ -58,30 +153,48 @@ class UpdateTest extends DatabaseTestCase
     }
 
     /**
-     * Fake the directory cleaner.
+     * @param array $data
+     * @return string
      */
-    protected function fakeDownloadService(): void
+    protected function createDailyModificationsFile(array $data): string
     {
-        $downloadService = $this->mock(DownloadService::class);
+        $data = array_map(function ($row) {
+            return array_merge($this->defaultsGeonames(), $row);
+        }, $data);
 
-        $downloadService->shouldReceive('downloadCountryInfoFile')
-            ->withNoArgs()
-            ->andReturn($this->fixture('countryInfo.txt'));
+        $path = "{$this->app->make(Geonames::class)->directory()}/daily-modifications.txt";
 
-        $downloadService->shouldReceive('downloadDailyModifications')
-            ->withNoArgs()
-            ->andReturn($this->fixture('dailyModifications.txt'));
+        $dir = dirname($path);
 
-        $downloadService->shouldReceive('downloadDailyDeletes')
-            ->withNoArgs()
-            ->andReturn($this->fixture('empty.txt'));
+        if (!is_dir($dir)) {
+            mkdir(dirname($path), 0, true);
+        }
 
-        $downloadService->shouldReceive('downloadDailyAlternateNamesModifications')
-            ->withNoArgs()
-            ->andReturn($this->fixture('empty.txt'));
+        file_put_contents($path, $this->buildTextTable($data));
 
-        $downloadService->shouldReceive('downloadDailyAlternateNamesDeletes')
-            ->withNoArgs()
-            ->andReturn($this->fixture('empty.txt'));
+        return $path;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    protected function createCountryInfoFile(array $data): string
+    {
+        $data = array_map(function ($row) {
+            return array_merge($this->defaultsCountryInfo(), $row);
+        }, $data);
+
+        $path = "{$this->app->make(Geonames::class)->directory()}/country-info.txt";
+
+        $dir = dirname($path);
+
+        if (!is_dir($dir)) {
+            mkdir(dirname($path), 0, true);
+        }
+
+        file_put_contents($path, $this->buildTextTable($data, false));
+
+        return $path;
     }
 }
