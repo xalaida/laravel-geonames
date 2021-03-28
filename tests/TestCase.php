@@ -74,7 +74,7 @@ class TestCase extends OrchestraTestCase
      */
     protected function fakeLogger(): void
     {
-        $this->app->instance(ConsoleLogger::class, new NullLogger);
+        $this->app->instance(ConsoleLogger::class, new NullLogger());
     }
 
     /**

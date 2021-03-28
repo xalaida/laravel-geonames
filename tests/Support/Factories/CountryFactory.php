@@ -43,9 +43,6 @@ class CountryFactory
 
     /**
      * Get the merged attributes.
-     *
-     * @param array $attributes
-     * @return array
      */
     protected function attributes(array $attributes = []): array
     {
@@ -64,8 +61,6 @@ class CountryFactory
 
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
     public function getDefaults(): array
     {
@@ -75,7 +70,7 @@ class CountryFactory
         return [
             // 'id' => 'uuid',
             'code' => $code,
-            'iso' => $code . 'C',
+            'iso' => $code.'C',
             'iso_numeric' => $this->faker->unique()->randomNumber(3),
             'name' => $name,
             'name_official' => $name,

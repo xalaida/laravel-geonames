@@ -62,8 +62,6 @@ class DatabaseTestCase extends OrchestraTestCase
 
     /**
      * Configure the testing database.
-     *
-     * @param Repository $config
      */
     protected function configureDatabase(Repository $config): void
     {
@@ -78,8 +76,6 @@ class DatabaseTestCase extends OrchestraTestCase
 
     /**
      * Configure the package.
-     *
-     * @param Repository $config
      */
     protected function configurePackage(Repository $config): void
     {
@@ -109,7 +105,7 @@ class DatabaseTestCase extends OrchestraTestCase
      */
     protected function fakeLogger(): void
     {
-        $this->app->instance(ConsoleLogger::class, new NullLogger);
+        $this->app->instance(ConsoleLogger::class, new NullLogger());
     }
 
     /**

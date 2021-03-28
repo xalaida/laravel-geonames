@@ -73,7 +73,7 @@ class FeatureCode
             self::PPLA2,
             self::PPLA3,
             self::PPLX,
-            self::PPLG
+            self::PPLG,
         ];
     }
 }

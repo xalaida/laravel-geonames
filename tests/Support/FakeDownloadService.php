@@ -27,10 +27,8 @@ class FakeDownloadService
 
     /**
      * Make a new fake download service instance.
-     *
-     * @return FakeDownloadService
      */
-    public static function new(Application $app): FakeDownloadService
+    public static function new(Application $app): self
     {
         return new static($app);
     }
@@ -49,10 +47,9 @@ class FakeDownloadService
     /**
      * Fake country info file.
      *
-     * @param string $path
      * @return $this
      */
-    public function countryInfo(string $path): FakeDownloadService
+    public function countryInfo(string $path): self
     {
         $this->paths['downloadCountryInfo'] = $path;
 
@@ -62,10 +59,9 @@ class FakeDownloadService
     /**
      * Fake daily modifications file.
      *
-     * @param string $path
      * @return $this
      */
-    public function dailyModifications(string $path): FakeDownloadService
+    public function dailyModifications(string $path): self
     {
         $this->paths['downloadDailyModifications'] = $path;
 
@@ -75,10 +71,9 @@ class FakeDownloadService
     /**
      * Fake daily deletes file.
      *
-     * @param string $path
      * @return $this
      */
-    public function dailyDeletes(string $path): FakeDownloadService
+    public function dailyDeletes(string $path): self
     {
         $this->paths['downloadDailyDeletes'] = $path;
 
@@ -88,10 +83,9 @@ class FakeDownloadService
     /**
      * Fake daily alternate names modifications file.
      *
-     * @param string $path
      * @return $this
      */
-    public function dailyAlternateNamesModifications(string $path): FakeDownloadService
+    public function dailyAlternateNamesModifications(string $path): self
     {
         $this->paths['downloadDailyAlternateNamesModifications'] = $path;
 
@@ -101,10 +95,9 @@ class FakeDownloadService
     /**
      * Fake daily alternate names deletes file.
      *
-     * @param string $path
      * @return $this
      */
-    public function dailyAlternateNamesDeletes(string $path): FakeDownloadService
+    public function dailyAlternateNamesDeletes(string $path): self
     {
         $this->paths['downloadDailyAlternateNamesDeletes'] = $path;
 

@@ -48,10 +48,6 @@ class FixtureGenerator
         }, $table));
     }
 
-    /**
-     * @param string $filename
-     * @param string $content
-     */
     protected function createFile(string $filename, string $content): void
     {
         file_put_contents("{$this->geonames->directory()}/{$filename}", $content);

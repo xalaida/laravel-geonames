@@ -52,12 +52,12 @@ class UpdateTest extends DatabaseTestCase
                     'geonameid' => $country->geoname_id,
                     'Country' => 'Testing country (NEW)',
                     'ISO' => 'AE',
-                ]
+                ],
             ]))
             ->dailyModifications($this->createDailyModificationsFile([
                 [
                     'geonameid' => $country->geoname_id,
-                    'population' => 4545
+                    'population' => 4545,
                 ],
             ]))
             ->swap();
@@ -152,10 +152,6 @@ class UpdateTest extends DatabaseTestCase
             ->with(config('geonames.directory'));
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
     protected function createDailyModificationsFile(array $data): string
     {
         $data = array_map(function ($row) {
@@ -166,7 +162,7 @@ class UpdateTest extends DatabaseTestCase
 
         $dir = dirname($path);
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir(dirname($path), 0, true);
         }
 
@@ -175,10 +171,6 @@ class UpdateTest extends DatabaseTestCase
         return $path;
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
     protected function createCountryInfoFile(array $data): string
     {
         $data = array_map(function ($row) {
@@ -189,7 +181,7 @@ class UpdateTest extends DatabaseTestCase
 
         $dir = dirname($path);
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir(dirname($path), 0, true);
         }
 

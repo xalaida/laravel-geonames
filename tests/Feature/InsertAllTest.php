@@ -8,7 +8,6 @@ use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Nevadskiy\Geonames\Tests\Support\Factories\ContinentFactory;
 use Nevadskiy\Geonames\Tests\TestCase;
 use Nevadskiy\Translatable\Models\Translation;
