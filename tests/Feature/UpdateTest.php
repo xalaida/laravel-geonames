@@ -3,7 +3,6 @@
 namespace Nevadskiy\Geonames\Tests\Feature;
 
 use Illuminate\Foundation\Testing\WithFaker;
-use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
@@ -30,17 +29,14 @@ class UpdateTest extends DatabaseTestCase
         'geonames.languages' => ['*'],
     ];
 
-    // TODO: test that model is updated
-    // TODO: test that new model is added
-    // TODO: test that model is deleted
-
     // TODO: test that translation is updated
     // TODO: test that new translation is added
     // TODO: test that translation is deleted
+
     // TODO: test that directory is empty
 
     /** @test */
-    public function it_can_update_database_from_daily_modification_files(): void
+    public function it_can_update_country_from_daily_modification_files(): void
     {
         $country = CountryFactory::new()->create([
             'name' => 'Testing country (OLD)',
@@ -48,19 +44,19 @@ class UpdateTest extends DatabaseTestCase
         ]);
 
         FakeDownloadService::new($this->app)
-            ->countryInfo($this->createCountryInfoFile([
+            ->countryInfo([
                 [
                     'geonameid' => $country->geoname_id,
                     'Country' => 'Testing country (NEW)',
                     'ISO' => 'TS',
                 ],
-            ]))
-            ->dailyModifications($this->createDailyModificationsFile([
+            ])
+            ->dailyModifications([
                 [
                     'geonameid' => $country->geoname_id,
                     'population' => 4545,
                 ],
-            ]))
+            ])
             ->swap();
 
         $this->artisan('geonames:update');
@@ -73,67 +69,52 @@ class UpdateTest extends DatabaseTestCase
         });
     }
 
-    protected function defaultsGeonames(): array
+    /** @test */
+    public function it_can_delete_country_from_daily_modification_files(): void
     {
-        return [
-            'geonameid' => $this->faker->unique()->randomNumber(6),
-            'name' => $this->faker->word,
-            'asciiname' => $this->faker->word,
-            'alternatenames' => '',
-            'latitude' => $this->faker->randomFloat(),
-            'longitude' => $this->faker->randomFloat(),
-            'feature class' => $this->faker->randomElement(['A', 'P']),
-            'feature code' => $this->faker->randomElement([FeatureCode::PPLC, FeatureCode::PCLI]),
-            'country code' => $this->faker->countryCode,
-            'cc2' => '',
-            'admin1 code' => '',
-            'admin2 code' => '',
-            'admin3 code' => '',
-            'admin4 code' => '',
-            'population' => $this->faker->randomNumber(6),
-            'elevation' => '',
-            'dem' => '',
-            'timezone' => $this->faker->timezone,
-            'modification date' => $this->faker->date(),
-        ];
+        $country = CountryFactory::new()->create([
+            'name' => 'Testing country',
+        ]);
+
+        FakeDownloadService::new($this->app)
+            ->countryInfo([
+                [
+                    'geonameid' => $country->geoname_id,
+                    'ISO' => 'NO',
+                ],
+            ])
+            ->dailyModifications([
+                [
+                    'geonameid' => $country->geoname_id,
+                ],
+            ])
+            ->swap();
+
+        self::assertCount(1, Country::all());
+
+        $this->artisan('geonames:update');
+
+        self::assertEmpty(Country::all());
     }
 
-    protected function defaultsCountryInfo(): array
+    /** @test */
+    public function it_can_delete_city_from_daily_deletes_files(): void
     {
-        return [
-            'ISO' => 'AE',
-            'ISO3' => 'ARE',
-            'ISO-Numeric' => '784',
-            'fips' => 'AE',
-            'Country' => 'United Arab Emirates',
-            'Capital' => 'Abu Dhabi',
-            'Area(in sq km)' => '82880',
-            'Population' => '9630959',
-            'Continent' => 'AS',
-            'tld' => '.ae',
-            'CurrencyCode' => 'AED',
-            'CurrencyName' => 'Dirham',
-            'Phone' => '',
-            'Postal Code Format' => '',
-            'Postal Code Regex' => '',
-            'Languages' => 'ar-AE,fa,en,hi,ur',
-            'geonameid' => '290557',
-            'neighbours' => 'SA,OM',
-            'EquivalentFipsCode' => '',
-        ];
-    }
+        $country = CountryFactory::new()->create();
 
-    protected function buildTextTable(array $table, bool $headers = true, string $rowSeparator = "\n", string $colSeparator = "\t"): string
-    {
-        if ($headers) {
-            // Prepare headers
-            array_unshift($table, array_keys(reset($table)));
-        }
+        FakeDownloadService::new($this->app)
+            ->dailyDeletes([
+                [
+                    'geonameid' => $country->geoname_id,
+                ],
+            ])
+            ->swap();
 
-        // Build content
-        return implode($rowSeparator, array_map(static function ($row) use ($colSeparator) {
-            return implode($colSeparator, $row);
-        }, $table));
+        self::assertCount(1, Country::all());
+
+        $this->artisan('geonames:update');
+
+        self::assertEmpty(Country::all());
     }
 
     /**
@@ -151,26 +132,5 @@ class UpdateTest extends DatabaseTestCase
         $directoryCleaner->shouldReceive('clean')
             ->once()
             ->with(config('geonames.directory'));
-    }
-
-    protected function createDailyModificationsFile(array $data): string
-    {
-        $data = array_map(function ($row) {
-            return array_merge($this->defaultsGeonames(), $row);
-        }, $data);
-
-        return app(FixtureFileBuilder::class)
-            ->withHeaders()
-            ->build('daily-modifications.txt', $data);
-    }
-
-    protected function createCountryInfoFile(array $data): string
-    {
-        $data = array_map(function ($row) {
-            return array_merge($this->defaultsCountryInfo(), $row);
-        }, $data);
-
-        return app(FixtureFileBuilder::class)
-            ->build('country-info.txt', $data);
     }
 }

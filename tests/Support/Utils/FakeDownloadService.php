@@ -5,6 +5,9 @@ namespace Nevadskiy\Geonames\Tests\Support\Utils;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithContainer;
 use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\CountryInfoFixture;
+use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\DailyDeletesFixture;
+use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\GeonamesFixture;
 
 class FakeDownloadService
 {
@@ -47,11 +50,14 @@ class FakeDownloadService
     /**
      * Fake country info file.
      *
+     * @param string|array $fixture
      * @return $this
      */
-    public function countryInfo(string $path): self
+    public function countryInfo($fixture): self
     {
-        $this->paths['downloadCountryInfo'] = $path;
+        $this->paths['downloadCountryInfo'] = is_array($fixture)
+            ? $this->app[CountryInfoFixture::class]->create($fixture)
+            : $fixture;
 
         return $this;
     }
@@ -59,11 +65,14 @@ class FakeDownloadService
     /**
      * Fake daily modifications file.
      *
+     * @param string|array $fixture
      * @return $this
      */
-    public function dailyModifications(string $path): self
+    public function dailyModifications($fixture): self
     {
-        $this->paths['downloadDailyModifications'] = $path;
+        $this->paths['downloadDailyModifications'] = is_array($fixture)
+            ? $this->app[GeonamesFixture::class]->create($fixture)
+            : $fixture;
 
         return $this;
     }
@@ -71,11 +80,14 @@ class FakeDownloadService
     /**
      * Fake daily deletes file.
      *
+     * @param string|array $fixture
      * @return $this
      */
-    public function dailyDeletes(string $path): self
+    public function dailyDeletes($fixture): self
     {
-        $this->paths['downloadDailyDeletes'] = $path;
+        $this->paths['downloadDailyDeletes'] = is_array($fixture)
+            ? $this->app[DailyDeletesFixture::class]->create($fixture)
+            : $fixture;
 
         return $this;
     }
