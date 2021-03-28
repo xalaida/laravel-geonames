@@ -6,11 +6,9 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
-use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 use Nevadskiy\Geonames\Tests\DatabaseTestCase;
 use Nevadskiy\Geonames\Tests\Support\Factories\CountryFactory;
 use Nevadskiy\Geonames\Tests\Support\Utils\FakeDownloadService;
-use Nevadskiy\Geonames\Tests\Support\Utils\FixtureFileBuilder;
 
 class UpdateTest extends DatabaseTestCase
 {

@@ -58,9 +58,6 @@ class FixtureFileBuilder
 
     /**
      * Build the file with the given data.
-     *
-     * @param array $data
-     * @return string
      */
     public function build(string $filename, array $data): string
     {
@@ -81,8 +78,6 @@ class FixtureFileBuilder
 
     /**
      * Prepare the directory.
-     *
-     * @param string $path
      */
     protected function prepareDirectory(string $path): void
     {
@@ -95,9 +90,6 @@ class FixtureFileBuilder
 
     /**
      * Write the data to the file.
-     *
-     * @param string $path
-     * @param array $data
      */
     protected function writeDataContent(string $path, array $data): void
     {
@@ -106,9 +98,6 @@ class FixtureFileBuilder
 
     /**
      * Format the data.
-     *
-     * @param array $data
-     * @return string
      */
     protected function formatData(array $data): string
     {
