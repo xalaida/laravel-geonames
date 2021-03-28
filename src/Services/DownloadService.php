@@ -123,7 +123,7 @@ class DownloadService
     /**
      * Download geonames country info file.
      */
-    public function downloadCountryInfoFile(): string
+    public function downloadCountryInfo(): string
     {
         return $this->download($this->getCountryInfoUrl());
     }

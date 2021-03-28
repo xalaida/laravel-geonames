@@ -112,7 +112,7 @@ class UpdateCommand extends Command
         $this->info('Start processing daily modifications.');
 
         if ($this->geonames->shouldSupplyCountries()) {
-            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
+            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfo());
         }
 
         $this->supplyService->modify($this->downloadService->downloadDailyModifications());

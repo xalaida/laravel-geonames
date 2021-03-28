@@ -125,7 +125,7 @@ class InsertCommand extends Command
         $this->reset();
 
         if ($this->geonames->shouldSupplyCountries()) {
-            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfoFile());
+            $this->supplyService->addCountryInfo($this->downloadService->downloadCountryInfo());
         }
 
         foreach ($this->downloadService->downloadSourceFiles() as $path) {
