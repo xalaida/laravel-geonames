@@ -74,8 +74,8 @@ class CountryFactory
             'iso_numeric' => $this->faker->unique()->randomNumber(3),
             'name' => $name,
             'name_official' => $name,
-            'latitude' => $this->faker->randomFloat(),
-            'longitude' => $this->faker->randomFloat(),
+            'latitude' => $this->faker->randomFloat(7),
+            'longitude' => $this->faker->randomFloat(7),
             'timezone_id' => $this->faker->timezone,
             'continent_id' => function () {
                 return app(Geonames::class)->shouldSupplyContinents()
