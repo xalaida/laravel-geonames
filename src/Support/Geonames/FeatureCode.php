@@ -40,6 +40,11 @@ class FeatureCode
     public const PPL = 'PPL';
 
     /**
+     * Independent political entity.
+     */
+    public const PCLI = 'PCLI';
+
+    /**
      * First-order administrative division.
      */
     public const ADM1 = 'ADM1';
