@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
-use Nevadskiy\Geonames\Utils\FeatureCode;
+use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 
 class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSupplier
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Geonames\Utils;
+namespace Nevadskiy\Geonames\Support\Geonames;
 
 class FeatureCode
 {
@@ -61,6 +61,14 @@ class FeatureCode
      */
     public static function cities(): array
     {
-        return [self::PPL, self::PPLC, self::PPLA, self::PPLA2, self::PPLA3, self::PPLX, self::PPLG];
+        return [
+            self::PPL,
+            self::PPLC,
+            self::PPLA,
+            self::PPLA2,
+            self::PPLA3,
+            self::PPLX,
+            self::PPLG
+        ];
     }
 }

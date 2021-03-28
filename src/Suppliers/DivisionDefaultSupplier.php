@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Utils\FeatureCode;
+use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 
 class DivisionDefaultSupplier extends DefaultSupplier implements DivisionSupplier
 {

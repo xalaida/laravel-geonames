@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Support\Eloquent\Model;
-use Nevadskiy\Geonames\Utils\FeatureCode;
+use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
 use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Translatable\HasTranslations;
 
