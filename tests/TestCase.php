@@ -167,6 +167,6 @@ class TestCase extends OrchestraTestCase
      */
     public static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
     {
-        static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty), $message);
+        static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty()), $message);
     }
 }

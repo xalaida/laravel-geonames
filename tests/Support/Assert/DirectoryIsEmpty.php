@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Tests\Support\Assert;
 
 use Illuminate\Filesystem\Filesystem;
 use PHPUnit\Framework\Constraint\Constraint;
-use function file_exists;
 use function sprintf;
 
 class DirectoryIsEmpty extends Constraint

@@ -13,6 +13,10 @@ class UpdateTest extends DatabaseTestCase
 {
     use WithFaker;
 
+    // TODO: test that translation is updated
+    // TODO: test that new translation is added
+    // TODO: test that translation is deleted
+
     /**
      * Default configurations.
      *
@@ -25,10 +29,6 @@ class UpdateTest extends DatabaseTestCase
         'geonames.translations' => true,
         'geonames.languages' => ['*'],
     ];
-
-    // TODO: test that translation is updated
-    // TODO: test that new translation is added
-    // TODO: test that translation is deleted
 
     /** @test */
     public function it_can_update_country_from_daily_modification_files(): void
