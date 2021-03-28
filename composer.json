@@ -28,6 +28,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Nevadskiy\\Geonames\\Database\\Factories\\": "database/factories/",
             "Nevadskiy\\Geonames\\Tests\\": "tests/"
         }
     },

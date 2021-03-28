@@ -17,6 +17,10 @@ deps:
 update:
 	docker run --rm -it -v ${PWD}:/app app composer update
 
+# Dump composer autoload
+autoload:
+	docker run --rm -it -v ${PWD}:/app app composer dump-autoload
+
 # Show outdated dependencies
 outdated:
 	docker run --rm -it -v ${PWD}:/app app composer outdated
