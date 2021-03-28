@@ -8,9 +8,13 @@ use Nevadskiy\Geonames\GeonamesServiceProvider;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
+use Nevadskiy\Geonames\Tests\Support\Assert\DirectoryIsEmpty;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use PHPUnit\Framework\Constraint\LogicalNot;
+use PHPUnit\Framework\ExpectationFailedException;
 use Psr\Log\NullLogger;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class TestCase extends OrchestraTestCase
 {
@@ -142,5 +146,27 @@ class TestCase extends OrchestraTestCase
         $downloadService->shouldReceive('downloaderAlternateNames')
             ->withNoArgs()
             ->andReturn([$this->fixture('alternateNames.txt')]);
+    }
+
+    /**
+     * Asserts that a directory exists.
+     *
+     * @throws InvalidArgumentException
+     * @throws ExpectationFailedException
+     */
+    public static function assertDirectoryIsEmpty(string $directory, string $message = ''): void
+    {
+        static::assertThat($directory, new DirectoryIsEmpty(), $message);
+    }
+
+    /**
+     * Asserts that a directory does not exist.
+     *
+     * @throws InvalidArgumentException
+     * @throws ExpectationFailedException
+     */
+    public static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
+    {
+        static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty), $message);
     }
 }

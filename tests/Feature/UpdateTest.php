@@ -5,7 +5,6 @@ namespace Nevadskiy\Geonames\Tests\Feature;
 use Illuminate\Foundation\Testing\WithFaker;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Nevadskiy\Geonames\Tests\DatabaseTestCase;
 use Nevadskiy\Geonames\Tests\Support\Factories\CountryFactory;
 use Nevadskiy\Geonames\Tests\Support\Utils\FakeDownloadService;
@@ -30,8 +29,6 @@ class UpdateTest extends DatabaseTestCase
     // TODO: test that translation is updated
     // TODO: test that new translation is added
     // TODO: test that translation is deleted
-
-    // TODO: test that directory is empty
 
     /** @test */
     public function it_can_update_country_from_daily_modification_files(): void
@@ -111,5 +108,33 @@ class UpdateTest extends DatabaseTestCase
         $this->artisan('geonames:update');
 
         self::assertEmpty(Country::all());
+    }
+
+    /** @test */
+    public function it_clears_directory_after_updating(): void
+    {
+        $directory = config('geonames.directory');
+
+        FakeDownloadService::new($this->app)->dailyModifications([[]])->swap();
+
+        self::assertDirectoryIsNotEmpty($directory);
+
+        $this->artisan('geonames:update');
+
+        self::assertDirectoryIsEmpty($directory);
+    }
+
+    /** @test */
+    public function it_does_not_clear_directory_after_updating_if_option_is_specified(): void
+    {
+        $directory = config('geonames.directory');
+
+        FakeDownloadService::new($this->app)->dailyModifications([[]])->swap();
+
+        self::assertDirectoryIsNotEmpty($directory);
+
+        $this->artisan('geonames:update', ['--keep-files' => true]);
+
+        self::assertDirectoryIsNotEmpty($directory);
     }
 }
