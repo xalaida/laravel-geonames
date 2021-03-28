@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Tests;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -14,6 +15,13 @@ use Psr\Log\NullLogger;
 class TestCase extends OrchestraTestCase
 {
     /**
+     * Default configurations.
+     *
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * Setup the test environment.
      */
     protected function setUp(): void
@@ -23,14 +31,6 @@ class TestCase extends OrchestraTestCase
         $this->app->setLocale('en');
 
         $this->fakeLogger();
-    }
-
-    /**
-     * Migrate the database.
-     */
-    protected function migrate(): void
-    {
-        $this->artisan('migrate', ['--database' => 'testbench'])->run();
     }
 
     /**
@@ -53,12 +53,42 @@ class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
+        $config = $app['config'];
+
+        $this->configureDatabase($config);
+        $this->configurePackage($config);
+    }
+
+    /**
+     * Configure the testing database.
+     */
+    protected function configureDatabase(Repository $config): void
+    {
+        $config->set('database.default', 'testbench');
+
+        $config->set('database.connections.testbench', [
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
         ]);
+    }
+
+    /**
+     * Configure the package.
+     */
+    protected function configurePackage(Repository $config): void
+    {
+        foreach ($this->config as $key => $value) {
+            $config->set($key, $value);
+        }
+    }
+
+    /**
+     * Migrate the database.
+     */
+    protected function migrate(): void
+    {
+        $this->artisan('migrate', ['--database' => 'testbench'])->run();
     }
 
     /**

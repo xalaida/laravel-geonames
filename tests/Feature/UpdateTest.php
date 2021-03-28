@@ -70,9 +70,7 @@ class UpdateTest extends DatabaseTestCase
     /** @test */
     public function it_can_delete_country_from_daily_modification_files(): void
     {
-        $country = CountryFactory::new()->create([
-            'name' => 'Testing country',
-        ]);
+        $country = CountryFactory::new()->create();
 
         FakeDownloadService::new($this->app)
             ->countryInfo([
@@ -113,22 +111,5 @@ class UpdateTest extends DatabaseTestCase
         $this->artisan('geonames:update');
 
         self::assertEmpty(Country::all());
-    }
-
-    /**
-     * Fake the directory cleaner.
-     */
-    protected function fakeDirectoryCleaner(): void
-    {
-        $directoryCleaner = $this->mock(DirectoryCleaner::class);
-
-        $directoryCleaner->shouldReceive('keepGitignore')
-            ->once()
-            ->withNoArgs()
-            ->andReturnSelf();
-
-        $directoryCleaner->shouldReceive('clean')
-            ->once()
-            ->with(config('geonames.directory'));
     }
 }
