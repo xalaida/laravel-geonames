@@ -2,30 +2,24 @@
 
 namespace Nevadskiy\Geonames\Tests\Integration;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
-use Nevadskiy\Geonames\Tests\TestCase;
+use Nevadskiy\Geonames\Tests\DatabaseTestCase;
 use Nevadskiy\Translatable\Models\Translation;
 
-class DisableTranslationsTest extends TestCase
+class DisableTranslationsTest extends DatabaseTestCase
 {
     /**
-     * Define environment setup.
+     * Default configurations.
      *
-     * @param Application $app
+     * @var array
      */
-    protected function getEnvironmentSetUp($app): void
-    {
-        parent::getEnvironmentSetUp($app);
-
-        $app['config']->set('geonames.translations', false);
-    }
+    protected $config = [
+        'geonames.translations' => false,
+    ];
 
     /** @test */
     public function it_can_disable_translations_table(): void
     {
-        $this->migrate();
-
         self::assertFalse(
             Schema::hasTable((new Translation())->getTable())
         );

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+### Added
+
+## [0.2.1] - 2020-05-19
+### Added
+- Support PHP 8
+
+### Changed
+- Nova resources now is read only by default
+
 ## [0.2.0] - 2020-03-28
 ### Added
 - Possibility to define custom models
