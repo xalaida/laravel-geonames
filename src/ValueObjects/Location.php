@@ -2,7 +2,9 @@
 
 namespace Nevadskiy\Geonames\ValueObjects;
 
-class Location
+use JsonSerializable;
+
+class Location implements JsonSerializable
 {
     /**
      * The latitude value of the location.
@@ -41,5 +43,25 @@ class Location
     public function getLongitude(): float
     {
         return $this->longitude;
+    }
+
+    /**
+     * Determine if the locations are equal.
+     */
+    public function equals(Location $that): bool
+    {
+        return $this->getLatitude() === $that->getLatitude()
+            && $this->getLongitude() === $that->getLongitude();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize ()
+    {
+        return [
+            'latitude' => $this->getLatitude(),
+            'longitude' => $this->getLongitude(),
+        ];
     }
 }
