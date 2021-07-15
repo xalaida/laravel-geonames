@@ -48,16 +48,16 @@ class Location implements JsonSerializable
     /**
      * Determine if the locations are equal.
      */
-    public function equals(Location $that): bool
+    public function equals(self $that): bool
     {
         return $this->getLatitude() === $that->getLatitude()
             && $this->getLongitude() === $that->getLongitude();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    public function jsonSerialize ()
+    public function jsonSerialize(): array
     {
         return [
             'latitude' => $this->getLatitude(),
