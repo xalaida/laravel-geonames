@@ -57,7 +57,7 @@ class Location implements JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'latitude' => $this->getLatitude(),
