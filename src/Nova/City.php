@@ -11,11 +11,11 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Timezone;
 use Nevadskiy\Geonames\Models\City as CityModel;
-use Nevadskiy\Geonames\Nova\Traits\ReadOnly;
+use Nevadskiy\Geonames\Nova\Traits\ReadOnlyResource;
 
 class City extends Resource
 {
-    use ReadOnly;
+    use ReadOnlyResource;
 
     /**
      * The model the resource corresponds to.

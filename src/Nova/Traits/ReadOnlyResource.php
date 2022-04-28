@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 /**
  * @mixin Resource
  */
-trait ReadOnly
+trait ReadOnlyResource
 {
     /**
      * Determine if the current user can create new resources.
