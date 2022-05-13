@@ -1,6 +1,6 @@
 # 🌎 Laravel Geonames
 
-**Currently the work in progress. It will receive updates with possible breaking changes. Not recommended using in production environments yet.**
+**Currently, the work in progress. It will receive updates with possible breaking changes. Not recommended using in production environments yet.**
 
 The package allows integrating geonames database with a Laravel application.
 
