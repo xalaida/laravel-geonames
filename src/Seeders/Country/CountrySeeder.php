@@ -106,7 +106,7 @@ class CountrySeeder
         // TODO: resolve model dynamically.
 
         $this->continents = Continent::all()
-            ->keyBy('code')
+            ->pluck('id', 'code')
             ->all();
     }
 
@@ -153,7 +153,7 @@ class CountrySeeder
             'iso' => $countryInfo['ISO3'],
             'iso_numeric' => $countryInfo['ISO-Numeric'],
             'name' => $countryInfo['Country'],
-            'continent_id' => $this->continents[$countryInfo['Continent']]->getKey(),
+            'continent_id' => $this->continents[$countryInfo['Continent']],
             'capital' => $countryInfo['Capital'],
             'currency_code' => $countryInfo['CurrencyCode'],
             'currency_name' => $countryInfo['CurrencyName'],
