@@ -293,7 +293,7 @@ class DownloadService
      */
     protected function getBaseUrl(): string
     {
-        return 'http://download.geonames.org/export/dump/';
+        return 'https://download.geonames.org/export/dump/';
     }
 
     /**
