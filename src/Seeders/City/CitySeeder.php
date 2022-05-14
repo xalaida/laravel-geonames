@@ -11,6 +11,7 @@ use Nevadskiy\Geonames\Seeders\Division\DivisionSeeder;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
 // TODO: delete files using trash class (add to trash files and clear afterwards)
+// TODO: consider adding scanning DB table to use only that attributes
 class CitySeeder
 {
     /**
@@ -112,6 +113,9 @@ class CitySeeder
      */
     protected function shouldSeed(array $record): bool
     {
+        // TODO: add filter by population.
+        // TODO: add possibility to use different feature codes.
+
         return collect($this->featureCodes())->contains($record['feature code']);
     }
 
