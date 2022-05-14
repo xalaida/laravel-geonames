@@ -12,7 +12,7 @@ class Batch
     protected $handler;
 
     /**
-     * The batch buffer items.
+     * The batch buffer.
      *
      * @var array
      */
@@ -35,7 +35,7 @@ class Batch
     /**
      * Make a new batch instance with the given handler and size.
      */
-    public function __construct(callable $handler, int $maxSize = 100)
+    public function __construct(callable $handler, int $maxSize = 1000)
     {
         $this->handler = $handler;
         $this->maxSize = $maxSize;
@@ -45,11 +45,11 @@ class Batch
      * Push the given item to the batch buffer.
      *
      * @param mixed $item
-     * @param null $key
+     * @param mixed $key
      */
     public function push($item, $key = null): void
     {
-        $this->add($item, $key);
+        $this->pushItem($item, $key);
 
         if ($this->currentSize >= $this->maxSize) {
             $this->commit();
@@ -57,12 +57,12 @@ class Batch
     }
 
     /**
-     * Add an item to the batch buffer.
+     * Push an item to the batch buffer.
      *
      * @param mixed $item
-     * @param null $key
+     * @param mixed $key
      */
-    protected function add($item, $key = null): void
+    protected function pushItem($item, $key = null): void
     {
         if ($key) {
             $this->buffer[$key] = $item;
