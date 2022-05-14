@@ -5,9 +5,9 @@ namespace Nevadskiy\Geonames\Seeders\Continent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureClass;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
-use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
 class ContinentSeeder
@@ -45,7 +45,7 @@ class ContinentSeeder
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
-        return new static::$model;
+        return new static::$model();
     }
 
     public function truncate()
@@ -63,7 +63,7 @@ class ContinentSeeder
      */
     public function seed(): void
     {
-        $batch = new Batch(function (array $records){
+        $batch = new Batch(function (array $records) {
             $this->query()->insert($records);
         }, 1000);
 

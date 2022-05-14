@@ -36,7 +36,7 @@ class DivisionSeeder
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
-        return new static::$model;
+        return new static::$model();
     }
 
     /**
@@ -46,7 +46,7 @@ class DivisionSeeder
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
+        $batch = new Batch(function (array $records) {
             $this->query()->insert($records);
         }, 1000);
 

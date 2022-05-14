@@ -8,7 +8,6 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Seeders\Continent\ContinentSeeder;
 use Nevadskiy\Geonames\Support\Batch\Batch;
-use Nevadskiy\Geonames\Support\Exporter\ArrayExporter;
 
 // TODO: add possibility to stack with nevadskiy/money package
 // TODO: delete files using trash class (add to trash files and clear afterwards)
@@ -42,7 +41,7 @@ class CountrySeeder
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
-        return new static::$model;
+        return new static::$model();
     }
 
     /**
@@ -52,7 +51,7 @@ class CountrySeeder
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
+        $batch = new Batch(function (array $records) {
             $this->query()->insert($records);
         }, 1000);
 

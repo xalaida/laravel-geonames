@@ -12,7 +12,7 @@ class GeonamesSeedCommand extends Command
 {
     /**
      * The name and signature of the console command.
-     * TODO: add description to options
+     * TODO: add description to options.
      *
      * @var string
      */
@@ -42,7 +42,7 @@ class GeonamesSeedCommand extends Command
         }
 
         // TODO: build console logger and set it from here like this:
-        /**
+        /*
          * function handle(Parser $parser)
          * {
          *   $parser->setLogger($this->consoleLogger())
