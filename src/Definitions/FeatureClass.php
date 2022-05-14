@@ -8,7 +8,17 @@ namespace Nevadskiy\Geonames\Definitions;
 class FeatureClass
 {
     /**
-     * Parks, area, ...
+     * Country, state, region.
+     */
+    public const A = 'A';
+
+    /**
+     * Parks, area.
      */
     public const L = 'L';
+
+    /**
+     * City, village.
+     */
+    public const P = 'P';
 }
