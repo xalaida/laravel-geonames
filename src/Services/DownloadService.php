@@ -129,6 +129,14 @@ class DownloadService
     }
 
     /**
+     * Download the all countries file.
+     */
+    public function downloadAllCountries(): string
+    {
+        return $this->download($this->getAllCountriesUrl());
+    }
+
+    /**
      * Perform the downloading process.
      *
      * @return array|string
@@ -317,7 +325,7 @@ class DownloadService
     protected function assertCountryIsSpecified(array $countries): void
     {
         if ($countries === ['*']) {
-            throw new InvalidArgumentException('Specify a country code as in the geonames configuration file.');
+            throw new InvalidArgumentException('Specify a country code in the geonames configuration file.');
         }
     }
 
