@@ -8,7 +8,7 @@ use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 {

@@ -2,7 +2,7 @@
 
 namespace Nevadskiy\Geonames\Tests\Support\Utils\Fixtures;
 
-use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class GeonamesFixture extends Fixture
 {

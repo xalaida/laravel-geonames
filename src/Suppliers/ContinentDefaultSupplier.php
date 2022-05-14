@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
-use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class ContinentDefaultSupplier extends DefaultSupplier implements ContinentSupplier
 {
     /**
-     * Feature class of a continent.
+     * Parks, area, ...
      */
     public const FEATURE_CLASS = 'L';
 

@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Tests\Support\Factories;
 use Illuminate\Foundation\Testing\WithFaker;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
-use Nevadskiy\Geonames\Support\Geonames\FeatureCode;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class CountryFactory
 {
