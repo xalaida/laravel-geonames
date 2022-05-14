@@ -199,6 +199,11 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
+- [ ] think about timestamps for syncing and daily updates
+- [ ] use minimal set up (no morph map, no nova resources, no uuid)
+- [ ] add doc how to avoid memory leaks (ignition, telescope, etc.)
+- [ ] add possibility to store country capitals separately (probably use PCL code for capitals from cities table)
 - [ ] specify correct translations version
 - [ ] move nova resources into stubs
 - [ ] add possibility to customize models (probably also use them as stubs)
