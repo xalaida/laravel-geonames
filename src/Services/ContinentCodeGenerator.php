@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Services;
 class ContinentCodeGenerator
 {
     /**
-     * Generate a code for the given name.
+     * Generate a continent code by the given name.
      */
     public function generate(string $name): string
     {
@@ -13,7 +13,7 @@ class ContinentCodeGenerator
             return $this->format($name);
         }
 
-        return $this->format($this->getAbbreviation($name));
+        return $this->format($this->getAbbr($name));
     }
 
     /**
@@ -25,16 +25,16 @@ class ContinentCodeGenerator
     }
 
     /**
-     * Get an abbreviation by the given name.
+     * Get an abbreviation from the given name.
      */
-    protected function getAbbreviation(string $name): string
+    protected function getAbbr(string $name): string
     {
-        $slug = '';
+        $abbr = '';
 
         foreach (explode(' ', $name) as $part) {
-            $slug .= $part[0];
+            $abbr .= $part[0];
         }
 
-        return $slug;
+        return $abbr;
     }
 }
