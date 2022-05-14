@@ -56,7 +56,6 @@ class GeonamesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootCommands();
-        $this->bootMorphMap();
         $this->bootMigrations();
         $this->bootTranslatableMigrations();
         $this->bootNovaResources();
@@ -189,6 +188,8 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                Console\Seed\GeonamesSeedCommand::class,
+
                 Console\Insert\InsertCommand::class,
                 Console\Insert\InsertTranslationsCommand::class,
                 Console\Update\UpdateCommand::class,
@@ -233,21 +234,6 @@ class GeonamesServiceProvider extends ServiceProvider
                 $translatable->ignoreMigrations();
             }
         });
-    }
-
-    /**
-     * Boot package morph map.
-     */
-    protected function bootMorphMap(): void
-    {
-        if ($this->app['config']['geonames']['default_morph_map']) {
-            Relation::morphMap([
-                'continent' => Models\Continent::class,
-                'country' => Models\Country::class,
-                'division' => Models\Division::class,
-                'city' => Models\City::class,
-            ]);
-        }
     }
 
     /**

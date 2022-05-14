@@ -86,9 +86,8 @@ return [
     |
     */
 
-    'default_migrations' => true,
-
-    'default_morph_map' => true,
+    // TODO: extract to Geonames class
+    'default_migrations' => false,
 
     /*
     |--------------------------------------------------------------------------
