@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders\Continent;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureClass;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
@@ -47,15 +48,23 @@ class ContinentSeeder
         return new static::$model;
     }
 
-    // TODO: add reset (truncate) method
+    public function truncate()
+    {
+        $this->query()->truncate();
+    }
+
+    private function query(): Builder
+    {
+        return $this->getModel()->newQuery();
+    }
 
     /**
      * Run the continent seeder.
      */
-    public function run(): void
+    public function seed(): void
     {
         $batch = new Batch(function (array $records){
-            $this->getModel()->newQuery()->insert($records);
+            $this->query()->insert($records);
         }, 1000);
 
         foreach ($this->getMappedContinents() as $continent) {
@@ -82,6 +91,7 @@ class ContinentSeeder
      */
     protected function isContinent(array $record): bool
     {
+        // TODO: probably remove feature classes at all (can be resolved only by feature code)
         return $record['feature class'] === FeatureClass::L
             && $record['feature code'] === FeatureCode::CONT;
     }

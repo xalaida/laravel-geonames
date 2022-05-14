@@ -8,8 +8,10 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Seeders\Continent\ContinentSeeder;
+use Nevadskiy\Geonames\Seeders\Country\CountrySeeder;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Exporter\ArrayExporter;
+use Symfony\Component\Intl\Countries;
 
 class GeonamesSeedCommand extends Command
 {
@@ -19,7 +21,7 @@ class GeonamesSeedCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:seed {--reset} {--keep-files}';
+    protected $signature = 'geonames:seed {--truncate} {--keep-files}';
 
     /**
      * The console command description.
@@ -33,6 +35,15 @@ class GeonamesSeedCommand extends Command
      */
     public function handle(): void
     {
+        $seeders = [
+            resolve(ContinentSeeder::class),
+            resolve(CountrySeeder::class),
+        ];
+
+        if ($this->option('truncate')) {
+            $this->truncate($seeders);
+        }
+
         // TODO: build console logger and set it from here like this:
         /**
          * function handle(Parser $parser)
@@ -42,9 +53,67 @@ class GeonamesSeedCommand extends Command
          * }
          */
 
-        app(ContinentSeeder::class)->run();
+        // TODO: resolve all seeders using DI tagging.
+        // TODO: add truncate method (probably truncate each seeder in reverse order).
+
+        // TODO: delete downloaded files using TrashDecorator (push into trash when seeder is completed) and clear it in the console command before finish.
+
+        // $this->compare();
+
+        $this->seed($seeders);
 
         // $this->seedCountriesFromCountryInfo();
+    }
+
+    /**
+     * Truncate the seeders.
+     */
+    private function truncate(array $seeders): void
+    {
+        // TODO: add confirmation
+        // TODO: add success message
+
+        foreach (array_reverse($seeders) as $seeder) {
+            $seeder->truncate();
+        }
+    }
+
+    private function seed(array $seeders): void
+    {
+        foreach ($seeders as $seeder) {
+            $seeder->seed();
+        }
+    }
+
+    private function compare(): void
+    {
+        // TODO: if country code presents in country info and feature code is pass condition
+
+        $countriesByFeatureCodes = require storage_path('meta/geonames/countries_codes.php');
+
+//        collect(Countries::getNames())
+//            ->diffKeys(collect($countriesByFeatureCodes)->pluck('name_official', 'country_code'))
+//            ->dd();
+
+        collect($countriesByFeatureCodes)
+//            ->pluck('name_official', 'country_code')
+            ->mapToGroups(function ($country) {
+                return [$country['country_code'] => $country['name_official']];
+            })
+            ->dd();
+
+        dd(collect($countriesByFeatureCodes)->count());
+
+        collect($countriesByFeatureCodes)
+            ->pluck('name_official', 'country_code')
+            ->diffKeys(Countries::getNames())
+            ->dd();
+
+        collect($countriesByFeatureCodes)
+            ->mapToGroups(function (array $country) {
+                return [$country['feature_code'] => $country['name_official']];
+            })
+            ->dd();
     }
 
     private function seedContinents(): void
@@ -94,13 +163,12 @@ class GeonamesSeedCommand extends Command
 
         $countryInfoParser = app(CountryInfoParser::class);
 
-        // TODO: simple countries
-        foreach ($countryInfoParser->each($path) as $country) {
-            dd($country);
+        $countries = [];
 
-            // TODO: seed simple country...
-            // TODO: update simple country...
-            // TODO: sync simple country...
+        foreach ($countryInfoParser->each($path) as $country) {
+            $countries[] = $country;
         }
+
+        (new ArrayExporter())->export($countries, storage_path('meta/geonames/country_info.php'));
     }
 }

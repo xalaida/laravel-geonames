@@ -200,6 +200,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🔨 To Do
 
 - [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
+- [ ] add GeonamesServiceProvider to publish and register there models and other set up
 - [ ] think about timestamps for syncing and daily updates
 - [ ] use minimal set up (no morph map, no nova resources, no uuid)
 - [ ] add doc how to avoid memory leaks (ignition, telescope, etc.)
