@@ -233,23 +233,4 @@ class FeatureCode
      * Continent.
      */
     public const CONT = 'CONT';
-
-    /**
-     * TODO: add possibility to configure that (using syntax for city seeder)
-     * Get cities feature codes.
-     *
-     * @return string[]
-     */
-    public static function cities(): array
-    {
-        return [
-            self::PPL,
-            self::PPLC,
-            self::PPLA,
-            self::PPLA2,
-            self::PPLA3,
-            self::PPLX,
-            self::PPLG,
-        ];
-    }
 }
