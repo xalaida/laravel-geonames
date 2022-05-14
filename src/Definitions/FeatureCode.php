@@ -1,7 +1,10 @@
 <?php
 
-namespace Nevadskiy\Geonames\Support\Geonames;
+namespace Nevadskiy\Geonames\Definitions;
 
+/**
+ * @see: http://www.geonames.org/export/codes.html
+ */
 class FeatureCode
 {
     /**
@@ -60,6 +63,7 @@ class FeatureCode
     public const CONT = 'CONT';
 
     /**
+     * TODO: add possibility to configure that (using syntax for city seeder)
      * Get cities feature codes.
      *
      * @return string[]
