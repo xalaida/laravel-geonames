@@ -41,7 +41,7 @@ class ContinentSeeder
         $this->codeGenerator = $codeGenerator;
     }
 
-    private function getModel(): Model
+    public static function getModel(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
@@ -55,7 +55,7 @@ class ContinentSeeder
 
     private function query(): Builder
     {
-        return $this->getModel()->newQuery();
+        return static::getModel()->newQuery();
     }
 
     /**

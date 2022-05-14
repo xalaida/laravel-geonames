@@ -2,12 +2,11 @@
 
 namespace Nevadskiy\Geonames\Seeders\Country;
 
-use App\Models\Geo\Continent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Geonames\Definitions\FeatureClass;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
+use Nevadskiy\Geonames\Seeders\Continent\ContinentSeeder;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 use Nevadskiy\Geonames\Support\Exporter\ArrayExporter;
 
@@ -32,14 +31,14 @@ class CountrySeeder
     private $continents;
 
     /**
-     * Use the given continent model class.
+     * Use the given country model class.
      */
     public static function useModel(string $model): void
     {
         static::$model = $model;
     }
 
-    private function getModel(): Model
+    public static function getModel(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
@@ -71,7 +70,7 @@ class CountrySeeder
 
     private function query(): Builder
     {
-        return $this->getModel()->newQuery();
+        return static::getModel()->newQuery();
     }
 
     public function getMappedCountries(): iterable
@@ -105,7 +104,9 @@ class CountrySeeder
     {
         // TODO: resolve model dynamically.
 
-        $this->continents = Continent::all()
+        $this->continents = ContinentSeeder::getModel()
+            ->newQuery()
+            ->get()
             ->pluck('id', 'code')
             ->all();
     }
