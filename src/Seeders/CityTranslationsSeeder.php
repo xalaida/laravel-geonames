@@ -20,13 +20,24 @@ class CityTranslationsSeeder
         }
     }
 
+    /**
+     * Truncate translations of cities.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
+
+    /**
+     * Get translation records to insert.
+     */
     public function translations(): LazyCollection
     {
         return LazyCollection::make(function () {
-            foreach ($this->records()->chunk(500) as $chunk) {
-                $cities = $this->getCitiesForRecords($chunk);
+            foreach ($this->records()->chunk(500) as $records) {
+                $cities = $this->getCitiesForRecords($records);
 
-                foreach ($chunk as $record) {
+                foreach ($records as $record) {
                     if (isset($cities[$record['geonameid']])) {
                         yield $this->map($record, $cities);
                     }
@@ -35,25 +46,29 @@ class CityTranslationsSeeder
         });
     }
 
-    public function getCitiesForRecords(LazyCollection $chunk): array
+    /**
+     * Get cities for the given translation records.
+     */
+    public function getCitiesForRecords(LazyCollection $records): array
     {
         return CitySeeder::getModel()
             ->newQuery()
-            ->whereIn('geoname_id', $chunk->pluck('geonameid')->unique())
+            ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
             ->pluck('id', 'geoname_id')
             ->toArray();
     }
 
-    public function truncate(): void
-    {
-        $this->query()->truncate();
-    }
-
+    /**
+     * Get a query of city translations.
+     */
     private function query(): Builder
     {
         return DB::table('city_translations');
     }
 
+    /**
+     * Get translation records.
+     */
     public function records(): LazyCollection
     {
         // $path = resolve(DownloadService::class)->downloadAlternateNames();
@@ -70,10 +85,11 @@ class CityTranslationsSeeder
 
     /**
      * Map fields of the given record to the model attributes.
+     * TODO: consider extracting into separate Mapper class.
      */
     protected function map(array $record, array $cities): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
+        // TODO: think about processing using model (allows using casts and mutators).
 
         return [
             'city_id' => $cities[$record['geonameid']],
