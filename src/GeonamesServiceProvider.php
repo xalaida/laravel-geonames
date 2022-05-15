@@ -188,7 +188,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\Seed\GeonamesSeedCommand::class,
+                Console\GeonamesSeedCommand::class,
 
                 Console\Insert\InsertCommand::class,
                 Console\Insert\InsertTranslationsCommand::class,
