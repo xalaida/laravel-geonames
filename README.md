@@ -200,6 +200,8 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🔨 To Do
 
 - [ ] add info about 256 MB memory required for seeding
+- [ ] add possibility to specify columns that are updatable...
+- [ ] add info about SYNC command (it can be used when parameters changed to sync according to new seeder configuration, for example, when new country added or population increased, etc)
 - [ ] add report for sync command (created: 3, updated: 12, deleted: 1)
 - [ ] probably return lazy collection from parser
 - [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
