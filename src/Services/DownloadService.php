@@ -89,6 +89,14 @@ class DownloadService
     }
 
     /**
+     * Download alternate names file.
+     */
+    public function downloadAlternateNames(): string
+    {
+        return $this->download($this->getAllAlternateNamesUrl());
+    }
+
+    /**
      * Download geonames daily modifications file.
      */
     public function downloadDailyModifications(): string
