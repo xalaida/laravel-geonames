@@ -90,7 +90,7 @@ class ProgressParser implements Parser
                 "<options=bold;fg=green>Processing:</> {$path}\n".
                 "%bar% %percent%%\n".
                 "<fg=blue>Remaining Time:</> %remaining%\n".
-                Helper::formatMemory(memory_get_usage(true))
+                "%memory:6s%"
             );
         }
     }
