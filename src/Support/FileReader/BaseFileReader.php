@@ -46,9 +46,11 @@ class BaseFileReader implements FileReader
      */
     public function getLinesCount(string $path): int
     {
-        return $this->cache->remember($this->getLinesCountCacheKey($path), now()->addHour(), function () use ($path) {
-            return $this->calculateLinesCount($path);
-        });
+        return $this->calculateLinesCount($path);
+
+        // TODO: refactor caching without redis. consider using singleton decorator with in-memory cache.
+//        return $this->cache->remember($this->getLinesCountCacheKey($path), now()->addHour(), function () use ($path) {
+//        });
     }
 
     /**
