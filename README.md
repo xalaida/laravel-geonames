@@ -199,6 +199,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] probably return lazy collection from parser
 - [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
 - [ ] provide basic kit for local seeding and testing
 - [ ] feature model deleting (cities, divisions, countries, continents)
