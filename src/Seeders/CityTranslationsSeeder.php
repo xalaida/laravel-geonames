@@ -6,7 +6,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
-use Nevadskiy\Geonames\Seeders\City\CitySeeder;
 
 class CityTranslationsSeeder
 {

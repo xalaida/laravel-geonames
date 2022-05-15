@@ -1,12 +1,11 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Country;
+namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Seeders\Continent\ContinentSeeder;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 use Nevadskiy\Geonames\Support\Exporter\ArrayExporter;
 

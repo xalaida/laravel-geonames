@@ -1,16 +1,16 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\Continent;
+namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Geonames\Definitions\FeatureClass;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
+use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
-class ContinentSeeder
+// TODO: add possibility to stack with nevadskiy/money package
+// TODO: delete files using trash class (add to trash files and clear afterwards)
+class DivisionSeeder
 {
     /**
      * TODO: guess the default model name.
@@ -19,26 +19,16 @@ class ContinentSeeder
     protected static $model;
 
     /**
-     * The continent code generator instance.
-     *
-     * @var ContinentCodeGenerator
+     * @var array
      */
-    private $codeGenerator;
+    private $countries;
 
     /**
-     * Use the given continent model class.
+     * Use the given division model class.
      */
     public static function useModel(string $model): void
     {
         static::$model = $model;
-    }
-
-    /**
-     * Make a new seeder instance.
-     */
-    public function __construct(ContinentCodeGenerator $codeGenerator)
-    {
-        $this->codeGenerator = $codeGenerator;
     }
 
     public static function getModel(): Model
@@ -46,6 +36,24 @@ class ContinentSeeder
         // TODO: check if class exists and is a subclass of eloquent model
 
         return new static::$model;
+    }
+
+    /**
+     * Run the continent seeder.
+     */
+    public function seed(): void
+    {
+        $this->load();
+
+        $batch = new Batch(function (array $records){
+            $this->query()->insert($records);
+        }, 1000);
+
+        foreach ($this->divisions() as $division) {
+            $batch->push($division);
+        }
+
+        $batch->commit();
     }
 
     public function truncate()
@@ -58,42 +66,38 @@ class ContinentSeeder
         return static::getModel()->newQuery();
     }
 
-    /**
-     * Run the continent seeder.
-     */
-    public function seed(): void
-    {
-        $batch = new Batch(function (array $records){
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->getMappedContinents() as $continent) {
-            $batch->push($continent);
-        }
-
-        $batch->commit();
-    }
-
-    public function getMappedContinents(): iterable
+    public function divisions(): iterable
     {
         $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
         $geonamesParser = app(GeonamesParser::class);
 
         foreach ($geonamesParser->each($path) as $record) {
-            if ($this->isContinent($record)) {
+            if ($this->shouldSeed($record)) {
                 yield $this->map($record);
             }
         }
     }
 
-    /**
-     * Determine if the given record is a continent record.
-     */
-    protected function isContinent(array $record): bool
+    protected function load(): void
     {
-        // TODO: probably remove feature classes at all (can be resolved only by feature code)
-        return $record['feature class'] === FeatureClass::L
-            && $record['feature code'] === FeatureCode::CONT;
+        $this->loadCountries();
+    }
+
+    protected function loadCountries(): void
+    {
+        $this->countries = CountrySeeder::getModel()
+            ->newQuery()
+            ->get()
+            ->pluck('id', 'code')
+            ->all();
+    }
+
+    /**
+     * Determine if the given record should be seeded.
+     */
+    protected function shouldSeed(array $record): bool
+    {
+        return $record['feature code'] === FeatureCode::ADM1;
     }
 
     /**
@@ -102,15 +106,18 @@ class ContinentSeeder
     protected function map(array $record): array
     {
         // TODO: think about processing using model (allows using casts and mutators)
+        // TODO: remap fields
 
         return [
-            'name' => $record['name'],
-            'code' => $this->codeGenerator->generate($record['name']),
+            'name' => $record['asciiname'] ?: $record['name'],
+            'country_id' => $this->countries[$record['country code']],
             'latitude' => $record['latitude'],
             'longitude' => $record['longitude'],
             'timezone_id' => $record['timezone'],
             'population' => $record['population'],
+            'elevation' => $record['elevation'],
             'dem' => $record['dem'],
+            'code' => $record['admin1 code'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
 
