@@ -1,13 +1,14 @@
 <?php
 
-namespace Nevadskiy\Geonames\Seeders\City;
+namespace Nevadskiy\Geonames\Seeders;
 
+use App\Models\Geo\City;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Seeders\Country\CountrySeeder;
-use Nevadskiy\Geonames\Seeders\Division\DivisionSeeder;
+use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
 // TODO: delete files using trash class (add to trash files and clear afterwards)
@@ -56,11 +57,55 @@ class CitySeeder
             $this->query()->insert($records);
         }, 1000);
 
-        foreach ($this->cities() as $division) {
+        foreach ($this->records() as $division) {
             $batch->push($division);
         }
 
         $batch->commit();
+    }
+
+    /**
+     * Sync database according to the geonames dataset.
+     * TODO: add report
+     */
+    public function sync(): void
+    {
+        // TODO: what if division and cities were added at same time... (division can be deleted (do not use restrictOnDelete))
+        // TODO: add logging here...
+
+        $count = City::query()->count();
+        $previouslySyncedAt = City::query()->max('synced_at');
+
+        // TODO: think how to do it better (do not update 4 million rows at the same time)
+        $this->prepareToSync();
+
+        foreach ($this->cities()->chunk(1000) as $cities) {
+            // TODO: compile this update fields automatically from wildcard and exclude geoname_id and created_at
+            City::query()->upsert($cities->all(), ['geoname_id'], [
+                'name',
+                'country_id',
+                'division_id',
+                'latitude',
+                'longitude',
+                'timezone_id',
+                'population',
+                'elevation',
+                'dem',
+                'feature_code',
+                'synced_at',
+                'updated_at', // added automatically
+            ]);
+        }
+
+        $created = City::query()->count() - $count;
+        $updated = City::query()->whereDate('synced_at', '>', $previouslySyncedAt)->count();
+        // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+        // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
+        $deleted = City::query()->whereNull('synced_at')->delete();
+
+        dump("Created: {$created}");
+        dump("Updated: {$updated}");
+        dump("Deleted: {$deleted}");
     }
 
     public function truncate()
@@ -73,16 +118,37 @@ class CitySeeder
         return static::getModel()->newQuery();
     }
 
-    public function cities(): iterable
+    public function records(): LazyCollection
     {
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
+        // $path = resolve(DownloadService::class)->downloadAllCountries();
         $geonamesParser = app(GeonamesParser::class);
 
-        foreach ($geonamesParser->each($path) as $record) {
-            if ($this->shouldSeed($record)) {
+        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
+
+        return new LazyCollection(function () use ($geonamesParser, $path) {
+            foreach ($geonamesParser->each($path) as $record) {
+                if ($this->shouldSeed($record)) {
+                    yield $record;
+                }
+            }
+        });
+    }
+
+    /**
+     * Get city records to insert.
+     */
+    public function cities(): LazyCollection
+    {
+        // TODO: consider loading dependencies locally here.
+        $this->load();
+
+        return LazyCollection::make(function () {
+            foreach ($this->records() as $record) {
                 yield $this->map($record);
             }
-        }
+        });
+
+        // TODO: unset loaded dependencies, or better to load them locally.
     }
 
     protected function load(): void
@@ -135,14 +201,19 @@ class CitySeeder
         ];
     }
 
+    protected function mapRecord(array $record): array
+    {
+        return static::getModel()
+            ->forceFill($this->map($record))
+            ->getAttributes();
+    }
+
     /**
      * Map fields of the given record to the continent model attributes.
+     * TODO: add possibility to specify updatable attributes separately...
      */
     protected function map(array $record): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
-        // TODO: remap fields
-
         return [
             'name' => $record['asciiname'] ?: $record['name'],
             'country_id' => $this->getCountryId($record),
@@ -155,8 +226,6 @@ class CitySeeder
             'dem' => $record['dem'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-
-            // TODO: think about this timestamps
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
@@ -177,5 +246,28 @@ class CitySeeder
     protected function getDivisionId(array $record): ?string
     {
         return $this->divisions[$this->getCountryId($record)][$record['admin1 code']][0]['id'] ?? null;
+    }
+
+    /**
+     * @return void
+     */
+    protected function prepareToSync(): void
+    {
+        $this->nullifySyncedAtTimestamp();
+    }
+
+    /**
+     * @return void
+     */
+    protected function nullifySyncedAtTimestamp(): void
+    {
+        while (City::query()->whereNotNull('synced_at')->exists()) {
+            dump('nullifying...');
+
+            City::query()
+                ->toBase()
+                ->limit(50_000)
+                ->update(['synced_at' => null]);
+        }
     }
 }
