@@ -208,7 +208,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] add GeonamesServiceProvider to publish and register there models and other set up
 - [ ] think about timestamps for syncing and daily updates
 - [ ] use minimal set up (no morph map, no nova resources, no uuid)
-- [ ] add doc how to avoid memory leaks (ignition, telescope, etc.)
+- [ ] add doc how to avoid memory leaks (ignition, telescope, etc.), remove `GeonamesReadyEvent`
   - [ ] for flare disable query report: report_query_bindings 
 - [ ] add possibility to store country capitals separately (probably use PCL code for capitals from cities table)
 - [ ] specify correct translations version
