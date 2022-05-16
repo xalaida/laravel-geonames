@@ -1,7 +1,5 @@
 <?php
 
-use Nevadskiy\Geonames\Suppliers;
-
 return [
 
     /*
@@ -56,41 +54,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Geonames models
-    |--------------------------------------------------------------------------
-    |
-    | Specify models that will be used in the application.
-    | If you do not need any of them, set a model as 'false'.
-    |
-    */
-
-    'models' => [
-
-        'continent' => Nevadskiy\Geonames\Models\Continent::class,
-
-        'country' => Nevadskiy\Geonames\Models\Country::class,
-
-        'division' => Nevadskiy\Geonames\Models\Division::class,
-
-        'city' => Nevadskiy\Geonames\Models\City::class,
-
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default package boot settings
-    |--------------------------------------------------------------------------
-    |
-    | Configure default package settings like loading default migrations,
-    | morph mapping for models and others according to personal needs.
-    |
-    */
-
-    // TODO: extract to Geonames class
-    'default_migrations' => false,
-
-    /*
-    |--------------------------------------------------------------------------
     | Translations
     |--------------------------------------------------------------------------
     |
@@ -118,20 +81,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default geonames suppliers
+    | Seeders
     |--------------------------------------------------------------------------
     |
-    | Override it when you are going to use custom migrations
-    | with own custom insert, update and delete logic.
+    | The list of seeders.
     |
     */
 
-    'suppliers' => [
-        Suppliers\ContinentSupplier::class => Suppliers\ContinentDefaultSupplier::class,
-        Suppliers\CountrySupplier::class => Suppliers\CountryDefaultSupplier::class,
-        Suppliers\DivisionSupplier::class => Suppliers\DivisionDefaultSupplier::class,
-        Suppliers\CitySupplier::class => Suppliers\CityDefaultSupplier::class,
-        Suppliers\Translations\TranslationSupplier::class => Suppliers\Translations\TranslationDefaultSupplier::class,
+    'seeders' => [
+        Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
+        Nevadskiy\Geonames\Seeders\CountrySeeder::class,
+        Nevadskiy\Geonames\Seeders\DivisionSeeder::class,
+        Nevadskiy\Geonames\Seeders\CitySeeder::class,
+        Nevadskiy\Geonames\Seeders\ContinentTranslationsSeeder::class,
+        Nevadskiy\Geonames\Seeders\CountryTranslationsSeeder::class,
+        Nevadskiy\Geonames\Seeders\DivisionTranslationsSeeder::class,
+        Nevadskiy\Geonames\Seeders\CityTranslationsSeeder::class,
     ],
 
 ];
