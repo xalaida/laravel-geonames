@@ -3,14 +3,6 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
-use Nevadskiy\Geonames\Seeders\City\CitySeeder;
-use Nevadskiy\Geonames\Seeders\CityTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\Continent\ContinentSeeder;
-use Nevadskiy\Geonames\Seeders\ContinentTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\Country\CountrySeeder;
-use Nevadskiy\Geonames\Seeders\Division\DivisionSeeder;
-use Nevadskiy\Geonames\Seeders\CountryTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\DivisionTranslationsSeeder;
 
 class GeonamesSeedCommand extends Command
 {
@@ -35,27 +27,16 @@ class GeonamesSeedCommand extends Command
      */
     public function handle(): void
     {
-        // TODO: do not import locales: wkdt, post, link, ...
-
-        $seeders = [
-            resolve(ContinentSeeder::class),
-            resolve(CountrySeeder::class),
-            resolve(DivisionSeeder::class),
-            resolve(CitySeeder::class),
-            resolve(ContinentTranslationsSeeder::class),
-            resolve(CountryTranslationsSeeder::class),
-            resolve(DivisionTranslationsSeeder::class),
-            resolve(CityTranslationsSeeder::class),
-        ];
+        $seeders = $this->seeders();
 
         if ($this->option('truncate')) {
             $this->truncate($seeders);
         }
 
-        // TODO: resolve all seeders using DI tagging.
-        // TODO: consider adding translations strategy
-        // TODO: delete downloaded files using TrashDecorator (push into trash when seeder is completed) and clear it in the console command before finish.
+        // TODO: do not import locales: wkdt, post, link, ...
         // TODO: build console logger and set it from here like this:
+        // TODO: add decorator for downloader that captures all downloaded files and allow the possibility to delete them after.
+
         /**
          * function handle(Parser $parser)
          * {
@@ -68,7 +49,19 @@ class GeonamesSeedCommand extends Command
     }
 
     /**
-     * Truncate the seeders.
+     * Get the seeders list.
+     */
+    protected function seeders(): array
+    {
+        return collect(config('geonames.seeders'))
+            ->map(function ($seeder) {
+                return resolve($seeder);
+            })
+            ->all();
+    }
+
+    /**
+     * Truncate tables using given seeders.
      */
     private function truncate(array $seeders): void
     {
@@ -80,6 +73,9 @@ class GeonamesSeedCommand extends Command
         }
     }
 
+    /**
+     * Seed the dataset using given seeders.
+     */
     private function seed(array $seeders): void
     {
         foreach ($seeders as $seeder) {
