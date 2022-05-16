@@ -88,6 +88,7 @@ return [
     |
     */
 
+    // TODO: consider adding possibility to detect seeders automatically based on preferred source
     'seeders' => [
         Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
         Nevadskiy\Geonames\Seeders\CountrySeeder::class,
