@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
@@ -11,11 +12,34 @@ use Nevadskiy\Geonames\Services\DownloadService;
 class ContinentSeeder extends ModelSeeder implements Seeder
 {
     /**
+     * The seeder model class.
+     */
+    protected static $model;
+
+    /**
      * The continent code generator instance.
      *
      * @var ContinentCodeGenerator
      */
     private $codeGenerator;
+
+    /**
+     * Use the given model class.
+     */
+    public static function useModel(string $model): void
+    {
+        self::$model = $model;
+    }
+
+    /**
+     * Get the model class.
+     */
+    public static function getModel(): Model
+    {
+        // TODO: check if class exists and is a subclass of eloquent model
+
+        return new self::$model;
+    }
 
     /**
      * Make a new seeder instance.
@@ -62,7 +86,7 @@ class ContinentSeeder extends ModelSeeder implements Seeder
         return LazyCollection::make(function () use ($path) {
             foreach (resolve(GeonamesParser::class)->each($path) as $record) {
                 if ($this->filter($record)) {
-                    yield $this->mapRecord($record);
+                    yield $this->map($record);
                 }
             }
         });

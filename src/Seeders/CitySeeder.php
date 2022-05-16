@@ -3,20 +3,17 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use App\Models\Geo\City;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Batch\Batch;
 
-// TODO: delete files using trash class (add to trash files and clear afterwards)
 // TODO: consider adding scanning DB table to use only that attributes
-class CitySeeder
+// TODO: add possibility to specify updatable attributes separately...
+class CitySeeder extends ModelSeeder implements Seeder
 {
     /**
-     * TODO: guess the default model name.
      * The continent model class.
      */
     protected static $model;
@@ -32,18 +29,21 @@ class CitySeeder
     private $divisions;
 
     /**
-     * Use the given city model class.
+     * Use the given model class.
      */
     public static function useModel(string $model): void
     {
-        static::$model = $model;
+        self::$model = $model;
     }
 
+    /**
+     * Get the model class.
+     */
     public static function getModel(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
-        return new static::$model;
+        return new self::$model;
     }
 
     /**
@@ -53,15 +53,19 @@ class CitySeeder
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->records() as $division) {
-            $batch->push($division);
+        foreach ($this->cities()->chunk(1000) as $cities) {
+            $this->query()->insert($cities->all());
         }
 
-        $batch->commit();
+        // TODO: unload resources...
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        // TODO: Implement update() method.
     }
 
     /**
@@ -108,26 +112,14 @@ class CitySeeder
         dump("Deleted: {$deleted}");
     }
 
-    public function truncate()
-    {
-        $this->query()->truncate();
-    }
-
-    private function query(): Builder
-    {
-        return static::getModel()->newQuery();
-    }
-
     public function records(): LazyCollection
     {
-        // $path = resolve(DownloadService::class)->downloadAllCountries();
+        $path = resolve(DownloadService::class)->downloadAllCountries();
         $geonamesParser = app(GeonamesParser::class);
-
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
 
         return new LazyCollection(function () use ($geonamesParser, $path) {
             foreach ($geonamesParser->each($path) as $record) {
-                if ($this->shouldSeed($record)) {
+                if ($this->filter($record)) {
                     yield $record;
                 }
             }
@@ -177,7 +169,7 @@ class CitySeeder
     /**
      * Determine if the given record should be seeded.
      */
-    protected function shouldSeed(array $record): bool
+    protected function filter(array $record): bool
     {
         // TODO: add filter by population.
         // TODO: add possibility to use different feature codes.
@@ -201,18 +193,10 @@ class CitySeeder
         ];
     }
 
-    protected function mapRecord(array $record): array
-    {
-        return static::getModel()
-            ->forceFill($this->map($record))
-            ->getAttributes();
-    }
-
     /**
-     * Map fields of the given record to the continent model attributes.
-     * TODO: add possibility to specify updatable attributes separately...
+     * @inheritdoc
      */
-    protected function map(array $record): array
+    protected function mapAttributes(array $record): array
     {
         return [
             'name' => $record['asciiname'] ?: $record['name'],

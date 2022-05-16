@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
@@ -10,6 +11,11 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 class CountrySeeder extends ModelSeeder implements Seeder
 {
+    /**
+     * The seeder model class.
+     */
+    protected static $model;
+
     /**
      * The country info list.
      *
@@ -23,6 +29,24 @@ class CountrySeeder extends ModelSeeder implements Seeder
      * @var array
      */
     private $continents = [];
+
+    /**
+     * Use the given model class.
+     */
+    public static function useModel(string $model): void
+    {
+        self::$model = $model;
+    }
+
+    /**
+     * Get the model class.
+     */
+    public static function getModel(): Model
+    {
+        // TODO: check if class exists and is a subclass of eloquent model
+
+        return new self::$model;
+    }
 
     /**
      * @inheritdoc
@@ -55,7 +79,7 @@ class CountrySeeder extends ModelSeeder implements Seeder
     }
 
     /**
-     * Get the country records.
+     * Get the country records for seeding.
      */
     private function countries(): LazyCollection
     {
@@ -65,7 +89,7 @@ class CountrySeeder extends ModelSeeder implements Seeder
         return LazyCollection::make(function () use ($path) {
             foreach (resolve(GeonamesParser::class)->each($path) as $record) {
                 if ($this->filter($record)) {
-                    yield $this->mapRecord($record);
+                    yield $this->map($record);
                 }
             }
         });

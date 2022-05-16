@@ -8,26 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 abstract class ModelSeeder
 {
     /**
-     * The seeder model class.
+     * Get a model of the seeder.
      */
-    protected static $model;
+    abstract public static function getModel(): Model;
 
     /**
-     * Use the given model class.
+     * Get a query of the model.
      */
-    public static function useModel(string $model): void
+    protected function query(): Builder
     {
-        static::$model = $model;
-    }
-
-    /**
-     * Get the model class.
-     */
-    public static function getModel(): Model
-    {
-        // TODO: check if class exists and is a subclass of eloquent model
-
-        return new static::$model;
+        return static::getModel()->newQuery();
     }
 
     /**
@@ -39,17 +29,9 @@ abstract class ModelSeeder
     }
 
     /**
-     * Get a query of the model.
-     */
-    protected function query(): Builder
-    {
-        return static::getModel()->newQuery();
-    }
-
-    /**
      * Map the given record to the database fields.
      */
-    protected function mapRecord(array $record): array
+    protected function map(array $record): array
     {
         return static::getModel()
             ->forceFill($this->mapAttributes($record))

@@ -2,40 +2,42 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Support\Batch\Batch;
+use Nevadskiy\Geonames\Services\DownloadService;
 
-// TODO: add possibility to stack with nevadskiy/money package
-// TODO: delete files using trash class (add to trash files and clear afterwards)
-class DivisionSeeder
+class DivisionSeeder extends ModelSeeder implements Seeder
 {
     /**
-     * TODO: guess the default model name.
-     * The continent model class.
+     * The seeder model class.
      */
     protected static $model;
 
     /**
+     * The country list.
+     *
      * @var array
      */
-    private $countries;
+    private $countries = [];
 
     /**
-     * Use the given division model class.
+     * Use the given model class.
      */
     public static function useModel(string $model): void
     {
-        static::$model = $model;
+        self::$model = $model;
     }
 
+    /**
+     * Get the model class.
+     */
     public static function getModel(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
 
-        return new static::$model;
+        return new self::$model;
     }
 
     /**
@@ -45,44 +47,64 @@ class DivisionSeeder
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->divisions() as $division) {
-            $batch->push($division);
+        foreach ($this->divisions()->chunk(1000) as $divisions) {
+            $this->query()->insert($divisions->all());
         }
 
-        $batch->commit();
+        $this->unload();
     }
 
-    public function truncate()
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
     {
-        $this->query()->truncate();
+        // TODO: Implement update() method.
     }
 
-    private function query(): Builder
+    /**
+     * @inheritdoc
+     */
+    public function sync(): void
     {
-        return static::getModel()->newQuery();
+        // TODO: Implement sync() method.
     }
 
-    public function divisions(): iterable
+    /**
+     * Get the division records for seeding.
+     */
+    public function divisions(): LazyCollection
     {
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
-        $geonamesParser = app(GeonamesParser::class);
+        $path = resolve(DownloadService::class)->downloadAllCountries();
 
-        foreach ($geonamesParser->each($path) as $record) {
-            if ($this->shouldSeed($record)) {
-                yield $this->map($record);
+        return LazyCollection::make(function () use ($path) {
+            foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+                if ($this->filter($record)) {
+                    yield $this->map($record);
+                }
             }
-        }
+        });
     }
 
+    /**
+     * Load resources.
+     */
     protected function load(): void
     {
         $this->loadCountries();
     }
 
+    /**
+     * Unload resources.
+     */
+    protected function unload(): void
+    {
+        $this->countries = [];
+    }
+
+    /**
+     * Load country resources.
+     */
     protected function loadCountries(): void
     {
         $this->countries = CountrySeeder::getModel()
@@ -95,19 +117,16 @@ class DivisionSeeder
     /**
      * Determine if the given record should be seeded.
      */
-    protected function shouldSeed(array $record): bool
+    protected function filter(array $record): bool
     {
         return $record['feature code'] === FeatureCode::ADM1;
     }
 
     /**
-     * Map fields of the given record to the continent model attributes.
+     * @inheritdoc
      */
-    protected function map(array $record): array
+    protected function mapAttributes(array $record): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
-        // TODO: remap fields
-
         return [
             'name' => $record['asciiname'] ?: $record['name'],
             'country_id' => $this->countries[$record['country code']],
@@ -120,8 +139,6 @@ class DivisionSeeder
             'code' => $record['admin1 code'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-
-            // TODO: think about this timestamps
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
