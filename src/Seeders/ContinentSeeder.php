@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Geonames\Definitions\FeatureClass;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
@@ -48,7 +47,7 @@ class ContinentSeeder
         return new static::$model;
     }
 
-    public function truncate()
+    public function truncate(): void
     {
         $this->query()->truncate();
     }
@@ -92,8 +91,7 @@ class ContinentSeeder
     protected function isContinent(array $record): bool
     {
         // TODO: probably remove feature classes at all (can be resolved only by feature code)
-        return $record['feature class'] === FeatureClass::L
-            && $record['feature code'] === FeatureCode::CONT;
+        return $record['feature code'] === FeatureCode::CONT;
     }
 
     /**
@@ -113,8 +111,6 @@ class ContinentSeeder
             'dem' => $record['dem'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-
-            // TODO: think about this timestamps
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
