@@ -45,7 +45,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloader();
         $this->registerFileReader();
         $this->registerParser();
-        $this->registerSuppliers();
         $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
@@ -56,7 +55,6 @@ class GeonamesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootCommands();
-        $this->bootMigrations();
         $this->bootTranslatableMigrations();
         $this->bootNovaResources();
         $this->publishConfig();
@@ -140,16 +138,6 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any package suppliers.
-     */
-    protected function registerSuppliers(): void
-    {
-        foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
-            $this->app->bind($supplier, $implementation);
-        }
-    }
-
-    /**
      * Register any package translation mapper.
      */
     protected function registerTranslationMapper(): void
@@ -196,32 +184,6 @@ class GeonamesServiceProvider extends ServiceProvider
                 Console\Update\UpdateCommand::class,
                 Console\Update\UpdateTranslationsCommand::class,
             ]);
-        }
-    }
-
-    /**
-     * Boot any package migrations.
-     */
-    protected function bootMigrations(): void
-    {
-        $geonames = $this->app[Geonames::class];
-
-        if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
-            if ($geonames->shouldSupplyContinents()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_100000_create_continents_table.php'));
-            }
-
-            if ($geonames->shouldSupplyCountries()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_200000_create_countries_table.php'));
-            }
-
-            if ($geonames->shouldSupplyDivisions()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_300000_create_divisions_table.php'));
-            }
-
-            if ($geonames->shouldSupplyCities()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_400000_create_cities_table.php'));
-            }
         }
     }
 
