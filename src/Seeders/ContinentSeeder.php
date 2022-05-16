@@ -8,7 +8,7 @@ use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class ContinentSeeder extends ModelSeeder
+class ContinentSeeder extends ModelSeeder implements Seeder
 {
     /**
      * The continent code generator instance.
@@ -33,6 +33,22 @@ class ContinentSeeder extends ModelSeeder
         foreach ($this->continents()->chunk(1000) as $continents) {
             $this->query()->insert($continents->all());
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        // TODO: Implement update() method.
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sync(): void
+    {
+        // TODO: Implement sync() method.
     }
 
     /**
@@ -61,9 +77,9 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * Map fields of the given record to the continent model attributes.
+     * @inheritdoc
      */
-    protected function mapFields(array $record): array
+    protected function mapAttributes(array $record): array
     {
         return [
             'name' => $record['name'],

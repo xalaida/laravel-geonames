@@ -30,6 +30,9 @@ abstract class ModelSeeder
         return new static::$model;
     }
 
+    /**
+     * Truncate a table of the model.
+     */
     public function truncate(): void
     {
         $this->query()->truncate();
@@ -44,17 +47,17 @@ abstract class ModelSeeder
     }
 
     /**
-     * Map the given record to the model attributes.
+     * Map the given record to the database fields.
      */
     protected function mapRecord(array $record): array
     {
         return static::getModel()
-            ->forceFill($this->mapFields($record))
+            ->forceFill($this->mapAttributes($record))
             ->getAttributes();
     }
 
     /**
-     * Map fields of the given record to the continent model attributes.
+     * Map the given record to the model attributes.
      */
-    abstract protected function mapFields(array $record): array;
+    abstract protected function mapAttributes(array $record): array;
 }

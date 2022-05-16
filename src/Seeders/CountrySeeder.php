@@ -2,107 +2,111 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
+use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Support\Batch\Batch;
-use Nevadskiy\Geonames\Support\Exporter\ArrayExporter;
+use Nevadskiy\Geonames\Services\DownloadService;
 
-// TODO: add possibility to stack with nevadskiy/money package
-// TODO: delete files using trash class (add to trash files and clear afterwards)
-class CountrySeeder
+class CountrySeeder extends ModelSeeder implements Seeder
 {
     /**
-     * TODO: guess the default model name.
-     * The continent model class.
-     */
-    protected static $model;
-
-    /**
+     * The country info list.
+     *
      * @var array
      */
-    private $countryInfo;
+    private $countryInfo = [];
 
     /**
+     * The continent list.
+     *
      * @var array
      */
-    private $continents;
+    private $continents = [];
 
     /**
-     * Use the given country model class.
-     */
-    public static function useModel(string $model): void
-    {
-        static::$model = $model;
-    }
-
-    public static function getModel(): Model
-    {
-        // TODO: check if class exists and is a subclass of eloquent model
-
-        return new static::$model;
-    }
-
-    /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->getMappedCountries() as $country) {
-            $batch->push($country);
+        foreach ($this->countries()->chunk(1000) as $countries) {
+            $this->query()->insert($countries->all());
         }
 
-        $batch->commit();
+        $this->unload();
     }
 
-    public function truncate()
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
     {
-        $this->query()->truncate();
+        // TODO: Implement update() method.
     }
 
-    private function query(): Builder
+    /**
+     * @inheritdoc
+     */
+    public function sync(): void
     {
-        return static::getModel()->newQuery();
+        // TODO: Implement sync() method.
     }
 
-    public function getMappedCountries(): iterable
+    /**
+     * Get the country records.
+     */
+    private function countries(): LazyCollection
     {
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
-        $geonamesParser = app(GeonamesParser::class);
+        // TODO: refactor downloading by passing Downloader instance from constructor.
+        $path = resolve(DownloadService::class)->downloadAllCountries();
 
-        foreach ($geonamesParser->each($path) as $record) {
-            if ($this->isCountry($record)) {
-                yield $this->map($record);
+        return LazyCollection::make(function () use ($path) {
+            foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+                if ($this->filter($record)) {
+                    yield $this->mapRecord($record);
+                }
             }
-        }
+        });
     }
 
+    /**
+     * Load resources.
+     */
     protected function load(): void
     {
         $this->loadCountryInfo();
         $this->loadContinents();
     }
 
+    /**
+     * Unload resources.
+     */
+    protected function unload(): void
+    {
+        $this->countryInfo = [];
+        $this->continents = [];
+    }
+
+    /**
+     * Load the country info resources.
+     */
     protected function loadCountryInfo(): void
     {
-        // TODO: download this files.
+        // TODO: refactor downloading by passing Downloader instance from constructor.
+        $path = resolve(DownloadService::class)->downloadCountryInfo();
 
-        $this->countryInfo = collect(require storage_path('meta/geonames/country_info.php'))
+        $this->countryInfo = collect(resolve(CountryInfoParser::class)->all($path))
             ->keyBy('geonameid')
             ->all();
     }
 
+    /**
+     * Load the continent resources.
+     */
     protected function loadContinents(): void
     {
-        // TODO: resolve model dynamically.
-
         $this->continents = ContinentSeeder::getModel()
             ->newQuery()
             ->get()
@@ -111,9 +115,9 @@ class CountrySeeder
     }
 
     /**
-     * Determine if the given record is a continent record.
+     * Determine if the given record should be seeded.
      */
-    protected function isCountry(array $record): bool
+    protected function filter(array $record): bool
     {
         if (! isset($this->countryInfo[$record['geonameid']])) {
             return false;
@@ -124,6 +128,8 @@ class CountrySeeder
 
     /**
      * Get the list of feature codes of a country.
+     *
+     * TODO: add possibility to specify dynamically.
      */
     protected function featureCodes(): array
     {
@@ -139,16 +145,14 @@ class CountrySeeder
     }
 
     /**
-     * Map fields of the given record to the continent model attributes.
+     * @inheritdoc
      */
-    protected function map(array $record): array
+    protected function mapAttributes(array $record): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
-
         $countryInfo = $this->countryInfo[$record['geonameid']];
 
         return [
-            // TODO: remap fields
+            // TODO: remap fields...
             'code' => $countryInfo['ISO'],
             'iso' => $countryInfo['ISO3'],
             'iso_numeric' => $countryInfo['ISO-Numeric'],
@@ -175,7 +179,6 @@ class CountrySeeder
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
 
-            // TODO: think about this timestamps
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
