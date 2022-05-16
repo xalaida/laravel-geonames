@@ -2,6 +2,10 @@
 
 namespace Nevadskiy\Geonames\Support\Batch;
 
+/**
+ * @deprecated
+ * @TODO: remove and refactor using LazyCollection::chunk()
+ */
 class Batch
 {
     /**
