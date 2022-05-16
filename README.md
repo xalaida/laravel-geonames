@@ -199,6 +199,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] refactor filters for cities population or country only
 - [ ] add minimum laravel version with upserts (or throw an exception if version is lower)
 - [ ] add info about 256 MB memory required for seeding
 - [ ] add possibility to specify columns that are updatable...
