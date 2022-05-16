@@ -6,6 +6,7 @@ use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
+use Nevadskiy\Geonames\Services\DownloadService;
 
 class ContinentSeeder extends ModelSeeder
 {
@@ -39,11 +40,11 @@ class ContinentSeeder extends ModelSeeder
      */
     public function continents(): LazyCollection
     {
-        // TODO: allow to download somehow...
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
+        // TODO: refactor downloading by passing Downloader instance from constructor.
+        $path = resolve(DownloadService::class)->downloadAllCountries();
 
         return LazyCollection::make(function () use ($path) {
-            foreach (app(GeonamesParser::class)->each($path) as $record) {
+            foreach (resolve(GeonamesParser::class)->each($path) as $record) {
                 if ($this->filter($record)) {
                     yield $this->mapRecord($record);
                 }
