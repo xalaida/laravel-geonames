@@ -40,11 +40,11 @@ class DivisionSeeder extends ModelSeeder
         // TODO: check if class exists and is a subclass of eloquent model
         // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
 
-        return new static::$model;
+        return new static::$model();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function newModel(): Model
     {
@@ -52,7 +52,7 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function records(): LazyCollection
     {
@@ -68,7 +68,7 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(): void
     {
@@ -104,7 +104,7 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function mapAttributes(array $record): array
     {

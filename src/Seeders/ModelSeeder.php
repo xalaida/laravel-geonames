@@ -33,7 +33,7 @@ abstract class ModelSeeder implements Seeder
     abstract protected function newModel(): Model;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -45,7 +45,7 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function sync(): void
     {
@@ -162,7 +162,7 @@ abstract class ModelSeeder implements Seeder
     /**
      * Delete not synced records and return its amount.
      * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-     * TODO: integrate with soft delete
+     * TODO: integrate with soft delete.
      */
     protected function deleteNotSyncedRecords(): int
     {
