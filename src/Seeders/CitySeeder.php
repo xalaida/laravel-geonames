@@ -8,7 +8,6 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-// TODO: try to extract useModel and getModel into trait (how if it works with static)
 // TODO: consider adding scanning DB table to use only that attributes
 // TODO: add possibility to specify updatable attributes separately...
 class CitySeeder extends ModelSeeder
@@ -166,7 +165,7 @@ class CitySeeder extends ModelSeeder
 
     protected function loadCountries(): void
     {
-        $this->countries = CountrySeeder::getModel()
+        $this->countries = CountrySeeder::model()
             ->newQuery()
             ->pluck('id', 'code')
             ->all();
@@ -174,7 +173,7 @@ class CitySeeder extends ModelSeeder
 
     protected function loadDivisions(): void
     {
-        $this->divisions = DivisionSeeder::getModel()
+        $this->divisions = DivisionSeeder::model()
             ->newQuery()
             ->get(['id', 'country_id', 'code'])
             ->groupBy(['country_id', 'code'])
@@ -265,7 +264,7 @@ class CitySeeder extends ModelSeeder
 
             $this->query()
                 ->toBase()
-                ->limit(50_000)
+                ->limit(50000)
                 ->update(['synced_at' => null]);
         }
     }
