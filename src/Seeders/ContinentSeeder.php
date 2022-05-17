@@ -75,7 +75,42 @@ class ContinentSeeder extends ModelSeeder
      */
     public function sync(): void
     {
-        // TODO: Implement sync() method.
+        // TODO: add logging here...
+
+        $count = $this->query()->count();
+        $syncedAt = $this->query()->max('synced_at');
+
+        $this->resetSyncedAt();
+
+        foreach ($this->continents()->chunk(1000) as $continents) {
+            $this->query()->upsert($continents->all(), ['geoname_id'], $this->updatable());
+        }
+
+        $created = $this->query()->count() - $count;
+        $updated = $this->query()->whereDate('synced_at', '>', $syncedAt)->count();
+        // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+        // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
+        $deleted = $this->query()->whereNull('synced_at')->delete();
+
+        // TODO: log report.
+        dump("Created: {$created}");
+        dump("Updated: {$updated}");
+        dump("Deleted: {$deleted}");
+    }
+
+    /**
+     * @return void
+     */
+    protected function resetSyncedAt(): void
+    {
+        while ($this->query()->whereNotNull('synced_at')->exists()) {
+            dump('nullifying...');
+
+            $this->query()
+                ->toBase()
+                ->limit(50000)
+                ->update(['synced_at' => null]);
+        }
     }
 
     /**
@@ -95,6 +130,7 @@ class ContinentSeeder extends ModelSeeder
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
         return LazyCollection::make(function () use ($path) {
+            // TODO: refactor using DI parser.
             foreach (resolve(GeonamesParser::class)->each($path) as $record) {
                 if ($this->filter($record)) {
                     yield $this->map($record);
@@ -108,6 +144,7 @@ class ContinentSeeder extends ModelSeeder
      */
     protected function filter(array $record): bool
     {
+        // TODO: add possibility to configure filter outside.
         return $record['feature code'] === FeatureCode::CONT;
     }
 
@@ -129,6 +166,29 @@ class ContinentSeeder extends ModelSeeder
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
+        ];
+    }
+
+    // TODO: compile this update fields automatically from wildcard and exclude geoname_id and created_at
+    protected function updatable(): array
+    {
+        return [
+            'name',
+            'code',
+            'latitude',
+            'longitude',
+            'timezone_id',
+            'population',
+            'dem',
+            'feature_code',
+
+            // TODO: push this fields automatically...
+            'synced_at',
+            'updated_at',
+
+            // TODO: exclude this fields automatically...
+            // 'geoname_id',
+            // 'created_at',
         ];
     }
 }

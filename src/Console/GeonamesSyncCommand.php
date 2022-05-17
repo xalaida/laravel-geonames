@@ -34,6 +34,7 @@ class GeonamesSyncCommand extends Command
     public function handle(): void
     {
         // TODO: do not import locales: wkdt, post, link, ...
+        // TODO: configure donwloader to reuse existing file even when remote size is different
 
         $seeders = [
 //            resolve(ContinentSeeder::class),
