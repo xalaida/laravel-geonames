@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames;
 
 use Facade\Ignition\QueryRecorder\QueryRecorder;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Nova;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;

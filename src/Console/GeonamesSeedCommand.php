@@ -10,6 +10,7 @@ class GeonamesSeedCommand extends Command
      * The name and signature of the console command.
      * TODO: add description to options
      * TODO: rewrite keep files to clean files
+     * TODO: add description to options.
      *
      * @var string
      */

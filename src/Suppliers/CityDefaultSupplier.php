@@ -4,11 +4,11 @@ namespace Nevadskiy\Geonames\Suppliers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class CityDefaultSupplier extends DefaultSupplier implements CitySupplier
 {

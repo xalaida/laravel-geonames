@@ -3,9 +3,9 @@
 namespace Nevadskiy\Geonames\Tests\Support\Factories;
 
 use Illuminate\Foundation\Testing\WithFaker;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Models\Country;
-use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class CountryFactory
 {
