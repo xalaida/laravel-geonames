@@ -12,6 +12,8 @@ class DivisionSeeder extends ModelSeeder
 {
     /**
      * The seeder division model class.
+     *
+     * @var string
      */
     protected static $model;
 
@@ -42,7 +44,7 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {

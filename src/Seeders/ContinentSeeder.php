@@ -13,6 +13,8 @@ class ContinentSeeder extends ModelSeeder
 {
     /**
      * The continent model class.
+     *
+     * @var string
      */
     protected static $model;
 
@@ -51,7 +53,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {

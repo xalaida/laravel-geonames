@@ -13,6 +13,8 @@ class CountrySeeder extends ModelSeeder
 {
     /**
      * The country model class.
+     *
+     * @var string
      */
     protected static $model;
 

@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use App\Models\Geo\City;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
@@ -12,43 +11,50 @@ use Nevadskiy\Geonames\Services\DownloadService;
 // TODO: try to extract useModel and getModel into trait (how if it works with static)
 // TODO: consider adding scanning DB table to use only that attributes
 // TODO: add possibility to specify updatable attributes separately...
-class CitySeeder extends ModelSeeder implements Seeder
+class CitySeeder extends ModelSeeder
 {
     /**
-     * The continent model class.
+     * The city model class.
+     *
+     * @var string
      */
     protected static $model;
 
     /**
+     * The country resources.
+     *
      * @var array
      */
     private $countries;
 
     /**
+     * The division resources.
+     *
      * @var array
      */
     private $divisions;
 
     /**
-     * Use the given model class.
+     * Use the given city model class.
      */
     public static function useModel(string $model): void
     {
-        self::$model = $model;
+        static::$model = $model;
     }
 
     /**
-     * Get the model class.
+     * Get the city model instance.
      */
-    public static function getModel(): Model
+    public static function model(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
+        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
 
-        return new self::$model;
+        return new static::$model;
     }
 
     /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {
@@ -78,15 +84,15 @@ class CitySeeder extends ModelSeeder implements Seeder
         // TODO: what if division and cities were added at same time... (division can be deleted (do not use restrictOnDelete))
         // TODO: add logging here...
 
-        $count = City::query()->count();
-        $previouslySyncedAt = City::query()->max('synced_at');
+        $count = $this->query()->count();
+        $previouslySyncedAt = $this->query()->max('synced_at');
 
         // TODO: think how to do it better (do not update 4 million rows at the same time)
         $this->prepareToSync();
 
         foreach ($this->cities()->chunk(1000) as $cities) {
             // TODO: compile this update fields automatically from wildcard and exclude geoname_id and created_at
-            City::query()->upsert($cities->all(), ['geoname_id'], [
+            $this->query()->upsert($cities->all(), ['geoname_id'], [
                 'name',
                 'country_id',
                 'division_id',
@@ -102,11 +108,11 @@ class CitySeeder extends ModelSeeder implements Seeder
             ]);
         }
 
-        $created = City::query()->count() - $count;
-        $updated = City::query()->whereDate('synced_at', '>', $previouslySyncedAt)->count();
+        $created = $this->query()->count() - $count;
+        $updated = $this->query()->whereDate('synced_at', '>', $previouslySyncedAt)->count();
         // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
         // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
-        $deleted = City::query()->whereNull('synced_at')->delete();
+        $deleted = $this->query()->whereNull('synced_at')->delete();
 
         dump("Created: {$created}");
         dump("Updated: {$updated}");
@@ -125,6 +131,14 @@ class CitySeeder extends ModelSeeder implements Seeder
                 }
             }
         });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function newModel(): Model
+    {
+        return static::model();
     }
 
     /**
@@ -195,7 +209,7 @@ class CitySeeder extends ModelSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * Map the given record to the model attributes.
      */
     protected function mapAttributes(array $record): array
     {
@@ -246,10 +260,10 @@ class CitySeeder extends ModelSeeder implements Seeder
      */
     protected function nullifySyncedAtTimestamp(): void
     {
-        while (City::query()->whereNotNull('synced_at')->exists()) {
+        while ($this->query()->whereNotNull('synced_at')->exists()) {
             dump('nullifying...');
 
-            City::query()
+            $this->query()
                 ->toBase()
                 ->limit(50_000)
                 ->update(['synced_at' => null]);
