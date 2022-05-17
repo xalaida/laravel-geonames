@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 abstract class ModelSeeder implements Seeder
 {
     /**
+     * The column name of the synced date.
+     *
+     * @var string
+     */
+    protected const SYNCED_AT = 'synced_at';
+
+    /**
+     * The column name of the sync key.
+     *
+     * @var string
+     */
+    protected const SYNC_KEY = 'geoname_id';
+
+    /**
      * Truncate a table of the model.
      */
     public function truncate(): void
@@ -20,71 +34,20 @@ abstract class ModelSeeder implements Seeder
      */
     public function sync(): void
     {
-        // TODO: add logging here...
-
         $count = $this->query()->count();
-        $syncedAt = $this->query()->max('synced_at');
-
+        $syncedAt = $this->query()->max(self::SYNCED_AT);
         $this->resetSyncedAt();
 
         $this->performSync();
 
         $created = $this->query()->count() - $count;
-        $updated = $this->query()->whereDate('synced_at', '>', $syncedAt)->count();
-        // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-        // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
-        $deleted = $this->query()->whereNull('synced_at')->delete();
+        $updated = $this->query()->whereDate(self::SYNCED_AT, '>', $syncedAt)->count();
+        $deleted = $this->deleteNotSyncedRecords();
 
         // TODO: log report.
         dump("Created: {$created}");
         dump("Updated: {$updated}");
         dump("Deleted: {$deleted}");
-    }
-
-    /**
-     * Perform the sync process.
-     */
-    abstract protected function performSync(): void;
-
-    protected function getUpdatableAttributes(array $record): array
-    {
-        $updatable = $this->updatable();
-
-        if ($this->isWildcardAttributes($updatable)) {
-            $updatable = array_keys($record);
-        }
-
-        return collect($updatable)
-            ->diff(['id', 'geoname_id', 'created_at'])
-            ->concat(['synced_at', 'updated_at'])
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    protected function isWildcardAttributes(array $attributes): bool
-    {
-        return count($attributes) === 1 && $attributes[0] === '*';
-    }
-
-    protected function updatable(): array
-    {
-        return ['*'];
-    }
-
-    /**
-     * @return void
-     */
-    protected function resetSyncedAt(): void
-    {
-        while ($this->query()->whereNotNull('synced_at')->exists()) {
-            dump('nullifying...');
-
-            $this->query()
-                ->toBase()
-                ->limit(50000)
-                ->update(['synced_at' => null]);
-        }
     }
 
     /**
@@ -114,4 +77,73 @@ abstract class ModelSeeder implements Seeder
      * Map fields to the model attributes.
      */
     abstract protected function mapAttributes(array $record): array;
+
+    /**
+     * Get updatable attributes of the model.
+     */
+    protected function getUpdatableAttributes(array $record): array
+    {
+        $updatable = $this->updatable();
+
+        if (! $this->isWildcardAttributes($updatable)) {
+            return $updatable;
+        }
+
+        return collect(array_keys($record))
+            ->diff(['id', self::SYNC_KEY, 'created_at'])
+            ->concat([self::SYNCED_AT, 'updated_at'])
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Determine if the given attributes is a wildcard.
+     */
+    protected function isWildcardAttributes(array $attributes): bool
+    {
+        return count($attributes) === 1 && $attributes[0] === '*';
+    }
+
+    /**
+     * Get the updatable attributes of the model.
+     */
+    protected function updatable(): array
+    {
+        return ['*'];
+    }
+
+    /**
+     * Perform the sync process.
+     */
+    abstract protected function performSync(): void;
+
+    /**
+     * Reset the synced at timestamp for all records before syncing.
+     */
+    protected function resetSyncedAt(): void
+    {
+        while ($this->query()->whereNotNull(self::SYNCED_AT)->exists()) {
+            $this->query()
+                ->toBase()
+                ->limit(50000)
+                ->update([self::SYNCED_AT => null]);
+        }
+    }
+
+    /**
+     * Delete not synced records and return its amount.
+     * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+     * TODO: integrate with soft delete
+     */
+    protected function deleteNotSyncedRecords(): int
+    {
+        $deleted = 0;
+
+        while ($this->query()->whereNull(self::SYNCED_AT)->exists()) {
+            $deleted += $this->query()->whereNull(self::SYNCED_AT)->delete();
+        }
+
+        return $deleted;
+    }
 }

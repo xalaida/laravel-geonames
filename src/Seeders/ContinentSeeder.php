@@ -70,20 +70,25 @@ class ContinentSeeder extends ModelSeeder
         // TODO: Implement update() method.
     }
 
-    protected function performSync(): void
-    {
-        foreach ($this->continents()->chunk(1000) as $continents) {
-            // TODO: extract into constants fields SYNCED_AT and SYNC_KEY
-            $this->query()->upsert($continents->all(), ['geoname_id'], $this->getUpdatableAttributes($continents->first()));
-        }
-    }
-
     /**
      * @inheritdoc
      */
     protected function newModel(): Model
     {
         return static::model();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function performSync(): void
+    {
+        $updatable = [];
+
+        foreach ($this->continents()->chunk(1000) as $continents) {
+            $updatable = $updatable ?: $this->getUpdatableAttributes($continents->first());
+            $this->query()->upsert($continents->all(), [self::SYNC_KEY], $this->getUpdatableAttributes($continents->first()));
+        }
     }
 
     /**

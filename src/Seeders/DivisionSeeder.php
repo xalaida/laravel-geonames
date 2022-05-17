@@ -48,13 +48,11 @@ class DivisionSeeder extends ModelSeeder
      */
     public function seed(): void
     {
-        $this->load();
-
-        foreach ($this->divisions()->chunk(1000) as $divisions) {
-            $this->query()->insert($divisions->all());
-        }
-
-        $this->unload();
+        $this->loadingResources(function () {
+            foreach ($this->divisions()->chunk(1000) as $divisions) {
+                $this->query()->insert($divisions->all());
+            }
+        });
     }
 
     /**
@@ -68,17 +66,24 @@ class DivisionSeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    public function sync(): void
+    protected function newModel(): Model
     {
-        // TODO: Implement sync() method.
+        return static::model();
     }
 
     /**
      * @inheritdoc
      */
-    protected function newModel(): Model
+    protected function performSync(): void
     {
-        return static::model();
+        $this->loadingResources(function () {
+            $updatable = [];
+
+            foreach ($this->divisions()->chunk(1000) as $divisions) {
+                $updatable = $updatable ?: $this->getUpdatableAttributes($divisions->first());
+                $this->query()->upsert($divisions->all(), [self::SYNC_KEY], $this->getUpdatableAttributes($divisions->first()));
+            }
+        });
     }
 
     /**
@@ -98,11 +103,27 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
+     * Execute a callback when resources are loaded.
+     */
+    private function loadingResources(callable $callback): void
+    {
+        $this->load();
+
+        $callback();
+
+        $this->unload();
+    }
+
+    /**
      * Load resources.
      */
     protected function load(): void
     {
-        $this->loadCountries();
+        $this->countries = CountrySeeder::model()
+            ->newQuery()
+            ->get()
+            ->pluck('id', 'code')
+            ->all();
     }
 
     /**
@@ -111,18 +132,6 @@ class DivisionSeeder extends ModelSeeder
     protected function unload(): void
     {
         $this->countries = [];
-    }
-
-    /**
-     * Load country resources.
-     */
-    protected function loadCountries(): void
-    {
-        $this->countries = CountrySeeder::model()
-            ->newQuery()
-            ->get()
-            ->pluck('id', 'code')
-            ->all();
     }
 
     /**
