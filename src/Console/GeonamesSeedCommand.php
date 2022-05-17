@@ -40,7 +40,7 @@ class GeonamesSeedCommand extends Command
         // TODO: do not import locales: wkdt, post, link, ...
         // TODO: configure donwloader to reuse existing file even when remote size is different
 
-        /**
+        /*
          * function handle(Parser $parser)
          * {
          *   $parser->setLogger($this->consoleLogger())

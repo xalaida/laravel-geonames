@@ -37,12 +37,12 @@ class DivisionTranslationsSeeder
     {
         $this->load();
 
-        $batch = new Batch(function (array $records){
+        $batch = new Batch(function (array $records) {
             $this->query()->insert($records);
         }, 1000);
 
         foreach ($this->records() as $division) {
-             $batch->push($division);
+            $batch->push($division);
         }
 
         $batch->commit();
