@@ -3,14 +3,6 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
-use Nevadskiy\Geonames\Seeders\CitySeeder;
-use Nevadskiy\Geonames\Seeders\CityTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\ContinentSeeder;
-use Nevadskiy\Geonames\Seeders\ContinentTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\CountrySeeder;
-use Nevadskiy\Geonames\Seeders\DivisionSeeder;
-use Nevadskiy\Geonames\Seeders\CountryTranslationsSeeder;
-use Nevadskiy\Geonames\Seeders\DivisionTranslationsSeeder;
 
 class GeonamesSyncCommand extends Command
 {
@@ -33,29 +25,28 @@ class GeonamesSyncCommand extends Command
      */
     public function handle(): void
     {
-        // TODO: do not import locales: wkdt, post, link, ...
-        // TODO: configure donwloader to reuse existing file even when remote size is different
-
-        $seeders = [
-//            resolve(ContinentSeeder::class),
-//            resolve(CountrySeeder::class),
-//            resolve(DivisionSeeder::class),
-            resolve(CitySeeder::class),
-//            resolve(ContinentTranslationsSeeder::class),
-//            resolve(CountryTranslationsSeeder::class),
-//            resolve(DivisionTranslationsSeeder::class),
-//            resolve(CityTranslationsSeeder::class),
-        ];
-
-        // $this->withProgressBar();
-
-        $this->sync($seeders);
+        $this->sync($this->seeders());
     }
 
-    private function sync(array $seeders): void
+    /**
+     * Sync the dataset using given seeders.
+     */
+    protected function sync(array $seeders): void
     {
         foreach ($seeders as $seeder) {
             $seeder->sync();
         }
+    }
+
+    /**
+     * Get the seeders list.
+     */
+    protected function seeders(): array
+    {
+        return collect(config('geonames.seeders'))
+            ->map(function ($seeder) {
+                return resolve($seeder);
+            })
+            ->all();
     }
 }
