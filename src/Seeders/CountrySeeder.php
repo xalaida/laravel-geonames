@@ -2,19 +2,15 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountrySeeder extends ModelSeeder implements Seeder
+class CountrySeeder implements Seeder
 {
-    /**
-     * The seeder model class.
-     */
-    protected static $model;
+    use HasModel;
 
     /**
      * The country info list.
@@ -29,24 +25,6 @@ class CountrySeeder extends ModelSeeder implements Seeder
      * @var array
      */
     private $continents = [];
-
-    /**
-     * Use the given model class.
-     */
-    public static function useModel(string $model): void
-    {
-        self::$model = $model;
-    }
-
-    /**
-     * Get the model class.
-     */
-    public static function getModel(): Model
-    {
-        // TODO: check if class exists and is a subclass of eloquent model
-
-        return new self::$model;
-    }
 
     /**
      * @inheritdoc
@@ -76,6 +54,14 @@ class CountrySeeder extends ModelSeeder implements Seeder
     public function sync(): void
     {
         // TODO: Implement sync() method.
+    }
+
+    /**
+     * Truncate a table of the model.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
     }
 
     /**
@@ -169,7 +155,17 @@ class CountrySeeder extends ModelSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * Map the given record to the database fields.
+     */
+    protected function map(array $record): array
+    {
+        return static::getModel()
+            ->forceFill($this->mapAttributes($record))
+            ->getAttributes();
+    }
+
+    /**
+     * Map the given record to the model attributes.
      */
     protected function mapAttributes(array $record): array
     {
