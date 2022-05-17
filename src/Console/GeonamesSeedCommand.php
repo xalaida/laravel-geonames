@@ -36,6 +36,8 @@ class GeonamesSeedCommand extends Command
         // TODO: do not import locales: wkdt, post, link, ...
         // TODO: build console logger and set it from here like this:
         // TODO: add decorator for downloader that captures all downloaded files and allow the possibility to delete them after.
+        // TODO: do not import locales: wkdt, post, link, ...
+        // TODO: configure donwloader to reuse existing file even when remote size is different
 
         /**
          * function handle(Parser $parser)
