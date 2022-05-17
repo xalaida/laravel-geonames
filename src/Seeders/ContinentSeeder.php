@@ -2,19 +2,15 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class ContinentSeeder extends ModelSeeder implements Seeder
+class ContinentSeeder implements Seeder
 {
-    /**
-     * The seeder model class.
-     */
-    protected static $model;
+    use HasModel;
 
     /**
      * The continent code generator instance.
@@ -22,24 +18,6 @@ class ContinentSeeder extends ModelSeeder implements Seeder
      * @var ContinentCodeGenerator
      */
     private $codeGenerator;
-
-    /**
-     * Use the given model class.
-     */
-    public static function useModel(string $model): void
-    {
-        self::$model = $model;
-    }
-
-    /**
-     * Get the model class.
-     */
-    public static function getModel(): Model
-    {
-        // TODO: check if class exists and is a subclass of eloquent model
-
-        return new self::$model;
-    }
 
     /**
      * Make a new seeder instance.
@@ -76,6 +54,14 @@ class ContinentSeeder extends ModelSeeder implements Seeder
     }
 
     /**
+     * Truncate a table of the model.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
+
+    /**
      * Get the continent records for seeding.
      */
     public function continents(): LazyCollection
@@ -101,7 +87,17 @@ class ContinentSeeder extends ModelSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * Map the given record to the database fields.
+     */
+    protected function map(array $record): array
+    {
+        return static::getModel()
+            ->forceFill($this->mapAttributes($record))
+            ->getAttributes();
+    }
+
+    /**
+     * Map the given record to the model attributes.
      */
     protected function mapAttributes(array $record): array
     {
