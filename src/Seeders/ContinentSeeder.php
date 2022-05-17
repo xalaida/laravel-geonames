@@ -83,6 +83,7 @@ class ContinentSeeder extends ModelSeeder
         $this->resetSyncedAt();
 
         foreach ($this->continents()->chunk(1000) as $continents) {
+            // TODO: extract into constants fields SYNCED_AT and SYNC_KEY
             $this->query()->upsert($continents->all(), ['geoname_id'], $this->updatable());
         }
 

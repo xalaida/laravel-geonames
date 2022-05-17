@@ -78,7 +78,42 @@ class CountrySeeder extends ModelSeeder
      */
     public function sync(): void
     {
-        // TODO: Implement sync() method.
+        // TODO: add logging here...
+
+        $count = $this->query()->count();
+        $syncedAt = $this->query()->max('synced_at');
+
+        $this->resetSyncedAt();
+
+        foreach ($this->countries()->chunk(1000) as $countries) {
+            $this->query()->upsert($countries->all(), ['geoname_id'], $this->updatable());
+        }
+
+        $created = $this->query()->count() - $count;
+        $updated = $this->query()->whereDate('synced_at', '>', $syncedAt)->count();
+        // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+        // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
+        $deleted = $this->query()->whereNull('synced_at')->delete();
+
+        // TODO: log report.
+        dump("Created: {$created}");
+        dump("Updated: {$updated}");
+        dump("Deleted: {$deleted}");
+    }
+
+    /**
+     * @return void
+     */
+    protected function resetSyncedAt(): void
+    {
+        while ($this->query()->whereNotNull('synced_at')->exists()) {
+            dump('nullifying...');
+
+            $this->query()
+                ->toBase()
+                ->limit(50000)
+                ->update(['synced_at' => null]);
+        }
     }
 
     /**
@@ -217,6 +252,45 @@ class CountrySeeder extends ModelSeeder
             'synced_at' => $record['modification date'],
             'created_at' => now(),
             'updated_at' => now(),
+        ];
+    }
+
+    // TODO: compile this update fields automatically from wildcard and exclude geoname_id and created_at
+    protected function updatable(): array
+    {
+        return [
+            'code',
+            'iso',
+            'iso_numeric',
+            'name',
+            'continent_id',
+            'capital',
+            'currency_code',
+            'currency_name',
+            'tld',
+            'phone_code',
+            'postal_code_format',
+            'postal_code_regex',
+            'languages',
+            'neighbours',
+            'area',
+            'fips',
+
+            'name_official',
+            'timezone_id',
+            'latitude',
+            'longitude',
+            'population',
+            'dem',
+            'feature_code',
+
+            // TODO: push this fields automatically...
+            'synced_at',
+            'updated_at',
+
+            // TODO: exclude this fields automatically...
+            // 'geoname_id',
+            // 'created_at',
         ];
     }
 }
