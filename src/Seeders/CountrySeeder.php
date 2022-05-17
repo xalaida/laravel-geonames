@@ -12,7 +12,7 @@ use Nevadskiy\Geonames\Services\DownloadService;
 class CountrySeeder extends ModelSeeder
 {
     /**
-     * The continent model class.
+     * The country model class.
      */
     protected static $model;
 
@@ -31,7 +31,7 @@ class CountrySeeder extends ModelSeeder
     private $continents = [];
 
     /**
-     * Use the given continent model class.
+     * Use the given country model class.
      */
     public static function useModel(string $model): void
     {
@@ -39,7 +39,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Get the continent model instance.
+     * Get the country model instance.
      */
     public static function model(): Model
     {

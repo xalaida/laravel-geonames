@@ -8,10 +8,10 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class DivisionSeeder extends ModelSeeder implements Seeder
+class DivisionSeeder extends ModelSeeder
 {
     /**
-     * The seeder model class.
+     * The seeder division model class.
      */
     protected static $model;
 
@@ -23,21 +23,22 @@ class DivisionSeeder extends ModelSeeder implements Seeder
     private $countries = [];
 
     /**
-     * Use the given model class.
+     * Use the given division model class.
      */
     public static function useModel(string $model): void
     {
-        self::$model = $model;
+        static::$model = $model;
     }
 
     /**
-     * Get the model class.
+     * Get the division model instance.
      */
-    public static function getModel(): Model
+    public static function model(): Model
     {
         // TODO: check if class exists and is a subclass of eloquent model
+        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
 
-        return new self::$model;
+        return new static::$model;
     }
 
     /**
@@ -68,6 +69,14 @@ class DivisionSeeder extends ModelSeeder implements Seeder
     public function sync(): void
     {
         // TODO: Implement sync() method.
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function newModel(): Model
+    {
+        return static::model();
     }
 
     /**
@@ -107,7 +116,7 @@ class DivisionSeeder extends ModelSeeder implements Seeder
      */
     protected function loadCountries(): void
     {
-        $this->countries = CountrySeeder::getModel()
+        $this->countries = CountrySeeder::model()
             ->newQuery()
             ->get()
             ->pluck('id', 'code')
