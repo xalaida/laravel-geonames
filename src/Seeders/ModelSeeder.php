@@ -16,7 +16,7 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function sync(): void
     {
@@ -72,9 +72,6 @@ abstract class ModelSeeder implements Seeder
         return ['*'];
     }
 
-    /**
-     * @return void
-     */
     protected function resetSyncedAt(): void
     {
         while ($this->query()->whereNotNull('synced_at')->exists()) {

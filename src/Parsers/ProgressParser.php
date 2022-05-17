@@ -5,7 +5,6 @@ namespace Nevadskiy\Geonames\Parsers;
 use Generator;
 use Illuminate\Console\OutputStyle;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
-use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ProgressParser implements Parser
@@ -90,7 +89,7 @@ class ProgressParser implements Parser
                 "<options=bold;fg=green>Processing:</> {$path}\n".
                 "%bar% %percent%%\n".
                 "<fg=blue>Remaining Time:</> %remaining%\n".
-                "%memory:6s%"
+                '%memory:6s%'
             );
         }
     }

@@ -4,9 +4,9 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
-use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Services\DownloadService;
 
 class ContinentSeeder extends ModelSeeder
@@ -41,7 +41,7 @@ class ContinentSeeder extends ModelSeeder
         // TODO: check if class exists and is a subclass of eloquent model
         // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
 
-        return new static::$model;
+        return new static::$model();
     }
 
     /**
@@ -53,7 +53,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -63,7 +63,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(): void
     {
@@ -79,7 +79,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function newModel(): Model
     {
