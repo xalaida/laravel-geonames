@@ -2,15 +2,19 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountrySeeder implements Seeder
+class CountrySeeder extends ModelSeeder
 {
-    use HasModel;
+    /**
+     * The continent model class.
+     */
+    protected static $model;
 
     /**
      * The country info list.
@@ -25,6 +29,25 @@ class CountrySeeder implements Seeder
      * @var array
      */
     private $continents = [];
+
+    /**
+     * Use the given continent model class.
+     */
+    public static function useModel(string $model): void
+    {
+        static::$model = $model;
+    }
+
+    /**
+     * Get the continent model instance.
+     */
+    public static function model(): Model
+    {
+        // TODO: check if class exists and is a subclass of eloquent model
+        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
+
+        return new static::$model;
+    }
 
     /**
      * @inheritdoc
@@ -57,11 +80,11 @@ class CountrySeeder implements Seeder
     }
 
     /**
-     * Truncate a table of the model.
+     * @inheritdoc
      */
-    public function truncate(): void
+    protected function newModel(): Model
     {
-        $this->query()->truncate();
+        return static::model();
     }
 
     /**
@@ -117,7 +140,7 @@ class CountrySeeder implements Seeder
      */
     protected function loadContinents(): void
     {
-        $this->continents = ContinentSeeder::getModel()
+        $this->continents = ContinentSeeder::model()
             ->newQuery()
             ->get()
             ->pluck('id', 'code')
@@ -155,17 +178,7 @@ class CountrySeeder implements Seeder
     }
 
     /**
-     * Map the given record to the database fields.
-     */
-    protected function map(array $record): array
-    {
-        return static::getModel()
-            ->forceFill($this->mapAttributes($record))
-            ->getAttributes();
-    }
-
-    /**
-     * Map the given record to the model attributes.
+     * Map fields to the model attributes.
      */
     protected function mapAttributes(array $record): array
     {
