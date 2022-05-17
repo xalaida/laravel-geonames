@@ -55,15 +55,9 @@ class CitySeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    public function seed(): void
+    protected function newModel(): Model
     {
-        $this->load();
-
-        foreach ($this->cities()->chunk(1000) as $cities) {
-            $this->query()->insert($cities->all());
-        }
-
-        // TODO: unload resources...
+        return static::model();
     }
 
     /**
@@ -75,49 +69,8 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * Sync database according to the geonames dataset.
-     * TODO: add report
+     * @inheritdoc
      */
-    public function sync(): void
-    {
-        // TODO: what if division and cities were added at same time... (division can be deleted (do not use restrictOnDelete))
-        // TODO: add logging here...
-
-        $count = $this->query()->count();
-        $previouslySyncedAt = $this->query()->max('synced_at');
-
-        // TODO: think how to do it better (do not update 4 million rows at the same time)
-        $this->prepareToSync();
-
-        foreach ($this->cities()->chunk(1000) as $cities) {
-            // TODO: compile this update fields automatically from wildcard and exclude geoname_id and created_at
-            $this->query()->upsert($cities->all(), ['geoname_id'], [
-                'name',
-                'country_id',
-                'division_id',
-                'latitude',
-                'longitude',
-                'timezone_id',
-                'population',
-                'elevation',
-                'dem',
-                'feature_code',
-                'synced_at',
-                'updated_at', // added automatically
-            ]);
-        }
-
-        $created = $this->query()->count() - $count;
-        $updated = $this->query()->whereDate('synced_at', '>', $previouslySyncedAt)->count();
-        // TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-        // Delete can be danger here because empty file with destroy every record... also there is hard to delete every single record one be one... soft delete?
-        $deleted = $this->query()->whereNull('synced_at')->delete();
-
-        dump("Created: {$created}");
-        dump("Updated: {$updated}");
-        dump("Deleted: {$deleted}");
-    }
-
     public function records(): LazyCollection
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
@@ -126,7 +79,7 @@ class CitySeeder extends ModelSeeder
         return new LazyCollection(function () use ($geonamesParser, $path) {
             foreach ($geonamesParser->each($path) as $record) {
                 if ($this->filter($record)) {
-                    yield $record;
+                    yield $this->map($record);
                 }
             }
         });
@@ -135,34 +88,15 @@ class CitySeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    protected function newModel(): Model
-    {
-        return static::model();
-    }
-
-    /**
-     * Get city records to insert.
-     */
-    public function cities(): LazyCollection
-    {
-        // TODO: consider loading dependencies locally here.
-        $this->load();
-
-        return LazyCollection::make(function () {
-            foreach ($this->records() as $record) {
-                yield $this->map($record);
-            }
-        });
-
-        // TODO: unset loaded dependencies, or better to load them locally.
-    }
-
     protected function load(): void
     {
         $this->loadCountries();
         $this->loadDivisions();
     }
 
+    /**
+     * Load country resources.
+     */
     protected function loadCountries(): void
     {
         $this->countries = CountrySeeder::model()
@@ -171,6 +105,9 @@ class CitySeeder extends ModelSeeder
             ->all();
     }
 
+    /**
+     * Load division resources.
+     */
     protected function loadDivisions(): void
     {
         $this->divisions = DivisionSeeder::model()
@@ -178,6 +115,15 @@ class CitySeeder extends ModelSeeder
             ->get(['id', 'country_id', 'code'])
             ->groupBy(['country_id', 'code'])
             ->toArray();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function unload(): void
+    {
+        $this->countries = [];
+        $this->divisions = [];
     }
 
     /**
@@ -244,28 +190,5 @@ class CitySeeder extends ModelSeeder
     protected function getDivisionId(array $record): ?string
     {
         return $this->divisions[$this->getCountryId($record)][$record['admin1 code']][0]['id'] ?? null;
-    }
-
-    /**
-     * @return void
-     */
-    protected function prepareToSync(): void
-    {
-        $this->nullifySyncedAtTimestamp();
-    }
-
-    /**
-     * @return void
-     */
-    protected function nullifySyncedAtTimestamp(): void
-    {
-        while ($this->query()->whereNotNull('synced_at')->exists()) {
-            dump('nullifying...');
-
-            $this->query()
-                ->toBase()
-                ->limit(50000)
-                ->update(['synced_at' => null]);
-        }
     }
 }

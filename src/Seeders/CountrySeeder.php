@@ -54,28 +54,6 @@ class CountrySeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    public function seed(): void
-    {
-        $this->load();
-
-        foreach ($this->countries()->chunk(1000) as $countries) {
-            $this->query()->insert($countries->all());
-        }
-
-        $this->unload();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function update(): void
-    {
-        // TODO: Implement update() method.
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function newModel(): Model
     {
         return static::model();
@@ -84,20 +62,7 @@ class CountrySeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    protected function performSync(): void
-    {
-        $updatable = [];
-
-        foreach ($this->countries()->chunk(1000) as $countries) {
-            $updatable = $updatable ?: $this->getUpdatableAttributes($countries->first());
-            $this->query()->upsert($countries->all(), [self::SYNC_KEY], $updatable);
-        }
-    }
-
-    /**
-     * Get the country records for seeding.
-     */
-    private function countries(): LazyCollection
+    protected function records(): LazyCollection
     {
         // TODO: refactor downloading by passing Downloader instance from constructor.
         $path = resolve(DownloadService::class)->downloadAllCountries();
@@ -109,6 +74,14 @@ class CountrySeeder extends ModelSeeder
                 }
             }
         });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        // TODO: Implement update() method.
     }
 
     /**

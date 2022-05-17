@@ -26,6 +26,14 @@ class ContinentSeeder extends ModelSeeder
     private $codeGenerator;
 
     /**
+     * Make a new seeder instance.
+     */
+    public function __construct(ContinentCodeGenerator $codeGenerator)
+    {
+        $this->codeGenerator = $codeGenerator;
+    }
+
+    /**
      * Use the given continent model class.
      */
     public static function useModel(string $model): void
@@ -44,31 +52,6 @@ class ContinentSeeder extends ModelSeeder
         return new static::$model;
     }
 
-    /**
-     * Make a new seeder instance.
-     */
-    public function __construct(ContinentCodeGenerator $codeGenerator)
-    {
-        $this->codeGenerator = $codeGenerator;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function seed(): void
-    {
-        foreach ($this->continents()->chunk(1000) as $continents) {
-            $this->query()->insert($continents->all());
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function update(): void
-    {
-        // TODO: Implement update() method.
-    }
 
     /**
      * @inheritdoc
@@ -81,20 +64,7 @@ class ContinentSeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    protected function performSync(): void
-    {
-        $updatable = [];
-
-        foreach ($this->continents()->chunk(1000) as $continents) {
-            $updatable = $updatable ?: $this->getUpdatableAttributes($continents->first());
-            $this->query()->upsert($continents->all(), [self::SYNC_KEY], $this->getUpdatableAttributes($continents->first()));
-        }
-    }
-
-    /**
-     * Get the continent records for seeding.
-     */
-    public function continents(): LazyCollection
+    protected function records(): LazyCollection
     {
         // TODO: refactor downloading by passing Downloader instance from constructor.
         $path = resolve(DownloadService::class)->downloadAllCountries();
@@ -107,6 +77,14 @@ class ContinentSeeder extends ModelSeeder
                 }
             }
         });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        // TODO: Implement update() method.
     }
 
     /**

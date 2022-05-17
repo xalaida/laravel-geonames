@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\LazyCollection;
 
 abstract class ModelSeeder implements Seeder
 {
@@ -22,11 +23,25 @@ abstract class ModelSeeder implements Seeder
     protected const SYNC_KEY = 'geoname_id';
 
     /**
-     * Truncate a table of the model.
+     * Get records for seeding.
      */
-    public function truncate(): void
+    abstract protected function records(): LazyCollection;
+
+    /**
+     * Get a new model instance of the seeder.
+     */
+    abstract protected function newModel(): Model;
+
+    /**
+     * @inheritdoc
+     */
+    public function seed(): void
     {
-        $this->query()->truncate();
+        $this->loadingResources(function () {
+            foreach ($this->records()->chunk(1000) as $records) {
+                $this->query()->insert($records->all());
+            }
+        });
     }
 
     /**
@@ -51,9 +66,12 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Get a new model instance of the seeder.
+     * Truncate a table of the model.
      */
-    abstract protected function newModel(): Model;
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
 
     /**
      * Get a query instance of the seeder's model.
@@ -116,7 +134,17 @@ abstract class ModelSeeder implements Seeder
     /**
      * Perform the sync process.
      */
-    abstract protected function performSync(): void;
+    protected function performSync(): void
+    {
+        $this->loadingResources(function () {
+            $updatable = [];
+
+            foreach ($this->records()->chunk(1000) as $records) {
+                $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
+                $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+            }
+        });
+    }
 
     /**
      * Reset the synced at timestamp for all records before syncing.
@@ -145,5 +173,33 @@ abstract class ModelSeeder implements Seeder
         }
 
         return $deleted;
+    }
+
+    /**
+     * Execute a callback when resources are loaded.
+     */
+    private function loadingResources(callable $callback): void
+    {
+        $this->load();
+
+        $callback();
+
+        $this->unload();
+    }
+
+    /**
+     * Load resources.
+     */
+    protected function load(): void
+    {
+        //
+    }
+
+    /**
+     * Unload resources.
+     */
+    protected function unload(): void
+    {
+        //
     }
 }

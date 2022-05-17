@@ -46,26 +46,6 @@ class DivisionSeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    public function seed(): void
-    {
-        $this->loadingResources(function () {
-            foreach ($this->divisions()->chunk(1000) as $divisions) {
-                $this->query()->insert($divisions->all());
-            }
-        });
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function update(): void
-    {
-        // TODO: Implement update() method.
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function newModel(): Model
     {
         return static::model();
@@ -74,22 +54,7 @@ class DivisionSeeder extends ModelSeeder
     /**
      * @inheritdoc
      */
-    protected function performSync(): void
-    {
-        $this->loadingResources(function () {
-            $updatable = [];
-
-            foreach ($this->divisions()->chunk(1000) as $divisions) {
-                $updatable = $updatable ?: $this->getUpdatableAttributes($divisions->first());
-                $this->query()->upsert($divisions->all(), [self::SYNC_KEY], $this->getUpdatableAttributes($divisions->first()));
-            }
-        });
-    }
-
-    /**
-     * Get the division records for seeding.
-     */
-    public function divisions(): LazyCollection
+    public function records(): LazyCollection
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
@@ -103,15 +68,11 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * Execute a callback when resources are loaded.
+     * @inheritdoc
      */
-    private function loadingResources(callable $callback): void
+    public function update(): void
     {
-        $this->load();
-
-        $callback();
-
-        $this->unload();
+        // TODO: Implement update() method.
     }
 
     /**
