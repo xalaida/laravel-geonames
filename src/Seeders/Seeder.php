@@ -10,14 +10,14 @@ interface Seeder
     public function seed(): void;
 
     /**
-     * Perform a daily update of the database.
-     */
-    public function update(): void;
-
-    /**
      * Sync database according to the dataset.
      */
     public function sync(): void;
+
+    /**
+     * Perform a daily update of the database.
+     */
+    public function update(): void;
 
     /**
      * Truncate database before seeding.

@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 /**
  * @mixin ModelSeeder
  */
-trait SeedsRecords
+trait SeedsModelRecords
 {
     /**
      * Get records for seeding.

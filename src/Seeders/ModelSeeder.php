@@ -13,8 +13,10 @@ use Illuminate\Support\LazyCollection;
 // TODO: define different methods for mapping for seed/update/delete/sync
 abstract class ModelSeeder implements Seeder
 {
+    use SeedsModelRecords;
+    use SyncsModelRecords;
+    use UpdatesModelRecords;
     use MapsRecords;
-    use SeedsRecords;
 
     /**
      * The column name of the synced date.
@@ -36,30 +38,11 @@ abstract class ModelSeeder implements Seeder
     abstract protected function newModel(): Model;
 
     /**
-     * {@inheritdoc}
+     * Get a query instance of the seeder's model.
      */
-    public function sync(): void
+    protected function query(): Builder
     {
-        $count = $this->query()->count();
-        $syncedAt = $this->query()->max(self::SYNCED_AT);
-        $this->resetSyncedAt();
-
-        $this->performSync();
-
-        $created = $this->query()->count() - $count;
-
-        $updated = $this->query()
-            ->when($syncedAt, function (Builder $query) use ($syncedAt) {
-                $query->whereDate(self::SYNCED_AT, '>', $syncedAt);
-            })
-            ->count();
-
-        $deleted = $this->deleteNotSyncedRecords();
-
-        // TODO: log report.
-        dump("Created: {$created}");
-        dump("Updated: {$updated}");
-        dump("Deleted: {$deleted}");
+        return $this->newModel()->newQuery();
     }
 
     /**
@@ -71,129 +54,12 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Get a query instance of the seeder's model.
-     */
-    protected function query(): Builder
-    {
-        return $this->newModel()->newQuery();
-    }
-
-    /**
-     * Get updatable attributes of the model.
-     */
-    protected function getUpdatableAttributes(array $record): array
-    {
-        $updatable = $this->updatable();
-
-        if (! $this->isWildcardAttributes($updatable)) {
-            return $updatable;
-        }
-
-        return collect(array_keys($record))
-            ->diff(['id', self::SYNC_KEY, 'created_at'])
-            ->concat([self::SYNCED_AT, 'updated_at'])
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    /**
-     * Determine if the given attributes is a wildcard.
-     */
-    protected function isWildcardAttributes(array $attributes): bool
-    {
-        return count($attributes) === 1 && $attributes[0] === '*';
-    }
-
-    /**
-     * Get the updatable attributes of the model.
-     */
-    protected function updatable(): array
-    {
-        return ['*'];
-    }
-
-    /**
-     * Perform the sync process.
-     */
-    protected function performSync(): void
-    {
-        $this->performUpdate($this->mapRecords($this->getRecordsForSyncing()));
-    }
-
-    /**
-     * Get records for syncing database.
-     */
-    protected function getRecordsForSyncing(): iterable
-    {
-        return $this->getRecordsForSeeding();
-    }
-
-    /**
-     * Reset the synced at timestamp for all records before syncing.
-     */
-    protected function resetSyncedAt(): void
-    {
-        while ($this->query()->whereNotNull(self::SYNCED_AT)->exists()) {
-            $this->query()
-                ->toBase()
-                ->limit(50000)
-                ->update([self::SYNCED_AT => null]);
-        }
-    }
-
-    /**
-     * Delete not synced records and return its amount.
-     * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-     * TODO: integrate with soft delete.
-     */
-    protected function deleteNotSyncedRecords(): int
-    {
-        $deleted = 0;
-
-        while ($this->query()->whereNull(self::SYNCED_AT)->exists()) {
-            $deleted += $this->query()->whereNull(self::SYNCED_AT)->delete();
-        }
-
-        return $deleted;
-    }
-
-    /**
      * Perform a daily update of the database.
      */
     public function update(): void
     {
         $this->dailyUpdate();
         $this->dailyDelete();
-    }
-
-    /**
-     * Update database using the dataset with daily modifications.
-     */
-    protected function dailyUpdate(): void
-    {
-        $this->performUpdate($this->mapRecords($this->getRecordsForDailyUpdate()));
-    }
-
-    /**
-     * Get records for daily update.
-     */
-    abstract protected function getRecordsForDailyUpdate(): iterable;
-
-    /**
-     * Update database using the given dataset of records.
-     */
-    protected function performUpdate(LazyCollection $dataset): void
-    {
-        // TODO: cover case when a record passed filter during seed process but do not pass during update process.
-
-        $updatable = [];
-
-        foreach ($dataset->chunk(1000) as $records) {
-            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
-
-            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
-        }
     }
 
     /**
