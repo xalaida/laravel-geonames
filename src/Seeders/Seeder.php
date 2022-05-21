@@ -10,7 +10,7 @@ interface Seeder
     public function seed(): void;
 
     /**
-     * Make a daily update according to the dataset.
+     * Perform a daily update of the database.
      */
     public function update(): void;
 
