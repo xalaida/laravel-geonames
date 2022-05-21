@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Parsers;
 use Generator;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 
+// TODO: add single parse method that returns iterable records using (generator)
 class GeonamesDeletesParser implements Parser
 {
     /**

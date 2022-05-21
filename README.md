@@ -199,6 +199,13 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] consider adding soft deletes.
+- [ ] consider scopes for deletes what if records is using in the app?
+- [ ] probably add global method `withoutDeletes` to disable deleting at all (and in the sync method as well).
+
+- [ ] what if record was OK before updating but after it is no longer pass filter? cover this case (for syncing and daily update as well)
+    - for example. city is filtered > 1000 population. daily update reduce the city population below from 1200 to 800. what to do? update or delete? it should AT LEAST PASS FILTER when parsing
+    - so probably use different strategy for updating and syncing...
 - [ ] refactor filters for cities population or country only
 - [ ] add minimum laravel version with upserts (or throw an exception if version is lower)
 - [ ] add info about 256 MB memory required for seeding
