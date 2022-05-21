@@ -9,7 +9,7 @@ class GeonamesUpdateCommand extends Command
     /**
      * The name and signature of the console command.
      * TODO: add description to options
-     * TODO: rewrite keep files to clean files
+     * TODO: rewrite keep files to clean files.
      *
      * @var string
      */
