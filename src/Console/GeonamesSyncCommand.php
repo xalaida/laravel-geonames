@@ -8,6 +8,8 @@ class GeonamesSyncCommand extends Command
 {
     /**
      * The name and signature of the console command.
+     * TODO: add description to options
+     * TODO: rewrite keep files to clean files
      *
      * @var string
      */
@@ -29,7 +31,7 @@ class GeonamesSyncCommand extends Command
     }
 
     /**
-     * Sync the dataset using given seeders.
+     * Sync database using given seeders.
      */
     protected function sync(array $seeders): void
     {
@@ -40,6 +42,7 @@ class GeonamesSyncCommand extends Command
 
     /**
      * Get the seeders list.
+     * TODO: refactor using CompositeSeeder that resolves list automatically according to the config options.
      */
     protected function seeders(): array
     {

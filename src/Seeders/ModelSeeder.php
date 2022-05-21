@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 
-// TODO: extract to SyncsModels trait
+// TODO: extract to SyncsModels trait.
+// TODO: add soft deletes to deleted methods.
 abstract class ModelSeeder implements Seeder
 {
     /**
@@ -185,7 +186,7 @@ abstract class ModelSeeder implements Seeder
     /**
      * Execute a callback when resources are loaded.
      */
-    private function loadingResources(callable $callback): void
+    protected function loadingResources(callable $callback): void
     {
         $this->load();
 

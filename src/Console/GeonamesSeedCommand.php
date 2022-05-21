@@ -10,7 +10,6 @@ class GeonamesSeedCommand extends Command
      * The name and signature of the console command.
      * TODO: add description to options
      * TODO: rewrite keep files to clean files
-     * TODO: add description to options.
      *
      * @var string
      */
@@ -52,18 +51,6 @@ class GeonamesSeedCommand extends Command
     }
 
     /**
-     * Get the seeders list.
-     */
-    protected function seeders(): array
-    {
-        return collect(config('geonames.seeders'))
-            ->map(function ($seeder) {
-                return resolve($seeder);
-            })
-            ->all();
-    }
-
-    /**
      * Truncate tables using given seeders.
      */
     private function truncate(array $seeders): void
@@ -84,5 +71,18 @@ class GeonamesSeedCommand extends Command
         foreach ($seeders as $seeder) {
             $seeder->seed();
         }
+    }
+
+    /**
+     * Get the seeders list.
+     * TODO: refactor using CompositeSeeder that resolves list automatically according to the config options.
+     */
+    protected function seeders(): array
+    {
+        return collect(config('geonames.seeders'))
+            ->map(function ($seeder) {
+                return resolve($seeder);
+            })
+            ->all();
     }
 }
