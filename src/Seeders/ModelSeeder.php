@@ -130,9 +130,15 @@ abstract class ModelSeeder implements Seeder
      */
     protected function performSync(): void
     {
-        $this->loadingResources(function () {
-            $this->performUpdate($this->records());
-        });
+        $this->performUpdate($this->mapRecords($this->getRecordsForSyncing()));
+    }
+
+    /**
+     * Get records for syncing database.
+     */
+    protected function getRecordsForSyncing(): iterable
+    {
+        return $this->getRecordsForSeeding();
     }
 
     /**
@@ -170,7 +176,7 @@ abstract class ModelSeeder implements Seeder
     public function update(): void
     {
         $this->dailyUpdate();
-        // $this->dailyDelete();
+        $this->dailyDelete();
     }
 
     /**
@@ -201,4 +207,28 @@ abstract class ModelSeeder implements Seeder
             $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
         }
     }
+
+    /**
+     * Delete records from database using the dataset with daily deletes.
+     */
+    protected function dailyDelete(): void
+    {
+        $records = LazyCollection::make(function () {
+            foreach ($this->getRecordsForDailyDelete() as $record) {
+                yield $record;
+            }
+        });
+
+        foreach ($records->chunk(1000) as $records) {
+            // TODO: refactor using mapSyncKey or something like that...
+            $this->query()
+                ->whereIn(self::SYNC_KEY, $records->pluck('geonameid')->all())
+                ->delete();
+        }
+    }
+
+    /**
+     * Get records for daily delete.
+     */
+    abstract protected function getRecordsForDailyDelete(): iterable;
 }

@@ -3,7 +3,6 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
@@ -64,101 +63,37 @@ class ContinentSeeder extends ModelSeeder
     /**
      * {@inheritdoc}
      */
-    protected function records(): LazyCollection
+    protected function getRecordsForSeeding(): iterable
     {
-        return $this->recordsByPath(
-            // TODO: refactor downloading by passing Downloader instance from constructor.
-            resolve(DownloadService::class)->downloadAllCountries()
-        );
-    }
+        $path = resolve(DownloadService::class)->downloadAllCountries();
 
-    /**
-     * {@inheritdoc}
-     */
-    public function update(): void
-    {
-        $this->dailyUpdate();
-        $this->dailyDelete();
-    }
-
-    /**
-     * Update database using the dataset with daily modifications.
-     */
-    protected function dailyUpdate(): void
-    {
-        $this->loadingResources(function () {
-            $this->performDailyUpdate();
-        });
-    }
-
-    /**
-     * Perform a daily update of database records.
-     */
-    protected function performDailyUpdate(): void
-    {
-        // TODO: refactor by reusing sync method.
-
-        $updatable = [];
-
-        foreach ($this->recordsForDailyUpdate()->chunk(1000) as $records) {
-            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
-            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+            yield $record;
         }
     }
 
     /**
      * Get records for daily update.
      */
-    protected function recordsForDailyUpdate(): LazyCollection
+    protected function getRecordsForDailyUpdate(): iterable
     {
-        return $this->recordsByPath(
-            // TODO: refactor downloading by passing Downloader instance from constructor.
-            resolve(DownloadService::class)->downloadDailyModifications()
-        );
-    }
+        $path = resolve(DownloadService::class)->downloadDailyModifications();
 
-    /**
-     * Get records from a file by the given path.
-     */
-    protected function recordsByPath(string $path): LazyCollection
-    {
-        // TODO: resolve resources here
-
-        return LazyCollection::make(function () use ($path) {
-            // TODO: refactor using DI parser.
-            foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-                if ($this->filter($record)) {
-                    yield $this->map($record);
-                }
-            }
-        });
-    }
-
-    /**
-     * Delete records from database using the dataset with daily deletes.
-     */
-    protected function dailyDelete(): void
-    {
-        foreach ($this->recordsForDailyDelete()->chunk(1000) as $records) {
-            $this->query()
-                ->whereIn('geoname_id', $records->pluck('geonameid')->all())
-                ->delete();
+        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+            yield $record;
         }
     }
 
     /**
-     * Get the dataset with daily deletes.
+     * Get records for daily delete.
      */
-    protected function recordsForDailyDelete(): LazyCollection
+    protected function getRecordsForDailyDelete(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyDeletes();
 
-        return LazyCollection::make(function () use ($path) {
-            // TODO: refactor using DI parser.
-            foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
-                yield $record;
-            }
-        });
+        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
+            yield $record;
+        }
     }
 
     /**
