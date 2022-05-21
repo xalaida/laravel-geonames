@@ -39,6 +39,7 @@ abstract class ModelSeeder implements Seeder
      */
     public function seed(): void
     {
+        // TODO: move loadingResources to records and refactor using generator to unload after parsing.
         $this->loadingResources(function () {
             foreach ($this->records()->chunk(1000) as $records) {
                 $this->query()->insert($records->all());
