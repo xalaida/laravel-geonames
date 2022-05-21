@@ -11,6 +11,9 @@ use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Services\TranslateService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 
+/**
+ * @deprecated
+ */
 class UpdateTranslationsCommand extends Command
 {
     use CleanFolder;

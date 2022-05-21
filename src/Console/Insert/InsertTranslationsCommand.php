@@ -14,6 +14,9 @@ use Nevadskiy\Geonames\Services\TranslateService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Nevadskiy\Translatable\Models\Translation;
 
+/**
+ * @deprecated
+ */
 class InsertTranslationsCommand extends Command
 {
     use ConfirmableTrait,

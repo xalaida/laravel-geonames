@@ -14,6 +14,9 @@ use Nevadskiy\Geonames\Services\SupplyService;
 use Nevadskiy\Geonames\Services\TranslateService;
 use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 
+/**
+ * @deprecated
+ */
 class InsertCommand extends Command
 {
     use ConfirmableTrait,
