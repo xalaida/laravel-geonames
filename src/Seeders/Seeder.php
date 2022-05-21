@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 interface Seeder
 {
     /**
-     * Run the seeder.
+     * Seed the dataset into database.
      */
     public function seed(): void;
 

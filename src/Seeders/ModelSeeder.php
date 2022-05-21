@@ -14,6 +14,7 @@ use Illuminate\Support\LazyCollection;
 abstract class ModelSeeder implements Seeder
 {
     use MapsRecords;
+    use SeedsRecords;
 
     /**
      * The column name of the synced date.
@@ -33,21 +34,6 @@ abstract class ModelSeeder implements Seeder
      * Get a new model instance of the seeder.
      */
     abstract protected function newModel(): Model;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function seed(): void
-    {
-        foreach ($this->mapRecords($this->getRecordsForSeeding())->chunk(1000) as $records) {
-            $this->query()->insert($records->all());
-        }
-    }
-
-    /**
-     * Get records for seeding.
-     */
-    abstract protected function getRecordsForSeeding(): iterable;
 
     /**
      * {@inheritdoc}
