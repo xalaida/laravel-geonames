@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
+use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -81,7 +82,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * Perform a daily update of database records.
+     * Update database using the dataset with daily modifications.
      */
     protected function dailyUpdate(): void
     {
@@ -90,6 +91,9 @@ class ContinentSeeder extends ModelSeeder
         });
     }
 
+    /**
+     * Perform a daily update of database records.
+     */
     protected function performDailyUpdate(): void
     {
         // TODO: refactor by reusing sync method.
@@ -102,6 +106,9 @@ class ContinentSeeder extends ModelSeeder
         }
     }
 
+    /**
+     * Get records for daily update.
+     */
     protected function recordsForDailyUpdate(): LazyCollection
     {
         return $this->recordsByPath(
@@ -128,13 +135,30 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * Perform a daily delete of database records.
+     * Delete records from database using the dataset with daily deletes.
      */
     protected function dailyDelete(): void
     {
-        // $path = resolve(DownloadService::class)->downloadDailyDeletes();
+        foreach ($this->recordsForDailyDelete()->chunk(1000) as $records) {
+            $this->query()
+                ->whereIn('geoname_id', $records->pluck('geonameid')->all())
+                ->delete();
+        }
+    }
 
-        // GeonamesDeletesParser::
+    /**
+     * Get the dataset with daily deletes.
+     */
+    protected function recordsForDailyDelete(): LazyCollection
+    {
+        $path = resolve(DownloadService::class)->downloadDailyDeletes();
+
+        return LazyCollection::make(function () use ($path) {
+            // TODO: refactor using DI parser.
+            foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
+                yield $record;
+            }
+        });
     }
 
     /**
