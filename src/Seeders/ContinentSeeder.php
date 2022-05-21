@@ -23,7 +23,7 @@ class ContinentSeeder extends ModelSeeder
      *
      * @var ContinentCodeGenerator
      */
-    private $codeGenerator;
+    protected $codeGenerator;
 
     /**
      * Make a new seeder instance.
@@ -65,8 +65,57 @@ class ContinentSeeder extends ModelSeeder
      */
     protected function records(): LazyCollection
     {
-        // TODO: refactor downloading by passing Downloader instance from constructor.
-        $path = resolve(DownloadService::class)->downloadAllCountries();
+        return $this->recordsByPath(
+            // TODO: refactor downloading by passing Downloader instance from constructor.
+            resolve(DownloadService::class)->downloadAllCountries()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(): void
+    {
+        $this->dailyUpdate();
+        $this->dailyDelete();
+    }
+
+    /**
+     * Perform a daily update of database records.
+     */
+    protected function dailyUpdate(): void
+    {
+        $this->loadingResources(function () {
+            $this->performDailyUpdate();
+        });
+    }
+
+    protected function performDailyUpdate(): void
+    {
+        // TODO: refactor by reusing sync method.
+
+        $updatable = [];
+
+        foreach ($this->recordsForDailyUpdate()->chunk(1000) as $records) {
+            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
+            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+        }
+    }
+
+    protected function recordsForDailyUpdate(): LazyCollection
+    {
+        return $this->recordsByPath(
+            // TODO: refactor downloading by passing Downloader instance from constructor.
+            resolve(DownloadService::class)->downloadDailyModifications()
+        );
+    }
+
+    /**
+     * Get records from a file by the given path.
+     */
+    protected function recordsByPath(string $path): LazyCollection
+    {
+        // TODO: resolve resources here
 
         return LazyCollection::make(function () use ($path) {
             // TODO: refactor using DI parser.
@@ -79,11 +128,13 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * Perform a daily delete of database records.
      */
-    public function update(): void
+    protected function dailyDelete(): void
     {
-        // TODO: Implement update() method.
+        // $path = resolve(DownloadService::class)->downloadDailyDeletes();
+
+        // GeonamesDeletesParser::
     }
 
     /**
