@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 
+// TODO: extract to SyncsModels trait
 abstract class ModelSeeder implements Seeder
 {
     /**
@@ -56,7 +57,13 @@ abstract class ModelSeeder implements Seeder
         $this->performSync();
 
         $created = $this->query()->count() - $count;
-        $updated = $this->query()->whereDate(self::SYNCED_AT, '>', $syncedAt)->count();
+
+        $updated = $this->query()
+            ->when($syncedAt, function (Builder $query) use ($syncedAt) {
+                $query->whereDate(self::SYNCED_AT, '>', $syncedAt);
+            })
+            ->count();
+
         $deleted = $this->deleteNotSyncedRecords();
 
         // TODO: log report.
