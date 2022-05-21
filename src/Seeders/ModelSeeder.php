@@ -9,6 +9,8 @@ use Illuminate\Support\LazyCollection;
 // TODO: extract to SyncsModels trait.
 // TODO: split into traits.
 // TODO: add soft deletes to deleted methods.
+// TODO: define different methods for loading resources for seed/update/delete/sync
+// TODO: define different methods for mapping for seed/update/delete/sync
 abstract class ModelSeeder implements Seeder
 {
     use MapsRecords;
