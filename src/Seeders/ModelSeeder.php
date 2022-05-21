@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 
 // TODO: extract to SyncsModels trait.
+// TODO: split into traits.
 // TODO: add soft deletes to deleted methods.
 abstract class ModelSeeder implements Seeder
 {
+    use MapsRecords;
+
     /**
      * The column name of the synced date.
      *
@@ -25,11 +28,6 @@ abstract class ModelSeeder implements Seeder
     protected const SYNC_KEY = 'geoname_id';
 
     /**
-     * Get records for seeding.
-     */
-    abstract protected function records(): LazyCollection;
-
-    /**
      * Get a new model instance of the seeder.
      */
     abstract protected function newModel(): Model;
@@ -39,13 +37,15 @@ abstract class ModelSeeder implements Seeder
      */
     public function seed(): void
     {
-        // TODO: move loadingResources to records and refactor using generator to unload after parsing.
-        $this->loadingResources(function () {
-            foreach ($this->records()->chunk(1000) as $records) {
-                $this->query()->insert($records->all());
-            }
-        });
+        foreach ($this->mapRecords($this->getRecordsForSeeding())->chunk(1000) as $records) {
+            $this->query()->insert($records->all());
+        }
     }
+
+    /**
+     * Get records for seeding.
+     */
+    abstract protected function getRecordsForSeeding(): iterable;
 
     /**
      * {@inheritdoc}
@@ -91,21 +91,6 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Map the given record to the model attributes.
-     */
-    protected function map(array $record): array
-    {
-        return $this->newModel()
-            ->forceFill($this->mapAttributes($record))
-            ->getAttributes();
-    }
-
-    /**
-     * Map fields to the model attributes.
-     */
-    abstract protected function mapAttributes(array $record): array;
-
-    /**
      * Get updatable attributes of the model.
      */
     protected function getUpdatableAttributes(array $record): array
@@ -146,12 +131,7 @@ abstract class ModelSeeder implements Seeder
     protected function performSync(): void
     {
         $this->loadingResources(function () {
-            $updatable = [];
-
-            foreach ($this->records()->chunk(1000) as $records) {
-                $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
-                $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
-            }
+            $this->performUpdate($this->records());
         });
     }
 
@@ -185,30 +165,40 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Execute a callback when resources are loaded.
+     * Perform a daily update of the database.
      */
-    protected function loadingResources(callable $callback): void
+    public function update(): void
     {
-        $this->load();
-
-        $callback();
-
-        $this->unload();
+        $this->dailyUpdate();
+        // $this->dailyDelete();
     }
 
     /**
-     * Load resources.
+     * Update database using the dataset with daily modifications.
      */
-    protected function load(): void
+    protected function dailyUpdate(): void
     {
-        //
+        $this->performUpdate($this->mapRecords($this->getRecordsForDailyUpdate()));
     }
 
     /**
-     * Unload resources.
+     * Get records for daily update.
      */
-    protected function unload(): void
+    abstract protected function getRecordsForDailyUpdate(): iterable;
+
+    /**
+     * Update database using the given dataset of records.
+     */
+    protected function performUpdate(LazyCollection $dataset): void
     {
-        //
+        // TODO: cover case when a record passed filter during seed process but do not pass during update process.
+
+        $updatable = [];
+
+        foreach ($dataset->chunk(1000) as $records) {
+            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
+
+            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+        }
     }
 }
