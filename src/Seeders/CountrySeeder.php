@@ -3,9 +3,9 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
+use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
@@ -62,26 +62,37 @@ class CountrySeeder extends ModelSeeder
     /**
      * {@inheritdoc}
      */
-    protected function records(): LazyCollection
+    protected function getRecordsForSeeding(): iterable
     {
-        // TODO: refactor downloading by passing Downloader instance from constructor.
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
-        return LazyCollection::make(function () use ($path) {
-            foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-                if ($this->filter($record)) {
-                    yield $this->map($record);
-                }
-            }
-        });
+        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+            yield $record;
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function update(): void
+    protected function getRecordsForDailyUpdate(): iterable
     {
-        // TODO: Implement update() method.
+        $path = resolve(DownloadService::class)->downloadDailyModifications();
+
+        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRecordsForDailyDelete(): iterable
+    {
+        $path = resolve(DownloadService::class)->downloadDailyDeletes();
+
+        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
+            yield $record;
+        }
     }
 
     /**
