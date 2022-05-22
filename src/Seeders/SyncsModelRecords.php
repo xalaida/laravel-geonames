@@ -36,7 +36,7 @@ trait SyncsModelRecords
             })
             ->count();
 
-        $deleted = $this->deleteDanglingModelsAfterSyncing();
+        $deleted = $this->deleteUnsyncedModels();
 
         // TODO: log report.
         dump("Created: {$created}");
@@ -84,7 +84,7 @@ trait SyncsModelRecords
      * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
      * TODO: integrate with soft delete.
      */
-    protected function deleteDanglingModelsAfterSyncing(): int
+    protected function deleteUnsyncedModels(): int
     {
         $deleted = 0;
 

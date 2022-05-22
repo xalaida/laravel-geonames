@@ -19,32 +19,43 @@ trait UpdatesModelRecords
      */
     protected function dailyUpdate(): void
     {
-        // TODO: rework this.
-
-        $this->performUpdate($this->mapRecords($this->getRecordsForDailyUpdate()));
-    }
-
-    /**
-     * Update database using the given dataset of records.
-     */
-    protected function performUpdate(LazyCollection $dataset): void
-    {
-        // TODO: cover case when a record passed filter during seed process but do not pass during update process.
-
         $updatable = [];
 
-        foreach ($dataset->chunk(1000) as $records) {
-            // TODO: retrieve models by sync_key before filtering.
-            // TODO: check if filter no longer pass, then delete record (delete using common delete method).
+        // TODO: check if multiple iterations does not break lazy collection iterator.
+        foreach ($this->getMappedRecordsForDailyUpdated()->chunk(1000) as $records) {
+            $this->query()
+                ->whereIn(self::SYNC_KEY, $records->keys()->all())
+                ->toBase()
+                ->update([self::SYNCED_AT => null]);
 
             $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
 
             $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
         }
+
+        $this->deleteUnsyncedModels();
+    }
+
+    protected function getMappedRecordsForDailyUpdated(): LazyCollection
+    {
+        return LazyCollection::make(function () {
+            foreach ($this->getRecordsForDailyUpdate() as $record) {
+                yield $this->mapKey($record) => $record;
+            }
+        });
+    }
+
+    /**
+     * Map the record key.
+     */
+    protected function mapKey(array $record): string
+    {
+        return $record['geonameid'];
     }
 
     /**
      * Get updatable attributes of the model.
+     * TODO: fetch attributes from db table, not record.
      */
     protected function getUpdatableAttributes(array $record): array
     {
