@@ -2,6 +2,8 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Support\LazyCollection;
+
 /**
  * @mixin ModelSeeder
  */
@@ -17,8 +19,16 @@ trait SeedsModelRecords
      */
     public function seed(): void
     {
-        foreach ($this->mapRecords($this->getRecordsForSeeding())->chunk(1000) as $records) {
-            $this->query()->insert($records->all());
+        foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
+            $this->query()->insert($chunk->all());
         }
+    }
+
+    /**
+     * Get mapped records for seeding.
+     */
+    protected function getMappedRecordsForSeeding(): LazyCollection
+    {
+        return $this->mapRecords($this->getRecordsForSeeding());
     }
 }

@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\LazyCollection;
 
 /**
  * @mixin ModelSeeder
@@ -49,13 +50,21 @@ trait SyncsModelRecords
      */
     protected function performSync(): void
     {
-        $updatable = [];
+        $records = $this->getMappedRecordsForSyncing();
 
-        foreach ($this->mapRecords($this->getRecordsForSyncing())->chunk(1000) as $records) {
-            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
+        $updatable = $this->getUpdatableAttributes($records->first());
 
-            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+        foreach ($records->chunk(1000) as $chunk) {
+            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
         }
+    }
+
+    /**
+     * Get mapped records for syncing.
+     */
+    protected function getMappedRecordsForSyncing(): LazyCollection
+    {
+        return $this->mapRecords($this->getRecordsForSyncing());
     }
 
     /**

@@ -21,11 +21,11 @@ trait DailyUpdate
     {
         $records = $this->getMappedRecordsForDailyUpdated();
 
+        $this->resetSyncedAtForRecords($records);
+
         $updatable = $this->getUpdatableAttributes($records->first());
 
-        foreach ($records->chunk(1000) as $chunk) {
-            $this->resetSyncedAtForRecords($chunk);
-
+        foreach ($this->mapRecords($records)->chunk(1000) as $chunk) {
             $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
         }
 
@@ -37,10 +37,12 @@ trait DailyUpdate
      */
     protected function resetSyncedAtForRecords(LazyCollection $records): void
     {
-        $this->query()
-            ->whereIn(self::SYNC_KEY, $records->keys()->all())
-            ->toBase()
-            ->update([self::SYNCED_AT => null]);
+        foreach ($records->chunk(1000) as $chunk) {
+            $this->query()
+                ->whereIn(self::SYNC_KEY, $chunk->keys()->all())
+                ->toBase()
+                ->update([self::SYNCED_AT => null]);
+        }
     }
 
     /**
@@ -71,7 +73,7 @@ trait DailyUpdate
     {
         $updatable = $this->updatable();
 
-        if (!$this->isWildcardAttributes($updatable)) {
+        if (! $this->isWildcardAttributes($updatable)) {
             return $updatable;
         }
 
