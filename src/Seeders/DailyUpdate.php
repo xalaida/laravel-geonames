@@ -7,7 +7,7 @@ use Illuminate\Support\LazyCollection;
 /**
  * @mixin ModelSeeder
  */
-trait UpdatesModelRecords
+trait DailyUpdate
 {
     /**
      * Get records for a daily update.
@@ -51,17 +51,17 @@ trait UpdatesModelRecords
     {
         return LazyCollection::make(function () {
             foreach ($this->getRecordsForDailyUpdate() as $record) {
-                yield $this->mapKey($record) => $record;
+                yield $this->mapUpdateKey($record) => $record;
             }
         });
     }
 
     /**
-     * Map the record key.
+     * Map a key of the record for update.
      */
-    protected function mapKey(array $record): string
+    protected function mapUpdateKey(array $record): string
     {
-        return $record['geonameid'];
+        return $this->mapKey($record);
     }
 
     /**

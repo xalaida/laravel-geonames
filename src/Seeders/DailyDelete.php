@@ -7,7 +7,7 @@ use Illuminate\Support\LazyCollection;
 /**
  * @mixin ModelSeeder
  */
-trait DailyDeletes
+trait DailyDelete
 {
     /**
      * Get records for a daily delete.

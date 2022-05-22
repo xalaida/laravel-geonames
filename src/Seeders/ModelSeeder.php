@@ -12,8 +12,8 @@ abstract class ModelSeeder implements Seeder
 {
     use SeedsModelRecords;
     use SyncsModelRecords;
-    use UpdatesModelRecords;
-    use DailyDeletes;
+    use DailyUpdate;
+    use DailyDelete;
     use MapsRecords;
 
     /**
@@ -58,5 +58,13 @@ abstract class ModelSeeder implements Seeder
     {
         $this->dailyUpdate();
         $this->dailyDelete();
+    }
+
+    /**
+     * Map the record key.
+     */
+    protected function mapKey(array $record): string
+    {
+        return $record['geonameid'];
     }
 }
