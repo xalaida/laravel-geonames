@@ -31,18 +31,6 @@ trait DailyDeleteModelRecords
      */
     protected function getMappedRecordsForDailyDelete(): LazyCollection
     {
-        return LazyCollection::make(function () {
-            foreach ($this->getRecordsForDailyDelete() as $record) {
-                yield $this->mapDeleteKey($record) => $record;
-            }
-        });
-    }
-
-    /**
-     * Map a key of the record for delete.
-     */
-    protected function mapDeleteKey(array $record): string
-    {
-        return $this->mapKey($record);
+        return $this->mapRecordKeys($this->getRecordsForDailyDelete());
     }
 }

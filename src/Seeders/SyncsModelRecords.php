@@ -47,6 +47,14 @@ trait SyncsModelRecords
     }
 
     /**
+     * Get mapped records for syncing.
+     */
+    protected function getMappedRecordsForSyncing(): LazyCollection
+    {
+        return $this->mapRecords($this->getRecordsForSyncing());
+    }
+
+    /**
      * Sync database according to the given records.
      */
     protected function syncRecords(LazyCollection $records): void
@@ -56,14 +64,6 @@ trait SyncsModelRecords
         foreach ($records->chunk(1000) as $chunk) {
             $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
         }
-    }
-
-    /**
-     * Get mapped records for syncing.
-     */
-    protected function getMappedRecordsForSyncing(): LazyCollection
-    {
-        return $this->mapRecords($this->getRecordsForSyncing());
     }
 
     /**

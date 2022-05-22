@@ -46,19 +46,7 @@ trait DailyUpdateModelRecords
      */
     protected function getMappedRecordsForDailyUpdated(): LazyCollection
     {
-        return LazyCollection::make(function () {
-            foreach ($this->getRecordsForDailyUpdate() as $record) {
-                yield $this->mapUpdateKey($record) => $record;
-            }
-        });
-    }
-
-    /**
-     * Map a key of the record for update.
-     */
-    protected function mapUpdateKey(array $record): string
-    {
-        return $this->mapKey($record);
+        return $this->mapRecordKeys($this->getRecordsForDailyUpdate());
     }
 
     /**
