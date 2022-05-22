@@ -19,15 +19,14 @@ trait DailyUpdate
      */
     protected function dailyUpdate(): void
     {
-        $updatable = [];
+        $records = $this->getMappedRecordsForDailyUpdated();
 
-        // TODO: check if multiple iterations does not break lazy collection iterator.
-        foreach ($this->getMappedRecordsForDailyUpdated()->chunk(1000) as $records) {
-            $this->resetSyncedAtForRecords($records);
+        $updatable = $this->getUpdatableAttributes($records->first());
 
-            $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
+        foreach ($records->chunk(1000) as $chunk) {
+            $this->resetSyncedAtForRecords($chunk);
 
-            $this->query()->upsert($records->all(), [self::SYNC_KEY], $updatable);
+            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
         }
 
         $this->deleteUnsyncedModels();
@@ -72,7 +71,7 @@ trait DailyUpdate
     {
         $updatable = $this->updatable();
 
-        if (! $this->isWildcardAttributes($updatable)) {
+        if (!$this->isWildcardAttributes($updatable)) {
             return $updatable;
         }
 

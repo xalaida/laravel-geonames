@@ -57,7 +57,7 @@ abstract class ModelSeeder implements Seeder
     public function update(): void
     {
         $this->dailyUpdate();
-        $this->dailyDelete();
+        // $this->dailyDelete();
     }
 
     /**
