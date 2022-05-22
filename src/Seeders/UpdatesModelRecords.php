@@ -23,10 +23,7 @@ trait UpdatesModelRecords
 
         // TODO: check if multiple iterations does not break lazy collection iterator.
         foreach ($this->getMappedRecordsForDailyUpdated()->chunk(1000) as $records) {
-            $this->query()
-                ->whereIn(self::SYNC_KEY, $records->keys()->all())
-                ->toBase()
-                ->update([self::SYNCED_AT => null]);
+            $this->resetSyncedAtForRecords($records);
 
             $updatable = $updatable ?: $this->getUpdatableAttributes($records->first());
 
@@ -36,6 +33,20 @@ trait UpdatesModelRecords
         $this->deleteUnsyncedModels();
     }
 
+    /**
+     * Reset the "synced at" timestamp for given records.
+     */
+    protected function resetSyncedAtForRecords(LazyCollection $records): void
+    {
+        $this->query()
+            ->whereIn(self::SYNC_KEY, $records->keys()->all())
+            ->toBase()
+            ->update([self::SYNCED_AT => null]);
+    }
+
+    /**
+     * Get mapped records for a daily update.
+     */
     protected function getMappedRecordsForDailyUpdated(): LazyCollection
     {
         return LazyCollection::make(function () {
