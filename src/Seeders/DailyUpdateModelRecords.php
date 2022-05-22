@@ -7,7 +7,7 @@ use Illuminate\Support\LazyCollection;
 /**
  * @mixin ModelSeeder
  */
-trait DailyUpdate
+trait DailyUpdateModelRecords
 {
     /**
      * Get records for a daily update.
