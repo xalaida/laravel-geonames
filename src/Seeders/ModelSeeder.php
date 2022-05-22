@@ -13,6 +13,7 @@ abstract class ModelSeeder implements Seeder
     use SyncsModelRecords;
     use DailyUpdateModelRecords;
     use DailyDeleteModelRecords;
+    use BuildsReport;
 
     /**
      * The column name of the synced date.
@@ -54,8 +55,10 @@ abstract class ModelSeeder implements Seeder
      */
     public function update(): void
     {
-        $this->dailyUpdate();
-        $this->dailyDelete();
+        $report = $this->dailyUpdate();
+        $report->incrementDeleted($this->dailyDelete());
+
+        // TODO: log report.
     }
 
     /**

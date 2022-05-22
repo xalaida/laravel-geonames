@@ -200,6 +200,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🔨 To Do
 
 - [ ] consider adding soft deletes.
+- [ ] add report for daily update / delete
 - [ ] consider scopes for deletes what if records is using in the app?
 - [ ] probably add global method `withoutDeletes` to disable deleting at all (and in the sync method as well).
 

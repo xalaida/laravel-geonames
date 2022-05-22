@@ -17,15 +17,15 @@ trait DailyUpdateModelRecords
     /**
      * Update database using the dataset with daily modifications.
      */
-    protected function dailyUpdate(): void
+    protected function dailyUpdate(): Report
     {
-        $records = $this->getMappedRecordsForDailyUpdated();
+        return $this->withReport(function () {
+            $records = $this->getMappedRecordsForDailyUpdated();
 
-        $this->resetSyncedAtForRecords($records);
+            $this->resetSyncedAtForRecords($records);
 
-        $this->syncRecords($this->mapRecords($records));
-
-        $this->deleteUnsyncedModels();
+            $this->syncRecords($this->mapRecords($records));
+        });
     }
 
     /**

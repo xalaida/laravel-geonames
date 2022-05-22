@@ -17,13 +17,17 @@ trait DailyDeleteModelRecords
     /**
      * Delete records from database using the dataset of daily deletes.
      */
-    protected function dailyDelete(): void
+    protected function dailyDelete(): int
     {
+        $deleted = 0;
+
         foreach ($this->getMappedRecordsForDailyDelete()->chunk(1000) as $chunk) {
-            $this->query()
+            $deleted += $this->query()
                 ->whereIn(self::SYNC_KEY, $chunk->keys()->all())
                 ->delete();
         }
+
+        return $deleted;
     }
 
     /**
