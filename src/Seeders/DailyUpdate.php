@@ -23,11 +23,7 @@ trait DailyUpdate
 
         $this->resetSyncedAtForRecords($records);
 
-        $updatable = $this->getUpdatableAttributes($records->first());
-
-        foreach ($this->mapRecords($records)->chunk(1000) as $chunk) {
-            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
-        }
+        $this->syncRecords($this->mapRecords($records));
 
         $this->deleteUnsyncedModels();
     }

@@ -19,9 +19,9 @@ trait DailyDelete
      */
     protected function dailyDelete(): void
     {
-        foreach ($this->getMappedRecordsForDailyDelete()->chunk(1000) as $records) {
+        foreach ($this->getMappedRecordsForDailyDelete()->chunk(1000) as $chunk) {
             $this->query()
-                ->whereIn(self::SYNC_KEY, $records->keys()->all())
+                ->whereIn(self::SYNC_KEY, $chunk->keys()->all())
                 ->delete();
         }
     }

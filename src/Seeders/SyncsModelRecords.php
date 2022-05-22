@@ -25,9 +25,10 @@ trait SyncsModelRecords
     {
         $count = $this->query()->count();
         $syncedAt = $this->query()->max(self::SYNCED_AT);
+
         $this->resetSyncedAt();
 
-        $this->performSync();
+        $this->syncRecords($this->getMappedRecordsForSyncing());
 
         $created = $this->query()->count() - $count;
 
@@ -46,12 +47,10 @@ trait SyncsModelRecords
     }
 
     /**
-     * Perform the sync process.
+     * Sync database according to the given records.
      */
-    protected function performSync(): void
+    protected function syncRecords(LazyCollection $records): void
     {
-        $records = $this->getMappedRecordsForSyncing();
-
         $updatable = $this->getUpdatableAttributes($records->first());
 
         foreach ($records->chunk(1000) as $chunk) {
