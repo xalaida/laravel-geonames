@@ -142,10 +142,11 @@ class CitySeeder extends ModelSeeder
      */
     protected function filter(array $record): bool
     {
-        // TODO: add filter by population.
+        // TODO: inject population from DI.
         // TODO: add possibility to use different feature codes.
 
-        return collect($this->featureCodes())->contains($record['feature code']);
+        return collect($this->featureCodes())->contains($record['feature code'])
+            && $record['population'] >= config('geonames.filters.population');
     }
 
     /**
