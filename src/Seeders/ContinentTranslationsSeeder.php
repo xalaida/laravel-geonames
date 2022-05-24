@@ -20,7 +20,7 @@ class ContinentTranslationsSeeder implements Seeder
     protected $continents;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -72,7 +72,7 @@ class ContinentTranslationsSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function loadResourcesBeforeMapping(): void
     {
@@ -83,7 +83,7 @@ class ContinentTranslationsSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function unloadResourcesAfterMapping(): void
     {

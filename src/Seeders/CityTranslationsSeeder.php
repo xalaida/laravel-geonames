@@ -18,7 +18,7 @@ class CityTranslationsSeeder implements Seeder
     protected $cities = [];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -28,7 +28,7 @@ class CityTranslationsSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function sync(): void
     {
@@ -36,7 +36,7 @@ class CityTranslationsSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(): void
     {

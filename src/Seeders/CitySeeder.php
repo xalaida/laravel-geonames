@@ -138,7 +138,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function filter(array $record): bool
     {
@@ -166,7 +166,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function mapAttributes(array $record): array
     {

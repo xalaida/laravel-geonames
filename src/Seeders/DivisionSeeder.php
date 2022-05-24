@@ -108,7 +108,7 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function filter(array $record): bool
     {

@@ -73,7 +73,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getRecordsForDailyUpdate(): iterable
     {
@@ -85,7 +85,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getRecordsForDailyDelete(): iterable
     {
@@ -97,7 +97,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function filter(array $record): bool
     {
@@ -106,7 +106,7 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function mapAttributes(array $record): array
     {
