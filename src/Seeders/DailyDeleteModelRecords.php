@@ -6,6 +6,8 @@ use Illuminate\Support\LazyCollection;
 
 /**
  * @mixin ModelSeeder
+ * TODO: integrate with softDeletes.
+ * TODO: add possibility to use custom delete scopes.
  */
 trait DailyDeleteModelRecords
 {

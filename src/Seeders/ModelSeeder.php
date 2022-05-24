@@ -58,7 +58,7 @@ abstract class ModelSeeder implements Seeder
         $report = $this->dailyUpdate();
         $report->incrementDeleted($this->dailyDelete());
 
-        // TODO: log report.
+        // TODO: log report ($report->logUsing($this->logger))
     }
 
     /**
@@ -67,15 +67,11 @@ abstract class ModelSeeder implements Seeder
     protected function mapRecords(iterable $records): LazyCollection
     {
         return LazyCollection::make(function () use ($records) {
-            $this->load();
-
             foreach ($records as $record) {
                 if ($this->filter($record)) {
                     yield $this->map($record);
                 }
             }
-
-            $this->unload();
         });
     }
 
@@ -125,7 +121,7 @@ abstract class ModelSeeder implements Seeder
     /**
      * Load resources before mapping.
      */
-    protected function load(): void
+    protected function loadResourcesForMapping(): void
     {
         //
     }
@@ -133,8 +129,20 @@ abstract class ModelSeeder implements Seeder
     /**
      * Unload resources after mapping.
      */
-    protected function unload(): void
+    protected function unloadResourcesForMapping(): void
     {
         //
+    }
+
+    /**
+     * Execute a callback with loaded mapping resources.
+     */
+    protected function withLoadedResources(callable $callback): void
+    {
+        $this->loadResourcesForMapping();
+
+        $callback();
+
+        $this->unloadResourcesForMapping();
     }
 }

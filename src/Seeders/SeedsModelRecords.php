@@ -19,9 +19,11 @@ trait SeedsModelRecords
      */
     public function seed(): void
     {
-        foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
-            $this->query()->insert($chunk->all());
-        }
+        $this->withLoadedResources(function () {
+            foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
+                $this->query()->insert($chunk->all());
+            }
+        });
     }
 
     /**
