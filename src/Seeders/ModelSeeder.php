@@ -2,6 +2,8 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
@@ -13,7 +15,6 @@ abstract class ModelSeeder implements Seeder
     use SyncsModelRecords;
     use DailyUpdateModelRecords;
     use DailyDeleteModelRecords;
-    use BuildsReport;
 
     /**
      * The column name of the synced date.
@@ -119,17 +120,17 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Load resources before mapping.
+     * Load resources before record attributes mapping.
      */
-    protected function loadResourcesForMapping(): void
+    protected function loadResourcesBeforeMapping(): void
     {
         //
     }
 
     /**
-     * Unload resources after mapping.
+     * Unload resources after record attributes mapping.
      */
-    protected function unloadResourcesForMapping(): void
+    protected function unloadResourcesAfterMapping(): void
     {
         //
     }
@@ -139,10 +140,55 @@ abstract class ModelSeeder implements Seeder
      */
     protected function withLoadedResources(callable $callback): void
     {
-        $this->loadResourcesForMapping();
+        $this->loadResourcesBeforeMapping();
 
         $callback();
 
-        $this->unloadResourcesForMapping();
+        $this->unloadResourcesAfterMapping();
+    }
+
+    /**
+     * Execute a callback and create a sync report.
+     */
+    protected function withReport(callable $callback): Report
+    {
+        $report = new Report();
+
+        $count = $this->query()->count();
+        $syncedAt = $this->getPreviousSyncDate();
+
+        $callback();
+
+        $report->incrementCreated($this->query()->count() - $count);
+        $report->incrementUpdated($this->getUpdateRecordsCountFrom($syncedAt));
+        $report->incrementDeleted($this->deleteUnsyncedModels());
+
+        return $report;
+    }
+
+    /**
+     * Get a previous "synced_at" date.
+     */
+    protected function getPreviousSyncDate(): ?DateTimeInterface
+    {
+        $syncedAt = $this->query()->max(self::SYNCED_AT);
+
+        if (! $syncedAt) {
+            return null;
+        }
+
+        return Carbon::parse($syncedAt);
+    }
+
+    /**
+     * Get an updated records count from the given sync date.
+     */
+    protected function getUpdateRecordsCountFrom(?DateTimeInterface $syncDate): int
+    {
+        return $this->query()
+            ->when($syncDate, function (Builder $query) use ($syncDate) {
+                $query->whereDate(self::SYNCED_AT, '>', $syncDate);
+            })
+            ->count();
     }
 }
