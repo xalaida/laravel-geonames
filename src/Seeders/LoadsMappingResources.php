@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+// TODO: probably remove the trait.
 trait LoadsMappingResources
 {
     /**
