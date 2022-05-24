@@ -23,27 +23,17 @@ trait SyncsModelRecords
      */
     public function sync(): void
     {
-        $count = $this->query()->count();
-        $syncedAt = $this->query()->max(self::SYNCED_AT);
+        $report = $this->withReport(function () {
+            $this->resetSyncedAt();
 
-        $this->resetSyncedAt();
+            $this->withLoadedResources(function () {
+                $this->syncRecords($this->getMappedRecordsForSyncing());
+            });
+        });
 
-        $this->syncRecords($this->getMappedRecordsForSyncing());
-
-        $created = $this->query()->count() - $count;
-
-        $updated = $this->query()
-            ->when($syncedAt, function (Builder $query) use ($syncedAt) {
-                $query->whereDate(self::SYNCED_AT, '>', $syncedAt);
-            })
-            ->count();
-
-        $deleted = $this->deleteUnsyncedModels();
-
-        // TODO: log report.
-        dump("Created: {$created}");
-        dump("Updated: {$updated}");
-        dump("Deleted: {$deleted}");
+        dump("Created: {$report->getCreated()}");
+        dump("Updated: {$report->getUpdated()}");
+        dump("Deleted: {$report->getDeleted()}");
     }
 
     /**
@@ -59,7 +49,7 @@ trait SyncsModelRecords
      */
     protected function syncRecords(LazyCollection $records): void
     {
-        $updatable = $this->getUpdatableAttributes($records->first());
+        $updatable = $this->getUpdatableAttributes();
 
         foreach ($records->chunk(1000) as $chunk) {
             $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);

@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
 /**
@@ -20,40 +21,39 @@ trait DailyUpdateModelRecords
     protected function dailyUpdate(): Report
     {
         return $this->withReport(function () {
-            $records = $this->getMappedRecordsForDailyUpdated();
+            $this->withLoadedResources(function () {
+                foreach ($this->getKeyedRecordsForDailyUpdated()->chunk(1000) as $chunk) {
+                    $this->resetSyncedAtForRecordKeys($chunk->keys()->all());
 
-            $this->resetSyncedAtForRecords($records);
-
-            $this->syncRecords($this->mapRecords($records));
+                    $this->syncRecords($this->mapRecords($chunk));
+                }
+            });
         });
     }
 
     /**
      * Reset the "synced at" timestamp for given records.
      */
-    protected function resetSyncedAtForRecords(LazyCollection $records): void
+    protected function resetSyncedAtForRecordKeys(array $keys): void
     {
-        foreach ($records->chunk(1000) as $chunk) {
-            $this->query()
-                ->whereIn(self::SYNC_KEY, $chunk->keys()->all())
-                ->toBase()
-                ->update([self::SYNCED_AT => null]);
-        }
+        $this->query()
+            ->whereIn(self::SYNC_KEY, $keys)
+            ->toBase()
+            ->update([self::SYNCED_AT => null]);
     }
 
     /**
      * Get mapped records for a daily update.
      */
-    protected function getMappedRecordsForDailyUpdated(): LazyCollection
+    protected function getKeyedRecordsForDailyUpdated(): LazyCollection
     {
         return $this->mapRecordKeys($this->getRecordsForDailyUpdate());
     }
 
     /**
      * Get updatable attributes of the model.
-     * TODO: fetch attributes from db table, not record.
      */
-    protected function getUpdatableAttributes(array $record): array
+    protected function getUpdatableAttributes(): array
     {
         $updatable = $this->updatable();
 
@@ -61,10 +61,8 @@ trait DailyUpdateModelRecords
             return $updatable;
         }
 
-        return collect(array_keys($record))
+        return collect($this->getColumns())
             ->diff(['id', self::SYNC_KEY, 'created_at'])
-            ->concat([self::SYNCED_AT, 'updated_at'])
-            ->unique()
             ->values()
             ->all();
     }
@@ -83,5 +81,15 @@ trait DailyUpdateModelRecords
     protected function updatable(): array
     {
         return ['*'];
+    }
+
+    /**
+     * Get column list for the database model.
+     */
+    protected function getColumns(): array
+    {
+        return DB::connection()
+            ->getSchemaBuilder()
+            ->getColumnListing($this->newModel()->getTable());
     }
 }
