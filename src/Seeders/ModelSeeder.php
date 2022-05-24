@@ -68,7 +68,7 @@ abstract class ModelSeeder implements Seeder
      */
     protected function mapRecords(iterable $records): LazyCollection
     {
-        return LazyCollection::make(function () use ($records) {
+        return new LazyCollection(function () use ($records) {
             foreach ($records as $record) {
                 if ($this->filter($record)) {
                     yield $this->map($record);
@@ -82,7 +82,7 @@ abstract class ModelSeeder implements Seeder
      */
     protected function mapRecordKeys(iterable $records): LazyCollection
     {
-        return LazyCollection::make(function () use ($records) {
+        return new LazyCollection(function () use ($records) {
             foreach ($records as $record) {
                 yield $this->mapKey($record) => $record;
             }

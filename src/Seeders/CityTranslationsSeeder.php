@@ -32,7 +32,7 @@ class CityTranslationsSeeder
      */
     public function translations(): LazyCollection
     {
-        return LazyCollection::make(function () {
+        return new LazyCollection(function () {
             foreach ($this->records()->chunk(500) as $records) {
                 $cities = $this->getCitiesForRecords($records);
 
@@ -75,7 +75,7 @@ class CityTranslationsSeeder
 
         $parser = app(AlternateNameParser::class);
 
-        return LazyCollection::make(function () use ($parser, $path) {
+        return new LazyCollection(function () use ($parser, $path) {
             foreach ($parser->each($path) as $record) {
                 yield $record;
             }
