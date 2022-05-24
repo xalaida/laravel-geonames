@@ -2,21 +2,45 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
+use Generator;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
+use Nevadskiy\Geonames\Services\DownloadService;
 
-class CityTranslationsSeeder
+class CityTranslationsSeeder implements Seeder
 {
     /**
-     * Run the continent seeder.
+     * The cities list.
+     *
+     * @var array
+     */
+    protected $cities = [];
+
+    /**
+     * @inheritdoc
      */
     public function seed(): void
     {
-        foreach ($this->translations()->chunk(500) as $translations) {
-            $this->query()->insert($translations->all());
+        foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
+            $this->query()->insert($chunk->all());
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sync(): void
+    {
+        // TODO: Implement sync() method.
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        // TODO: Implement update() method.
     }
 
     /**
@@ -28,70 +52,111 @@ class CityTranslationsSeeder
     }
 
     /**
-     * Get translation records to insert.
+     * Get a query of city translations.
      */
-    public function translations(): LazyCollection
+    protected function query(): HasMany
+    {
+        return CitySeeder::model()->translations();
+    }
+
+    /**
+     * Get mapped records for translation seeding.
+     */
+    protected function getMappedRecordsForSeeding(): LazyCollection
     {
         return new LazyCollection(function () {
-            foreach ($this->records()->chunk(500) as $records) {
-                $cities = $this->getCitiesForRecords($records);
+            foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+                $this->loadResourcesBeforeMapping($chunk);
 
-                foreach ($records as $record) {
-                    if (isset($cities[$record['geonameid']])) {
-                        yield $this->map($record, $cities);
-                    }
+                foreach ($this->mapRecords($chunk) as $record) {
+                    yield $record;
+                }
+
+                $this->unloadResourcesAfterMapping();
+            }
+        });
+    }
+
+    /**
+     * Map the given dataset to records for seeding.
+     */
+    protected function mapRecords(iterable $records): LazyCollection
+    {
+        return new LazyCollection(function () use ($records) {
+            foreach ($records as $record) {
+                if ($this->filter($record)) {
+                    yield $this->map($record);
                 }
             }
         });
     }
 
     /**
-     * Get cities for the given translation records.
+     * Get records for translation seeding.
      */
-    public function getCitiesForRecords(LazyCollection $records): array
+    protected function getRecordsForSeeding(): LazyCollection
     {
-        return CitySeeder::getModel()
-            ->newQuery()
-            ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
-            ->pluck('id', 'geoname_id')
-            ->toArray();
-    }
-
-    /**
-     * Get a query of city translations.
-     */
-    private function query(): Builder
-    {
-        return DB::table('city_translations');
-    }
-
-    /**
-     * Get translation records.
-     */
-    public function records(): LazyCollection
-    {
-        // $path = resolve(DownloadService::class)->downloadAlternateNames();
-        $path = '/var/www/html/storage/meta/geonames/alternateNames.txt';
-
-        $parser = app(AlternateNameParser::class);
-
-        return new LazyCollection(function () use ($parser, $path) {
-            foreach ($parser->each($path) as $record) {
+        return new LazyCollection(function () {
+            foreach ($this->records() as $record) {
                 yield $record;
             }
         });
     }
 
     /**
-     * Map fields of the given record to the model attributes.
-     * TODO: consider extracting into separate Mapper class.
+     * Get the source records.
      */
-    protected function map(array $record, array $cities): array
+    protected function records(): Generator
     {
-        // TODO: think about processing using model (allows using casts and mutators).
+        $path = resolve(DownloadService::class)->downloadAlternateNames();
 
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
+
+    protected function loadResourcesBeforeMapping(LazyCollection $records): void
+    {
+        $this->cities = CitySeeder::model()
+            ->newQuery()
+            ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
+            ->pluck('id', 'geoname_id')
+            ->toArray();
+    }
+
+    protected function unloadResourcesAfterMapping(): void
+    {
+        $this->cities = [];
+    }
+
+    /**
+     * Determine if the given record should be seeded.
+     */
+    protected function filter(array $record): bool
+    {
+        // TODO: use translation settings from config file.
+
+        return isset($this->cities[$record['geonameid']]);
+    }
+
+    /**
+     * Map the given record to the model attributes.
+     */
+    protected function map(array $record): array
+    {
+        return $this->query()
+            ->getModel()
+            ->forceFill($this->mapAttributes($record))
+            ->getAttributes();
+    }
+
+    /**
+     * Map fields to the model attributes.
+     */
+    protected function mapAttributes(array $record): array
+    {
         return [
-            'city_id' => $cities[$record['geonameid']],
+            'city_id' => $this->cities[$record['geonameid']],
             'name' => $record['alternate name'],
             'is_preferred' => $record['isPreferredName'],
             'is_short' => $record['isShortName'],
