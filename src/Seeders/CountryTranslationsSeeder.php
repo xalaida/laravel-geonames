@@ -2,95 +2,102 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
+use Generator;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
-use Nevadskiy\Geonames\Support\Batch\Batch;
+use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountryTranslationsSeeder
+class CountryTranslationsSeeder implements Seeder
 {
+    use LoadingMappingResources;
+
     /**
+     * The countries list.
+     *
      * @var array
      */
-    private $countries;
-
-//    /**
-//     * Use the given city model class.
-//     */
-//    public static function useModel(string $model): void
-//    {
-//        static::$model = $model;
-//    }
-
-//    public static function getModel(): Model
-//    {
-//        // TODO: check if class exists and is a subclass of eloquent model
-//
-//        // return new static::$model;
-//    }
+    protected $countries;
 
     /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {
-        $this->load();
-
-        $batch = new Batch(function (array $records) {
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->records() as $division) {
-            $batch->push($division);
-        }
-
-        $batch->commit();
+        $this->withLoadedResources(function () {
+            foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
+                $this->query()->insert($chunk->all());
+            }
+        });
     }
 
-    public function truncate()
+    public function sync(): void
+    {
+        // TODO: Implement sync() method.
+    }
+
+    public function update(): void
+    {
+        // TODO: Implement update() method.
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function truncate(): void
     {
         $this->query()->truncate();
     }
 
-    private function query(): Builder
+    protected function getMappedRecordsForSeeding(): LazyCollection
     {
-        return DB::table('country_translations');
-
-        // return static::getModel()->newQuery();
+        return new LazyCollection(function () {
+            foreach ($this->getRecordsForSeeding() as $record) {
+                if ($this->filter($record)) {
+                    yield $this->map($record);
+                }
+            }
+        });
     }
 
-    public function records(): iterable
+    private function getRecordsForSeeding(): Generator
     {
-        // $path = resolve(DownloadService::class)->downloadAlternateNames();
-        $path = '/var/www/html/storage/meta/geonames/alternateNames.txt';
+        $path = resolve(DownloadService::class)->downloadAlternateNames();
 
-        $parser = app(AlternateNameParser::class);
-
-        foreach ($parser->each($path) as $record) {
-            if ($this->shouldSeed($record)) {
-                yield $this->map($record);
-            }
+        // TODO: make parser return generator instance.
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
         }
     }
 
-    protected function load(): void
+    protected function query(): HasMany
     {
-        $this->loadCountries();
+        return CountrySeeder::model()->translations();
     }
 
-    protected function loadCountries(): void
+    /**
+     * @inheritdoc
+     */
+    protected function loadResourcesBeforeMapping(): void
     {
-        $this->countries = CountrySeeder::getModel()
+        $this->countries = CountrySeeder::model()
             ->newQuery()
             ->pluck('id', 'geoname_id')
             ->all();
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function unloadResourcesAfterMapping(): void
+    {
+        $this->countries = [];
+    }
+
+    /**
      * Determine if the given record should be seeded.
      */
-    protected function shouldSeed(array $record): bool
+    protected function filter(array $record): bool
     {
         return isset($this->countries[$record['geonameid']]);
     }

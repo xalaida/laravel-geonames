@@ -2,95 +2,98 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
+use Generator;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
-use Nevadskiy\Geonames\Support\Batch\Batch;
+use Nevadskiy\Geonames\Services\DownloadService;
 
-class ContinentTranslationsSeeder
+class ContinentTranslationsSeeder implements Seeder
 {
+    use LoadingMappingResources;
+
     /**
+     * The continent list.
+     *
      * @var array
      */
-    private $continents;
-
-//    /**
-//     * Use the given city model class.
-//     */
-//    public static function useModel(string $model): void
-//    {
-//        static::$model = $model;
-//    }
-
-//    public static function getModel(): Model
-//    {
-//        // TODO: check if class exists and is a subclass of eloquent model
-//
-//        // return new static::$model;
-//    }
+    protected $continents;
 
     /**
-     * Run the continent seeder.
+     * @inheritdoc
      */
     public function seed(): void
     {
-        $this->load();
-
-        $batch = new Batch(function (array $records) {
-            $this->query()->insert($records);
-        }, 1000);
-
-        foreach ($this->records() as $division) {
-            $batch->push($division);
-        }
-
-        $batch->commit();
+        $this->withLoadedResources(function () {
+            foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
+                $this->query()->insert($chunk->all());
+            }
+        });
     }
 
-    public function truncate()
+    public function sync(): void
+    {
+        // TODO: Implement sync() method.
+    }
+
+    public function update(): void
+    {
+        // TODO: Implement update() method.
+    }
+
+    public function truncate(): void
     {
         $this->query()->truncate();
     }
 
-    private function query(): Builder
+    protected function query(): HasMany
     {
-        return DB::table('continent_translations');
-
-        // return static::getModel()->newQuery();
+        return ContinentSeeder::model()->translations();
     }
 
-    public function records(): iterable
+    public function getMappedRecordsForSeeding(): LazyCollection
     {
-        // $path = resolve(DownloadService::class)->downloadAlternateNames();
-        $path = '/var/www/html/storage/meta/geonames/alternateNames.txt';
-
-        $parser = app(AlternateNameParser::class);
-
-        foreach ($parser->each($path) as $record) {
-            if ($this->shouldSeed($record)) {
-                yield $this->map($record);
+        return new LazyCollection(function () {
+            foreach ($this->getRecordsForSeeding() as $record) {
+                if ($this->filter($record)) {
+                    yield $this->map($record);
+                }
             }
+        });
+    }
+
+    protected function getRecordsForSeeding(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadAlternateNames();
+
+        foreach (app(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
         }
     }
 
-    protected function load(): void
+    /**
+     * @inheritdoc
+     */
+    protected function loadResourcesBeforeMapping(): void
     {
-        $this->loadCountries();
-    }
-
-    protected function loadCountries(): void
-    {
-        $this->continents = ContinentSeeder::getModel()
+        $this->continents = ContinentSeeder::model()
             ->newQuery()
             ->pluck('id', 'geoname_id')
             ->all();
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function unloadResourcesAfterMapping(): void
+    {
+        $this->continents = [];
+    }
+
+    /**
      * Determine if the given record should be seeded.
      */
-    protected function shouldSeed(array $record): bool
+    protected function filter(array $record): bool
     {
         return isset($this->continents[$record['geonameid']]);
     }
@@ -105,10 +108,10 @@ class ContinentTranslationsSeeder
         return [
             'continent_id' => $this->continents[$record['geonameid']],
             'name' => $record['alternate name'],
-            'is_preferred' => $record['isPreferredName'],
-            'is_short' => $record['isShortName'],
-            'is_colloquial' => $record['isColloquial'],
-            'is_historic' => $record['isHistoric'],
+            'is_preferred' => $record['isPreferredName'], // TODO: add boolean cast
+            'is_short' => $record['isShortName'], // TODO: add boolean cast
+            'is_colloquial' => $record['isColloquial'], // TODO: add boolean cast
+            'is_historic' => $record['isHistoric'], // TODO: add boolean cast
             'geoname_id' => $record['geonameid'],
             'locale' => $record['isolanguage'],
             'created_at' => now(),
