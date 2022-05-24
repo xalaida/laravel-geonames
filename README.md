@@ -223,5 +223,6 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] move nova resources into stubs
 - [ ] add possibility to customize models (probably also use them as stubs)
 - [ ] remove UUID
+- [ ] check `no-country.zip` geonames file
 
 - [ ] PR to laravel method that creates a lazy collection instance from iterator/generator
