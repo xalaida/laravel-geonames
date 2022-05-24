@@ -15,7 +15,7 @@ abstract class ModelSeeder implements Seeder
     use SyncsModelRecords;
     use DailyUpdateModelRecords;
     use DailyDeleteModelRecords;
-    use LoadingMappingResources;
+    use LoadsMappingResources;
 
     /**
      * The column name of the synced date.

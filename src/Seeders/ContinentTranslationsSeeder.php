@@ -10,7 +10,7 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 class ContinentTranslationsSeeder implements Seeder
 {
-    use LoadingMappingResources;
+    use LoadsMappingResources;
 
     /**
      * The continent list.

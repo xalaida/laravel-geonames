@@ -2,7 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-trait LoadingMappingResources
+trait LoadsMappingResources
 {
     /**
      * Load resources before record attributes mapping.
