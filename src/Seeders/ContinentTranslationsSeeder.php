@@ -95,23 +95,34 @@ class ContinentTranslationsSeeder implements Seeder
      */
     protected function filter(array $record): bool
     {
+        // TODO: use translation settings from config file.
+
         return isset($this->continents[$record['geonameid']]);
     }
 
     /**
-     * Map fields of the given record to the model attributes.
+     * Map the given record to the model attributes.
      */
     protected function map(array $record): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
+        return $this->query()
+            ->getModel()
+            ->forceFill($this->mapAttributes($record))
+            ->getAttributes();
+    }
 
+    /**
+     * Map fields to the model attributes.
+     */
+    protected function mapAttributes(array $record): array
+    {
         return [
             'continent_id' => $this->continents[$record['geonameid']],
             'name' => $record['alternate name'],
-            'is_preferred' => $record['isPreferredName'], // TODO: add boolean cast
-            'is_short' => $record['isShortName'], // TODO: add boolean cast
-            'is_colloquial' => $record['isColloquial'], // TODO: add boolean cast
-            'is_historic' => $record['isHistoric'], // TODO: add boolean cast
+            'is_preferred' => $record['isPreferredName'],
+            'is_short' => $record['isShortName'],
+            'is_colloquial' => $record['isColloquial'],
+            'is_historic' => $record['isHistoric'],
             'geoname_id' => $record['geonameid'],
             'locale' => $record['isolanguage'],
             'created_at' => now(),
