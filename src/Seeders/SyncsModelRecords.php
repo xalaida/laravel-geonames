@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
 /**
@@ -99,5 +100,48 @@ trait SyncsModelRecords
     protected function unsynced(): Builder
     {
         return $this->query()->whereNull(self::SYNCED_AT);
+    }
+
+    /**
+     * Get updatable attributes of the model.
+     */
+    protected function getUpdatableAttributes(): array
+    {
+        $updatable = $this->updatable();
+
+        if (! $this->isWildcardAttributes($updatable)) {
+            return $updatable;
+        }
+
+        return collect($this->getColumns())
+            ->diff(['id', self::SYNC_KEY, 'created_at'])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Determine if the given attributes is a wildcard.
+     */
+    protected function isWildcardAttributes(array $attributes): bool
+    {
+        return count($attributes) === 1 && $attributes[0] === '*';
+    }
+
+    /**
+     * Get the updatable attributes of the model.
+     */
+    protected function updatable(): array
+    {
+        return ['*'];
+    }
+
+    /**
+     * Get column list for the database model.
+     */
+    protected function getColumns(): array
+    {
+        return DB::connection()
+            ->getSchemaBuilder()
+            ->getColumnListing($this->newModel()->getTable());
     }
 }
