@@ -96,18 +96,18 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Load resources.
+     * @inheritdoc
      */
-    protected function load(): void
+    protected function loadResourcesBeforeMapping(): void
     {
         $this->loadCountryInfo();
         $this->loadContinents();
     }
 
     /**
-     * Unload resources.
+     * @inheritdoc
      */
-    protected function unload(): void
+    protected function unloadResourcesAfterMapping(): void
     {
         $this->countryInfo = [];
         $this->continents = [];
@@ -139,7 +139,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Determine if the given record should be seeded.
+     * @inheritdoc
      */
     protected function filter(array $record): bool
     {
@@ -169,7 +169,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Map fields to the model attributes.
+     * @inheritdoc
      */
     protected function mapAttributes(array $record): array
     {

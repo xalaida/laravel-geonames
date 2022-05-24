@@ -99,7 +99,7 @@ class CitySeeder extends ModelSeeder
     /**
      * {@inheritdoc}
      */
-    protected function load(): void
+    protected function loadResourcesBeforeMapping(): void
     {
         $this->loadCountries();
         $this->loadDivisions();
@@ -131,14 +131,14 @@ class CitySeeder extends ModelSeeder
     /**
      * {@inheritdoc}
      */
-    protected function unload(): void
+    protected function unloadResourcesAfterMapping(): void
     {
         $this->countries = [];
         $this->divisions = [];
     }
 
     /**
-     * Determine if the given record should be seeded.
+     * @inheritdoc
      */
     protected function filter(array $record): bool
     {
@@ -166,7 +166,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * Map the given record to the model attributes.
+     * @inheritdoc
      */
     protected function mapAttributes(array $record): array
     {

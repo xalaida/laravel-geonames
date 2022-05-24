@@ -88,9 +88,9 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * Load resources.
+     * {@inheritdoc}
      */
-    protected function load(): void
+    protected function loadResourcesBeforeMapping(): void
     {
         $this->countries = CountrySeeder::model()
             ->newQuery()
@@ -100,15 +100,15 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * Unload resources.
+     * {@inheritdoc}
      */
-    protected function unload(): void
+    protected function unloadResourcesAfterMapping(): void
     {
         $this->countries = [];
     }
 
     /**
-     * Determine if the given record should be seeded.
+     * @inheritdoc
      */
     protected function filter(array $record): bool
     {
