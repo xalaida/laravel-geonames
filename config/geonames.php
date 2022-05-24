@@ -58,24 +58,24 @@ return [
     |--------------------------------------------------------------------------
     |
     | Set up translations configurations.
-    | You can disable translations or specify your own languages list for translations.
+    | You can disable translations or specify your own language list for translations.
     |
     */
 
     /*
-     * Indicates if the translations should be supplied.
+     * Indicates if translations should be seeded.
      */
     'translations' => true,
 
     /*
      * Indicates the language list for translations.
      */
-    'languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'pl', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
+    'languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'pl', 'uk', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn'],
 
     /*
-     * Indicates if nullable languages should be supplied.
-     * Some geonames alternate names have no defined concrete language.
-     * Its can be useful for searching, but it increases the database size.
+     * Indicates if nullable languages should be seeded.
+     * Some geonames translations have no defined concrete language.
+     * It can be useful for searching, but it increases the database size.
      */
     'nullable_language' => true,
 
@@ -88,16 +88,15 @@ return [
     |
     */
 
-    // TODO: consider adding possibility to detect seeders automatically based on preferred source
     'seeders' => [
-        Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
-        Nevadskiy\Geonames\Seeders\CountrySeeder::class,
-        Nevadskiy\Geonames\Seeders\DivisionSeeder::class,
-        Nevadskiy\Geonames\Seeders\CitySeeder::class,
-        Nevadskiy\Geonames\Seeders\ContinentTranslationsSeeder::class,
-        Nevadskiy\Geonames\Seeders\CountryTranslationsSeeder::class,
-        Nevadskiy\Geonames\Seeders\DivisionTranslationsSeeder::class,
-        Nevadskiy\Geonames\Seeders\CityTranslationsSeeder::class,
+//        Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
+//        Nevadskiy\Geonames\Seeders\CountrySeeder::class,
+//        Nevadskiy\Geonames\Seeders\DivisionSeeder::class,
+//        Nevadskiy\Geonames\Seeders\CitySeeder::class,
+//        Nevadskiy\Geonames\Seeders\ContinentTranslationsSeeder::class,
+//        Nevadskiy\Geonames\Seeders\CountryTranslationsSeeder::class,
+//        Nevadskiy\Geonames\Seeders\DivisionTranslationsSeeder::class,
+//        Nevadskiy\Geonames\Seeders\CityTranslationsSeeder::class,
     ],
 
 ];
