@@ -15,6 +15,7 @@ abstract class ModelSeeder implements Seeder
     use SyncsModelRecords;
     use DailyUpdateModelRecords;
     use DailyDeleteModelRecords;
+    use LoadingMappingResources;
 
     /**
      * The column name of the synced date.
@@ -117,34 +118,6 @@ abstract class ModelSeeder implements Seeder
     protected function mapKey(array $record): string
     {
         return $record['geonameid'];
-    }
-
-    /**
-     * Load resources before record attributes mapping.
-     */
-    protected function loadResourcesBeforeMapping(): void
-    {
-        //
-    }
-
-    /**
-     * Unload resources after record attributes mapping.
-     */
-    protected function unloadResourcesAfterMapping(): void
-    {
-        //
-    }
-
-    /**
-     * Execute a callback with loaded mapping resources.
-     */
-    protected function withLoadedResources(callable $callback): void
-    {
-        $this->loadResourcesBeforeMapping();
-
-        $callback();
-
-        $this->unloadResourcesAfterMapping();
     }
 
     /**
