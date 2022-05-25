@@ -6,12 +6,14 @@ use Generator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
+use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
 abstract class TranslationSeeder implements Seeder
 {
     use Concerns\UpdatesTranslationRecordsDaily;
+    use Concerns\DeletesTranslationRecordsDaily;
 
     /**
      * The column name of the sync key.
@@ -40,6 +42,30 @@ abstract class TranslationSeeder implements Seeder
     public function __construct()
     {
         $this->locales = config('geonames.translations.locales');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getDailyModifications(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
+
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getDailyDeletes(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesDeletes();
+
+        foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
+            yield $record;
+        }
     }
 
     /**
@@ -198,18 +224,6 @@ abstract class TranslationSeeder implements Seeder
     protected function records(): Generator
     {
         $path = resolve(DownloadService::class)->downloadAlternateNames();
-
-        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * Get the source records.
-     */
-    protected function getDailyModifications(): Generator
-    {
-        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
 
         foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
             yield $record;

@@ -41,7 +41,6 @@ trait DailyUpdateModelRecords
     {
         $this->query()
             ->whereIn(self::SYNC_KEY, $keys)
-            ->toBase()
             ->update([self::SYNCED_AT => null]);
     }
 

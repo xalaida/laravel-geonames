@@ -32,6 +32,9 @@ class CityTranslationSeeder extends TranslationSeeder
         ];
     }
 
+    /**
+     * Load resources before record attributes mapping.
+     */
     protected function loadResourcesBeforeMapping(LazyCollection $records): void
     {
         $this->cities = CitySeeder::model()
@@ -41,6 +44,9 @@ class CityTranslationSeeder extends TranslationSeeder
             ->toArray();
     }
 
+    /**
+     * Unload resources after record attributes mapping.
+     */
     protected function unloadResourcesAfterMapping(): void
     {
         $this->cities = [];
