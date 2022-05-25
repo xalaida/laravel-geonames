@@ -8,16 +8,16 @@ use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountryTranslationsSeeder implements Seeder
+class ContinentTranslationSeeder implements Seeder
 {
     use LoadsMappingResources;
 
     /**
-     * The countries list.
+     * The continent list.
      *
      * @var array
      */
-    protected $countries;
+    protected $continents = [];
 
     /**
      * @inheritdoc
@@ -33,7 +33,36 @@ class CountryTranslationsSeeder implements Seeder
 
     public function sync(): void
     {
-        // TODO: Implement sync() method.
+        //
+    }
+
+    /**
+     * Sync database according to the given records.
+     */
+    protected function syncRecords(LazyCollection $records): void
+    {
+        $updatable = $this->getUpdatableAttributes();
+
+        foreach ($records->chunk(1000) as $chunk) {
+            $this->query()->upsert($chunk->all(), ['alternate_name_id'], $updatable);
+        }
+    }
+
+    protected function getUpdatableAttributes(): array
+    {
+        return [
+            // 'id',
+            // 'city_id',
+            'name',
+            'is_preferred',
+            'is_short',
+            'is_colloquial',
+            'is_historic',
+            'locale',
+            // 'alternate_name_id',
+            // 'created_at',
+            'updated_at',
+        ];
     }
 
     public function update(): void
@@ -41,15 +70,17 @@ class CountryTranslationsSeeder implements Seeder
         // TODO: Implement update() method.
     }
 
-    /**
-     * @inheritdoc
-     */
     public function truncate(): void
     {
         $this->query()->truncate();
     }
 
-    protected function getMappedRecordsForSeeding(): LazyCollection
+    protected function query(): HasMany
+    {
+        return ContinentSeeder::model()->translations();
+    }
+
+    public function getMappedRecordsForSeeding(): LazyCollection
     {
         return new LazyCollection(function () {
             foreach ($this->getRecordsForSeeding() as $record) {
@@ -60,19 +91,13 @@ class CountryTranslationsSeeder implements Seeder
         });
     }
 
-    private function getRecordsForSeeding(): Generator
+    protected function getRecordsForSeeding(): Generator
     {
         $path = resolve(DownloadService::class)->downloadAlternateNames();
 
-        // TODO: make parser return generator instance.
-        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+        foreach (app(AlternateNameParser::class)->each($path) as $record) {
             yield $record;
         }
-    }
-
-    protected function query(): HasMany
-    {
-        return CountrySeeder::model()->translations();
     }
 
     /**
@@ -80,7 +105,7 @@ class CountryTranslationsSeeder implements Seeder
      */
     protected function loadResourcesBeforeMapping(): void
     {
-        $this->countries = CountrySeeder::model()
+        $this->continents = ContinentSeeder::model()
             ->newQuery()
             ->pluck('id', 'geoname_id')
             ->all();
@@ -91,7 +116,7 @@ class CountryTranslationsSeeder implements Seeder
      */
     protected function unloadResourcesAfterMapping(): void
     {
-        $this->countries = [];
+        $this->continents = [];
     }
 
     /**
@@ -99,25 +124,37 @@ class CountryTranslationsSeeder implements Seeder
      */
     protected function filter(array $record): bool
     {
-        return isset($this->countries[$record['geonameid']]);
+        // TODO: use translation settings from config file.
+
+        return isset($this->continents[$record['geonameid']]);
     }
 
     /**
-     * Map fields of the given record to the model attributes.
+     * Map the given record to the model attributes.
      */
     protected function map(array $record): array
     {
-        // TODO: think about processing using model (allows using casts and mutators)
+        return $this->query()
+            ->getModel()
+            ->forceFill($this->mapAttributes($record))
+            ->getAttributes();
+    }
 
+    /**
+     * Map fields to the model attributes.
+     */
+    protected function mapAttributes(array $record): array
+    {
         return [
-            'country_id' => $this->countries[$record['geonameid']],
+            'continent_id' => $this->continents[$record['geonameid']],
             'name' => $record['alternate name'],
             'is_preferred' => $record['isPreferredName'],
             'is_short' => $record['isShortName'],
             'is_colloquial' => $record['isColloquial'],
             'is_historic' => $record['isHistoric'],
-            'geoname_id' => $record['geonameid'],
             'locale' => $record['isolanguage'],
+            'alternate_name_id' => $record['...'],
+            'is_synced' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ];

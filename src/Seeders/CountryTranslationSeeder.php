@@ -8,16 +8,16 @@ use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class ContinentTranslationsSeeder implements Seeder
+class CountryTranslationSeeder implements Seeder
 {
     use LoadsMappingResources;
 
     /**
-     * The continent list.
+     * The countries list.
      *
      * @var array
      */
-    protected $continents;
+    protected $countries;
 
     /**
      * @inheritdoc
@@ -41,17 +41,15 @@ class ContinentTranslationsSeeder implements Seeder
         // TODO: Implement update() method.
     }
 
+    /**
+     * @inheritdoc
+     */
     public function truncate(): void
     {
         $this->query()->truncate();
     }
 
-    protected function query(): HasMany
-    {
-        return ContinentSeeder::model()->translations();
-    }
-
-    public function getMappedRecordsForSeeding(): LazyCollection
+    protected function getMappedRecordsForSeeding(): LazyCollection
     {
         return new LazyCollection(function () {
             foreach ($this->getRecordsForSeeding() as $record) {
@@ -62,13 +60,19 @@ class ContinentTranslationsSeeder implements Seeder
         });
     }
 
-    protected function getRecordsForSeeding(): Generator
+    private function getRecordsForSeeding(): Generator
     {
         $path = resolve(DownloadService::class)->downloadAlternateNames();
 
-        foreach (app(AlternateNameParser::class)->each($path) as $record) {
+        // TODO: make parser return generator instance.
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
             yield $record;
         }
+    }
+
+    protected function query(): HasMany
+    {
+        return CountrySeeder::model()->translations();
     }
 
     /**
@@ -76,7 +80,7 @@ class ContinentTranslationsSeeder implements Seeder
      */
     protected function loadResourcesBeforeMapping(): void
     {
-        $this->continents = ContinentSeeder::model()
+        $this->countries = CountrySeeder::model()
             ->newQuery()
             ->pluck('id', 'geoname_id')
             ->all();
@@ -87,7 +91,7 @@ class ContinentTranslationsSeeder implements Seeder
      */
     protected function unloadResourcesAfterMapping(): void
     {
-        $this->continents = [];
+        $this->countries = [];
     }
 
     /**
@@ -95,29 +99,18 @@ class ContinentTranslationsSeeder implements Seeder
      */
     protected function filter(array $record): bool
     {
-        // TODO: use translation settings from config file.
-
-        return isset($this->continents[$record['geonameid']]);
+        return isset($this->countries[$record['geonameid']]);
     }
 
     /**
-     * Map the given record to the model attributes.
+     * Map fields of the given record to the model attributes.
      */
     protected function map(array $record): array
     {
-        return $this->query()
-            ->getModel()
-            ->forceFill($this->mapAttributes($record))
-            ->getAttributes();
-    }
+        // TODO: think about processing using model (allows using casts and mutators)
 
-    /**
-     * Map fields to the model attributes.
-     */
-    protected function mapAttributes(array $record): array
-    {
         return [
-            'continent_id' => $this->continents[$record['geonameid']],
+            'country_id' => $this->countries[$record['geonameid']],
             'name' => $record['alternate name'],
             'is_preferred' => $record['isPreferredName'],
             'is_short' => $record['isShortName'],

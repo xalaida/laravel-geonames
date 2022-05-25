@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Support\Batch\Batch;
 
-class DivisionTranslationsSeeder
+class DivisionTranslationSeeder
 {
     /**
      * @var array
