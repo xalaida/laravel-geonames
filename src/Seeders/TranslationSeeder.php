@@ -45,6 +45,90 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
+     * Get a model for which translations are stored.
+     */
+    abstract protected function baseModel(): Model;
+
+    /**
+     * @inheritdoc
+     */
+    public function seed(): void
+    {
+        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+            $this->query()->insert($chunk->all());
+        }
+    }
+
+    /**
+     * Get prepared translation records for seeding.
+     */
+    protected function getRecordsForSeeding(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getRecordsCollection()->chunk(1000) as $chunk) {
+                $this->loadResourcesBeforeMapping($chunk);
+
+                foreach ($this->prepareRecords($chunk) as $record) {
+                    yield $record;
+                }
+
+                $this->unloadResourcesAfterMapping();
+            }
+        });
+    }
+
+    // TODO: probably remove.
+    protected function getRecordsCollection(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getRecords() as $record) {
+                yield $record;
+            }
+        });
+    }
+
+    protected function loadResourcesBeforeMapping(LazyCollection $records): void
+    {
+        //
+    }
+
+    protected function unloadResourcesAfterMapping(): void
+    {
+        //
+    }
+
+    /**
+     * Prepare records for seeding.
+     */
+    protected function prepareRecords(iterable $records): LazyCollection
+    {
+        return new LazyCollection(function () use ($records) {
+            foreach ($records as $record) {
+                if ($this->filter($record)) {
+                    yield $this->map($record);
+                }
+            }
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        $this->dailyUpdate();
+        $this->dailyDelete();
+    }
+
+    /**
+     * Truncate the table with translations of the seeder.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getDailyModifications(): Generator
@@ -69,87 +153,6 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
-     */
-    public function seed(): void
-    {
-        foreach ($this->getMappedRecordsForSeeding()->chunk(1000) as $chunk) {
-            $this->query()->insert($chunk->all());
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function sync(): void
-    {
-        $this->resetIsSynced();
-
-        $updatable = $this->getUpdatableAttributes();
-
-        foreach ($this->getMappedRecordsForSyncing()->chunk(1000) as $chunk) {
-            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
-        }
-
-        $this->deleteUnsyncedModels();
-    }
-
-    /**
-     * Reset the synced status of the models.
-     */
-    protected function resetIsSynced(): void
-    {
-        while ($this->synced()->exists()) {
-            $this->synced()
-                ->toBase()
-                ->limit(50000)
-                ->update([self::IS_SYNCED => false]);
-        }
-    }
-
-    /**
-     * Delete not synced records and return its amount.
-     * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-     * TODO: integrate with soft delete.
-     */
-    protected function deleteUnsyncedModels(): int
-    {
-        $deleted = 0;
-
-        while ($this->unsynced()->exists()) {
-            $deleted += $this->unsynced()->delete();
-        }
-
-        return $deleted;
-    }
-
-    protected function synced(): Builder
-    {
-        return $this->query()->where(self::IS_SYNCED, true);
-    }
-
-    protected function unsynced(): Builder
-    {
-        return $this->query()->where(self::IS_SYNCED, false);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function update(): void
-    {
-        $this->dailyUpdate();
-    }
-
-    /**
-     * Truncate the table with translations of the seeder.
-     */
-    public function truncate(): void
-    {
-        $this->query()->truncate();
-    }
-
-    /**
      * Get a query of model translations.
      */
     protected function query(): Builder
@@ -161,83 +164,15 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get a model for which translations are stored.
-     */
-    abstract protected function baseModel(): Model;
-
-    /**
-     * Get mapped records for translation seeding.
-     */
-    protected function getMappedRecordsForSeeding(): LazyCollection
-    {
-        return new LazyCollection(function () {
-            foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
-                $this->loadResourcesBeforeMapping($chunk);
-
-                foreach ($this->mapRecords($chunk) as $record) {
-                    yield $record;
-                }
-
-                $this->unloadResourcesAfterMapping();
-            }
-        });
-    }
-
-    /**
-     * Get mapped records for translation syncing.
-     */
-    protected function getMappedRecordsForSyncing(): LazyCollection
-    {
-        return $this->getMappedRecordsForSeeding();
-    }
-
-    /**
-     * Map the given dataset to records for seeding.
-     * TODO: rename method.
-     */
-    protected function mapRecords(iterable $records): LazyCollection
-    {
-        return new LazyCollection(function () use ($records) {
-            foreach ($records as $record) {
-                if ($this->filter($record)) {
-                    yield $this->map($record);
-                }
-            }
-        });
-    }
-
-    /**
-     * Get records for translation seeding.
-     */
-    protected function getRecordsForSeeding(): LazyCollection
-    {
-        return new LazyCollection(function () {
-            foreach ($this->records() as $record) {
-                yield $record;
-            }
-        });
-    }
-
-    /**
      * Get the source records.
      */
-    protected function records(): Generator
+    protected function getRecords(): Generator
     {
         $path = resolve(DownloadService::class)->downloadAlternateNames();
 
         foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
             yield $record;
         }
-    }
-
-    protected function loadResourcesBeforeMapping(LazyCollection $records): void
-    {
-        //
-    }
-
-    protected function unloadResourcesAfterMapping(): void
-    {
-        //
     }
 
     /**
