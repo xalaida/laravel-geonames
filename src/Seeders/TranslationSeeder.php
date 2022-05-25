@@ -11,6 +11,8 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 abstract class TranslationSeeder implements Seeder
 {
+    use Concerns\UpdatesTranslationRecordsDaily;
+
     /**
      * The column name of the sync key.
      *
@@ -110,7 +112,7 @@ abstract class TranslationSeeder implements Seeder
      */
     public function update(): void
     {
-        // TODO: Implement update() method.
+        $this->dailyUpdate();
     }
 
     /**
@@ -165,6 +167,7 @@ abstract class TranslationSeeder implements Seeder
 
     /**
      * Map the given dataset to records for seeding.
+     * TODO: rename method.
      */
     protected function mapRecords(iterable $records): LazyCollection
     {
@@ -195,6 +198,18 @@ abstract class TranslationSeeder implements Seeder
     protected function records(): Generator
     {
         $path = resolve(DownloadService::class)->downloadAlternateNames();
+
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
+
+    /**
+     * Get the source records.
+     */
+    protected function getDailyModifications(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
 
         foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
             yield $record;
