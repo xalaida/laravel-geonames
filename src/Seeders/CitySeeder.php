@@ -20,18 +20,41 @@ class CitySeeder extends ModelSeeder
     protected static $model;
 
     /**
+     * The population filter.
+     *
+     * @var int|null
+     */
+    protected $population = null;
+
+    /**
+     * The allowed feature codes for cities.
+     * TODO: add possibility to use different feature codes.
+     *
+     * @var array
+     */
+    protected $featureCodes = [
+        FeatureCode::PPL,
+        FeatureCode::PPLC,
+        FeatureCode::PPLA,
+        FeatureCode::PPLA2,
+        FeatureCode::PPLA3,
+        FeatureCode::PPLX,
+        FeatureCode::PPLG,
+    ];
+
+    /**
      * The country resources.
      *
      * @var array
      */
-    private $countries;
+    protected $countries;
 
     /**
      * The division resources.
      *
      * @var array
      */
-    private $divisions;
+    protected $divisions;
 
     /**
      * Use the given city model class.
@@ -50,6 +73,14 @@ class CitySeeder extends ModelSeeder
         // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
 
         return new static::$model();
+    }
+
+    /**
+     * Make a new seeder instance.
+     */
+    public function __construct()
+    {
+        $this->population = config('geonames.filters.population');
     }
 
     /**
@@ -142,27 +173,20 @@ class CitySeeder extends ModelSeeder
      */
     protected function filter(array $record): bool
     {
-        // TODO: inject population from DI.
-        // TODO: add possibility to use different feature codes.
-
-        return collect($this->featureCodes())->contains($record['feature code'])
-            && $record['population'] >= config('geonames.filters.population');
+        return in_array($record['feature code'], $this->featureCodes, true)
+            && $this->isPopulationAllowed($record);
     }
 
     /**
-     * Get the list of feature codes of a country.
+     * Determine if the population of the record is allowed for seeding.
      */
-    protected function featureCodes(): array
+    protected function isPopulationAllowed(array $record): bool
     {
-        return [
-            FeatureCode::PPL,
-            FeatureCode::PPLC,
-            FeatureCode::PPLA,
-            FeatureCode::PPLA2,
-            FeatureCode::PPLA3,
-            FeatureCode::PPLX,
-            FeatureCode::PPLG,
-        ];
+        if (is_null($this->population)) {
+            return true;
+        }
+
+        return $record['population'] >= $this->population;
     }
 
     /**
