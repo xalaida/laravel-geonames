@@ -3,19 +3,27 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Generator;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CityTranslationsSeeder implements Seeder
+abstract class TranslationSeeder implements Seeder
 {
     /**
-     * The cities list.
+     * The column name of the sync key.
      *
-     * @var array
+     * @var string
      */
-    protected $cities = [];
+    protected const SYNC_KEY = 'alternate_name_id';
+
+    /**
+     * The column name of the synced flag.
+     *
+     * @var string
+     */
+    protected const IS_SYNCED = 'is_synced';
 
     /**
      * The locale list.
@@ -49,11 +57,17 @@ class CityTranslationsSeeder implements Seeder
     {
         $this->resetIsSynced();
 
-        // TODO: finish this...
+        $updatable = $this->getUpdatableAttributes();
+
+        foreach ($this->getMappedRecordsForSyncing()->chunk(1000) as $chunk) {
+            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
+        }
+
+        $this->deleteUnsyncedModels();
     }
 
     /**
-     * Reset the synced status of the records.
+     * Reset the synced status of the models.
      */
     protected function resetIsSynced(): void
     {
@@ -61,13 +75,34 @@ class CityTranslationsSeeder implements Seeder
             $this->synced()
                 ->toBase()
                 ->limit(50000)
-                ->update(['is_synced' => false]);
+                ->update([self::IS_SYNCED => false]);
         }
     }
 
-    protected function synced(): HasMany
+    /**
+     * Delete not synced records and return its amount.
+     * TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+     * TODO: integrate with soft delete.
+     */
+    protected function deleteUnsyncedModels(): int
     {
-        return $this->query()->where('is_synced', true);
+        $deleted = 0;
+
+        while ($this->unsynced()->exists()) {
+            $deleted += $this->unsynced()->delete();
+        }
+
+        return $deleted;
+    }
+
+    protected function synced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, true);
+    }
+
+    protected function unsynced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, false);
     }
 
     /**
@@ -79,7 +114,7 @@ class CityTranslationsSeeder implements Seeder
     }
 
     /**
-     * Truncate translations of cities.
+     * Truncate the table with translations of the seeder.
      */
     public function truncate(): void
     {
@@ -87,12 +122,20 @@ class CityTranslationsSeeder implements Seeder
     }
 
     /**
-     * Get a query of city translations.
+     * Get a query of model translations.
      */
-    protected function query(): HasMany
+    protected function query(): Builder
     {
-        return CitySeeder::model()->translations();
+        return $this->baseModel()
+            ->translations()
+            ->getModel()
+            ->newQuery();
     }
+
+    /**
+     * Get a model for which translations are stored.
+     */
+    abstract protected function baseModel(): Model;
 
     /**
      * Get mapped records for translation seeding.
@@ -110,6 +153,14 @@ class CityTranslationsSeeder implements Seeder
                 $this->unloadResourcesAfterMapping();
             }
         });
+    }
+
+    /**
+     * Get mapped records for translation syncing.
+     */
+    protected function getMappedRecordsForSyncing(): LazyCollection
+    {
+        return $this->getMappedRecordsForSeeding();
     }
 
     /**
@@ -152,16 +203,12 @@ class CityTranslationsSeeder implements Seeder
 
     protected function loadResourcesBeforeMapping(LazyCollection $records): void
     {
-        $this->cities = CitySeeder::model()
-            ->newQuery()
-            ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
-            ->pluck('id', 'geoname_id')
-            ->toArray();
+        //
     }
 
     protected function unloadResourcesAfterMapping(): void
     {
-        $this->cities = [];
+        //
     }
 
     /**
@@ -171,8 +218,7 @@ class CityTranslationsSeeder implements Seeder
     {
         // TODO: think about importing fallback locale... (what if fallback locale is custom, not english)
 
-        return isset($this->cities[$record['geonameid']])
-            && $this->isSupportedLocale($record['isolanguage']);
+        return $this->isSupportedLocale($record['isolanguage']);
     }
 
     /**
@@ -211,8 +257,7 @@ class CityTranslationsSeeder implements Seeder
      */
     protected function mapAttributes(array $record): array
     {
-        return [
-            'city_id' => $this->cities[$record['geonameid']],
+        return array_merge([
             'name' => $record['alternate name'],
             'is_preferred' => $record['isPreferredName'] ?: false,
             'is_short' => $record['isShortName'] ?: false,
@@ -223,6 +268,24 @@ class CityTranslationsSeeder implements Seeder
             'is_synced' => true,
             'created_at' => now(),
             'updated_at' => now(),
+        ], $this->mapRelation($record));
+    }
+
+    /**
+     * Map the relation attributes of the record.
+     */
+    abstract protected function mapRelation(array $record): array;
+
+    protected function getUpdatableAttributes(): array
+    {
+        return [
+            'name',
+            'is_preferred',
+            'is_short',
+            'is_colloquial',
+            'is_historic',
+            'locale',
+            'updated_at',
         ];
     }
 }
