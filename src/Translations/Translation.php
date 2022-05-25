@@ -16,6 +16,7 @@ class Translation extends Model
         'is_short' => 'boolean',
         'is_colloquial' => 'boolean',
         'is_historic' => 'boolean',
+        'is_synced' => 'boolean',
     ];
 
     // TODO: probably extend AdditionalTable strategy model.

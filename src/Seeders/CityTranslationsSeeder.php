@@ -18,6 +18,21 @@ class CityTranslationsSeeder implements Seeder
     protected $cities = [];
 
     /**
+     * The locale list.
+     *
+     * @var array
+     */
+    protected $locales = ['*'];
+
+    /**
+     * Make a new seeder instance.
+     */
+    public function __construct()
+    {
+        $this->locales = config('geonames.translations.locales');
+    }
+
+    /**
      * @inheritdoc
      */
     public function seed(): void
@@ -32,7 +47,27 @@ class CityTranslationsSeeder implements Seeder
      */
     public function sync(): void
     {
-        // TODO: Implement sync() method.
+        $this->resetIsSynced();
+
+        // TODO: finish this...
+    }
+
+    /**
+     * Reset the synced status of the records.
+     */
+    protected function resetIsSynced(): void
+    {
+        while ($this->synced()->exists()) {
+            $this->synced()
+                ->toBase()
+                ->limit(50000)
+                ->update(['is_synced' => false]);
+        }
+    }
+
+    protected function synced(): HasMany
+    {
+        return $this->query()->where('is_synced', true);
     }
 
     /**
@@ -134,9 +169,30 @@ class CityTranslationsSeeder implements Seeder
      */
     protected function filter(array $record): bool
     {
-        // TODO: use translation settings from config file.
+        // TODO: think about importing fallback locale... (what if fallback locale is custom, not english)
 
-        return isset($this->cities[$record['geonameid']]);
+        return isset($this->cities[$record['geonameid']])
+            && $this->isSupportedLocale($record['isolanguage']);
+    }
+
+    /**
+     * Determine if the given locale is supported.
+     */
+    protected function isSupportedLocale(?string $locale): bool
+    {
+        if ($this->isWildcardLocale()) {
+            return true;
+        }
+
+        return in_array($locale, $this->locales, true);
+    }
+
+    /**
+     * Determine if the locale list is a wildcard.
+     */
+    protected function isWildcardLocale(): bool
+    {
+        return count($this->locales) === 1 && $this->locales[0] === '*';
     }
 
     /**
@@ -158,12 +214,13 @@ class CityTranslationsSeeder implements Seeder
         return [
             'city_id' => $this->cities[$record['geonameid']],
             'name' => $record['alternate name'],
-            'is_preferred' => $record['isPreferredName'],
-            'is_short' => $record['isShortName'],
-            'is_colloquial' => $record['isColloquial'],
-            'is_historic' => $record['isHistoric'],
-            'geoname_id' => $record['geonameid'],
+            'is_preferred' => $record['isPreferredName'] ?: false,
+            'is_short' => $record['isShortName'] ?: false,
+            'is_colloquial' => $record['isColloquial'] ?: false,
+            'is_historic' => $record['isHistoric'] ?: false,
             'locale' => $record['isolanguage'],
+            'alternate_name_id' => $record['alternateNameId'],
+            'is_synced' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ];
