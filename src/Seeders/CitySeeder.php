@@ -90,7 +90,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO: refactor with DI downloader and parser.
      */
     protected function getRecords(): iterable
@@ -103,7 +103,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO: refactor with DI downloader and parser.
      */
     protected function getDailyModificationRecords(): iterable
@@ -116,7 +116,7 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO: refactor with DI downloader and parser.
      */
     protected function getDailyDeleteRecords(): iterable
