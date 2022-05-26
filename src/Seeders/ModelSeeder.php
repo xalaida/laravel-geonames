@@ -18,6 +18,8 @@ use Psr\Log\NullLogger;
  */
 abstract class ModelSeeder implements Seeder
 {
+    use HasLogger;
+
     /**
      * The column name of the synced date.
      *
@@ -31,29 +33,6 @@ abstract class ModelSeeder implements Seeder
      * @var string
      */
     protected const SYNC_KEY = 'geoname_id';
-
-    /**
-     * The logger instance.
-     *
-     * @var LoggerInterface|null
-     */
-    protected $logger;
-
-    /**
-     * Set the logger instance.
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * Get the logger instance.
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger ?: new NullLogger();
-    }
 
     /**
      * Get a new model instance of the seeder.
@@ -89,7 +68,7 @@ abstract class ModelSeeder implements Seeder
         }
 
         $this->getLogger()->info(sprintf(
-            "Records have been seeded using %s\n".
+            "Records have been seeded using %s.\n".
             "Created: %s\n",
             get_class($this),
             number_format($created)
@@ -335,7 +314,7 @@ abstract class ModelSeeder implements Seeder
         );
 
         $this->getLogger()->info(sprintf(
-            "Records have been updated using %s\n".
+            "Records have been updated using %s.\n".
             "Created: %s\n".
             "Updated: %s\n".
             "Deleted: %s\n",

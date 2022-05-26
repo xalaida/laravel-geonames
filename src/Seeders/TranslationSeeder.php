@@ -13,6 +13,8 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 abstract class TranslationSeeder implements Seeder
 {
+    use HasLogger;
+
     /**
      * The column name of the sync key.
      *
@@ -70,9 +72,15 @@ abstract class TranslationSeeder implements Seeder
      */
     public function seed(): void
     {
+        $this->getLogger()->info(sprintf('Start seeding records using %s.', get_class($this)));
+
         foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
             $this->query()->insert($chunk->all());
+
+            $created += $chunk->count();
         }
+
+        $this->getLogger()->info(sprintf('Records have been seeded using %s.', get_class($this)));
     }
 
     /**
@@ -238,6 +246,8 @@ abstract class TranslationSeeder implements Seeder
      */
     public function sync(): void
     {
+        $this->getLogger()->info(sprintf('Start syncing records using %s.', get_class($this)));
+
         $this->resetSyncedModels();
 
         $updatable = $this->getUpdatableAttributes();
@@ -247,6 +257,8 @@ abstract class TranslationSeeder implements Seeder
         }
 
         $this->deleteUnsyncedModels();
+
+        $this->getLogger()->info(sprintf('Records have been synced using %s.', get_class($this)));
     }
 
     /**
@@ -313,14 +325,18 @@ abstract class TranslationSeeder implements Seeder
      */
     public function update(): void
     {
-        $this->dailyUpdate();
-        $this->dailyDelete();
+        $this->getLogger()->info(sprintf('Start updating records using %s.', get_class($this)));
+
+        $this->performDailyUpdate();
+        $this->performDailyDelete();
+
+        $this->getLogger()->info(sprintf('Records have been updated using %s.', get_class($this)));
     }
 
     /**
      * Perform a daily update of the translation records.
      */
-    public function dailyUpdate(): void
+    protected function performDailyUpdate(): void
     {
         $updatable = $this->getUpdatableAttributes();
 
@@ -401,7 +417,7 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Perform a daily delete of the translation records.
      */
-    public function dailyDelete(): void
+    protected function performDailyDelete(): void
     {
         foreach ($this->getRecordsForDailyDelete()->chunk(1000) as $chunk) {
             $this->query()
@@ -443,5 +459,7 @@ abstract class TranslationSeeder implements Seeder
     public function truncate(): void
     {
         $this->query()->truncate();
+
+        $this->getLogger()->info(sprintf('Table have been truncated using %s.', get_class($this)));
     }
 }
