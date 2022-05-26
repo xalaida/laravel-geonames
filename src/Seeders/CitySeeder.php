@@ -8,8 +8,6 @@ use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-// TODO: consider adding scanning DB table to use only that attributes
-// TODO: add possibility to specify updatable attributes separately...
 class CitySeeder extends ModelSeeder
 {
     /**
@@ -27,20 +25,11 @@ class CitySeeder extends ModelSeeder
     protected $population = null;
 
     /**
-     * The allowed feature codes for cities.
-     * TODO: add possibility to use different feature codes.
+     * The allowed feature codes.
      *
      * @var array
      */
-    protected $featureCodes = [
-        FeatureCode::PPL,
-        FeatureCode::PPLC,
-        FeatureCode::PPLA,
-        FeatureCode::PPLA2,
-        FeatureCode::PPLA3,
-        FeatureCode::PPLX,
-        FeatureCode::PPLG,
-    ];
+    protected $featureCodes = [];
 
     /**
      * The country resources.
@@ -55,6 +44,23 @@ class CitySeeder extends ModelSeeder
      * @var array
      */
     protected $divisions;
+
+    /**
+     * Make a new seeder instance.
+     */
+    public function __construct()
+    {
+        $this->population = config('geonames.filters.population');
+        $this->featureCodes = [
+            FeatureCode::PPL,
+            FeatureCode::PPLC,
+            FeatureCode::PPLA,
+            FeatureCode::PPLA2,
+            FeatureCode::PPLA3,
+            FeatureCode::PPLX,
+            FeatureCode::PPLG,
+        ];
+    }
 
     /**
      * Use the given city model class.
@@ -76,14 +82,6 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * Make a new seeder instance.
-     */
-    public function __construct()
-    {
-        $this->population = config('geonames.filters.population');
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function newModel(): Model
@@ -92,9 +90,10 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO: refactor with DI downloader and parser.
      */
-    protected function getRecordsForSeeding(): iterable
+    protected function getRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
@@ -104,9 +103,10 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO: refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyUpdate(): iterable
+    protected function getDailyModificationRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyModifications();
 
@@ -116,9 +116,10 @@ class CitySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO: refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyDelete(): iterable
+    protected function getDailyDeleteRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyDeletes();
 

@@ -26,11 +26,21 @@ class ContinentSeeder extends ModelSeeder
     protected $codeGenerator;
 
     /**
+     * The allowed feature codes.
+     *
+     * @var array
+     */
+    protected $featureCodes = [];
+
+    /**
      * Make a new seeder instance.
      */
     public function __construct(ContinentCodeGenerator $codeGenerator)
     {
         $this->codeGenerator = $codeGenerator;
+        $this->featureCodes = [
+            FeatureCode::CONT,
+        ];
     }
 
     /**
@@ -61,9 +71,10 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForSeeding(): iterable
+    protected function getRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
@@ -73,9 +84,10 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyUpdate(): iterable
+    protected function getDailyModificationRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyModifications();
 
@@ -85,9 +97,10 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyDelete(): iterable
+    protected function getDailyDeleteRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyDeletes();
 
@@ -101,8 +114,7 @@ class ContinentSeeder extends ModelSeeder
      */
     protected function filter(array $record): bool
     {
-        // TODO: add possibility to configure filter outside.
-        return $record['feature code'] === FeatureCode::CONT;
+        return in_array($record['feature code'], $this->featureCodes, true);
     }
 
     /**

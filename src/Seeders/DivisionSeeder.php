@@ -18,11 +18,28 @@ class DivisionSeeder extends ModelSeeder
     protected static $model;
 
     /**
+     * The allowed feature codes.
+     *
+     * @var array
+     */
+    protected $featureCodes = [];
+
+    /**
      * The country list.
      *
      * @var array
      */
     private $countries = [];
+
+    /**
+     * Make a new seeder instance.
+     */
+    public function __construct()
+    {
+        $this->featureCodes = [
+            FeatureCode::ADM1,
+        ];
+    }
 
     /**
      * Use the given division model class.
@@ -43,6 +60,8 @@ class DivisionSeeder extends ModelSeeder
         return new static::$model();
     }
 
+
+
     /**
      * {@inheritdoc}
      */
@@ -52,9 +71,10 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForSeeding(): iterable
+    protected function getRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
@@ -64,9 +84,10 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyUpdate(): iterable
+    protected function getDailyModificationRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyModifications();
 
@@ -76,9 +97,10 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyDelete(): iterable
+    protected function getDailyDeleteRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyDeletes();
 
@@ -112,7 +134,7 @@ class DivisionSeeder extends ModelSeeder
      */
     protected function filter(array $record): bool
     {
-        return $record['feature code'] === FeatureCode::ADM1;
+        return in_array($record['feature code'], $this->featureCodes, true);
     }
 
     /**

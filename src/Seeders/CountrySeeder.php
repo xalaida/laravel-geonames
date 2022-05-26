@@ -19,6 +19,13 @@ class CountrySeeder extends ModelSeeder
     protected static $model;
 
     /**
+     * The allowed feature codes.
+     *
+     * @var array
+     */
+    protected $featureCodes = [];
+
+    /**
      * The country info list.
      *
      * @var array
@@ -31,6 +38,22 @@ class CountrySeeder extends ModelSeeder
      * @var array
      */
     private $continents = [];
+
+    /**
+     * Make a new seeder instance.
+     */
+    public function __construct()
+    {
+        $this->featureCodes = [
+            FeatureCode::PCLI,
+            FeatureCode::PCLD,
+            FeatureCode::TERR,
+            FeatureCode::PCLIX,
+            FeatureCode::PCLS,
+            FeatureCode::PCLF,
+            FeatureCode::PCL,
+        ];
+    }
 
     /**
      * Use the given country model class.
@@ -60,9 +83,10 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForSeeding(): iterable
+    protected function getRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadAllCountries();
 
@@ -72,9 +96,10 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyUpdate(): iterable
+    protected function getDailyModificationRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyModifications();
 
@@ -84,9 +109,10 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     * @TODO refactor with DI downloader and parser.
      */
-    protected function getRecordsForDailyDelete(): iterable
+    protected function getDailyDeleteRecords(): iterable
     {
         $path = resolve(DownloadService::class)->downloadDailyDeletes();
 
@@ -147,36 +173,18 @@ class CountrySeeder extends ModelSeeder
             return false;
         }
 
-        return collect($this->featureCodes())->contains($record['feature code']);
-    }
-
-    /**
-     * Get the list of feature codes of a country.
-     *
-     * TODO: add possibility to specify dynamically.
-     */
-    protected function featureCodes(): array
-    {
-        return [
-            FeatureCode::PCLI,
-            FeatureCode::PCLD,
-            FeatureCode::TERR,
-            FeatureCode::PCLIX,
-            FeatureCode::PCLS,
-            FeatureCode::PCLF,
-            FeatureCode::PCL,
-        ];
+        return in_array($record['feature code'], $this->featureCodes, true);
     }
 
     /**
      * {@inheritdoc}
+     * @TODO remap attributes
      */
     protected function mapAttributes(array $record): array
     {
         $countryInfo = $this->countryInfo[$record['geonameid']];
 
         return [
-            // TODO: remap fields...
             'code' => $countryInfo['ISO'],
             'iso' => $countryInfo['ISO3'],
             'iso_numeric' => $countryInfo['ISO-Numeric'],
