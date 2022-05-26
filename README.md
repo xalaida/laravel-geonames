@@ -199,6 +199,9 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] add addressing feature:
+  - https://twitter.com/danjharrin/status/1528682224916254720
+  - https://github.com/commerceguys/addressing
 - [ ] consider adding soft deletes.
 - [ ] seed only columns from mapping that are present in the database table
 - [ ] add report for daily update / delete
