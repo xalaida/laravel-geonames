@@ -108,8 +108,8 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Get the source records.
      *
-     * @TODO: use DI downloader.
-     * @TODO: use DI parser.
+     * @TODO use DI downloader.
+     * @TODO use DI parser.
      */
     protected function getRecords(): Generator
     {
@@ -164,7 +164,7 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Determine if the given locale is supported.
      *
-     * @TODO: consider importing fallback locale... (what if fallback locale is custom, not english)
+     * @TODO consider importing fallback locale... (what if fallback locale is custom, not english)
      */
     protected function isSupportedLocale(?string $locale): bool
     {
@@ -366,8 +366,8 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Get records with daily modifications.
      *
-     * @TODO: use DI downloader.
-     * @TODO: use DI parser.
+     * @TODO use DI downloader.
+     * @TODO use DI parser.
      */
     protected function getDailyModificationRecords(): Generator
     {
@@ -425,8 +425,8 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Get records with daily deletes.
      *
-     * @TODO: use DI downloader.
-     * @TODO: use DI parser.
+     * @TODO use DI downloader.
+     * @TODO use DI parser.
      */
     protected function getDailyDeleteRecords(): Generator
     {
