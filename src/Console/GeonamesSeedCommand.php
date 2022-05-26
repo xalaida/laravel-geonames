@@ -3,6 +3,9 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
+use Psr\Log\LogLevel;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class GeonamesSeedCommand extends Command
 {
@@ -81,7 +84,17 @@ class GeonamesSeedCommand extends Command
     {
         return collect(config('geonames.seeders'))
             ->map(function ($seeder) {
-                return resolve($seeder);
+                $seeder = resolve($seeder);
+
+                if (method_exists($seeder, 'setLogger')) {
+                    // TODO: add stack logger that uses file log (resolve from config)
+                    $seeder->setLogger(new ConsoleLogger($this->getOutput(), [
+                        LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                        LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+                    ]));
+                }
+
+                return $seeder;
             })
             ->all();
     }
