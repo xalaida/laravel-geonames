@@ -51,7 +51,6 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->bootCommands();
         $this->bootTranslatableMigrations();
-        $this->bootNovaResources();
         $this->publishConfig();
         $this->publishMigrations();
     }
@@ -162,21 +161,6 @@ class GeonamesServiceProvider extends ServiceProvider
                 $translatable->ignoreMigrations();
             }
         });
-    }
-
-    /**
-     * Boot any package nova resources.
-     */
-    protected function bootNovaResources(): void
-    {
-        if ($this->app[Geonames::class]->shouldBootNovaResources()) {
-            Nova::resources([
-                Resources\Continent::class,
-                Resources\Country::class,
-                Resources\Division::class,
-                Resources\City::class,
-            ]);
-        }
     }
 
     /**
