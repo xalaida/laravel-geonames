@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Translations;
 
+use Illuminate\Database\Eloquent\Builder;
 use Nevadskiy\Translatable\Strategies\AdditionalTable\Models\Translation as BaseTranslations;
 
 class Translation extends BaseTranslations
@@ -19,5 +20,16 @@ class Translation extends BaseTranslations
         'is_synced' => 'boolean',
     ];
 
-    // TODO: add some scopes for translation priority.
+    /**
+     * Perform any actions required after the model boots.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('sorting', function (Builder $query) {
+            $query->orderBy('is_preferred');
+            $query->orderBy('is_short');
+            $query->orderByDesc('is_colloquial');
+            $query->orderByDesc('is_historic');
+        });
+    }
 }
