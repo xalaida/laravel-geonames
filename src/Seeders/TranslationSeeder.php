@@ -13,8 +13,6 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 abstract class TranslationSeeder implements Seeder
 {
-    use Concerns\DeletesTranslationRecordsDaily;
-
     /**
      * The column name of the sync key.
      *
@@ -333,7 +331,7 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Perform a daily update of the translation records.
      */
-    protected function dailyUpdate(): void
+    public function dailyUpdate(): void
     {
         $updatable = $this->getUpdatableAttributes();
 
@@ -412,8 +410,43 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Daily delete
+     * Perform a daily delete of the translation records.
      */
+    public function dailyDelete(): void
+    {
+        foreach ($this->getRecordsForDailyDelete()->chunk(1000) as $chunk) {
+            $this->query()
+                ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($chunk))
+                ->delete();
+        }
+    }
+
+    /**
+     * Get prepared records for a daily delete.
+     */
+    protected function getRecordsForDailyDelete(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getDailyDeleteRecords() as $record) {
+                yield $record;
+            }
+        });
+    }
+
+    /**
+     * Get records with daily deletes.
+     *
+     * @TODO: use DI downloader.
+     * @TODO: use DI parser.
+     */
+    protected function getDailyDeleteRecords(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesDeletes();
+
+        foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
 
     /**
      * Truncate the table with translations of the seeder.
@@ -421,17 +454,5 @@ abstract class TranslationSeeder implements Seeder
     public function truncate(): void
     {
         $this->query()->truncate();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDailyDeletes(): Generator
-    {
-        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesDeletes();
-
-        foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
     }
 }
