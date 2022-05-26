@@ -206,6 +206,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] seed only columns from mapping that are present in the database table
 - [ ] add report for daily update / delete
 - [ ] update cs fixer
+- [ ] add possibility to use source with multiple countries
 - [ ] consider scopes for deletes what if records is using in the app?
 - [ ] probably add global method `withoutDeletes` to disable deleting at all (and in the sync method as well).
 - [ ] refactor filters for cities population or country only
