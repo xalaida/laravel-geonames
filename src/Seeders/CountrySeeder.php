@@ -83,7 +83,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO refactor with DI downloader and parser.
      */
     protected function getRecords(): iterable
@@ -97,7 +97,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO refactor with DI downloader and parser.
      */
     protected function getDailyModificationRecords(): iterable
@@ -110,7 +110,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @TODO refactor with DI downloader and parser.
      */
     protected function getDailyDeleteRecords(): iterable
