@@ -178,9 +178,29 @@ class CountrySeeder extends ModelSeeder
 
     /**
      * {@inheritdoc}
-     * @TODO remap attributes
      */
     protected function mapAttributes(array $record): array
+    {
+        return array_merge($this->mapCountryInfoAttributes($record), [
+            'name_official' => $record['asciiname'] ?: $record['name'],
+            'timezone_id' => $record['timezone'],
+            'latitude' => $record['latitude'],
+            'longitude' => $record['longitude'],
+            'population' => $record['population'],
+            'elevation' => $record['elevation'],
+            'dem' => $record['dem'],
+            'feature_code' => $record['feature code'],
+            'geoname_id' => $record['geonameid'],
+            'synced_at' => $record['modification date'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /**
+     * Map attributes of the country info record.
+     */
+    protected function mapCountryInfoAttributes(array $record): array
     {
         $countryInfo = $this->countryInfo[$record['geonameid']];
 
@@ -201,18 +221,6 @@ class CountrySeeder extends ModelSeeder
             'neighbours' => $countryInfo['neighbours'],
             'area' => $countryInfo['Area(in sq km)'],
             'fips' => $countryInfo['fips'],
-
-            'name_official' => $record['asciiname'] ?: $record['name'],
-            'timezone_id' => $record['timezone'],
-            'latitude' => $record['latitude'],
-            'longitude' => $record['longitude'],
-            'population' => $record['population'],
-            'dem' => $record['dem'],
-            'feature_code' => $record['feature code'],
-            'geoname_id' => $record['geonameid'],
-            'synced_at' => $record['modification date'],
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }
