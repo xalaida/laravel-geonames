@@ -236,8 +236,89 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
+     * Sync below
+     */
+
+    /**
+     * Sync translations according to the geonames dataset.
+     */
+    public function sync(): void
+    {
+        $this->resetSyncedModels();
+
+        $updatable = $this->getUpdatableAttributes();
+
+        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
+        }
+
+        $this->deleteUnsyncedModels();
+    }
+
+    /**
+     * Get the updatable attribute list.
+     */
+    protected function getUpdatableAttributes(): array
+    {
+        return [
+            'name',
+            'is_preferred',
+            'is_short',
+            'is_colloquial',
+            'is_historic',
+            'locale',
+            'updated_at',
+        ];
+    }
+
+    /**
+     * Reset a "sync" state for database models.
+     */
+    protected function resetSyncedModels(int $chunk = 50000): void
+    {
+        while ($this->synced()->exists()) {
+            $this->synced()
+                ->toBase()
+                ->limit($chunk)
+                ->update([self::IS_SYNCED => false]);
+        }
+    }
+
+    /**
+     * Get a query instance of synced models.
+     */
+    protected function synced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, true);
+    }
+
+    /**
+     * Delete unsynced models from database and return its amount.
+     *
+     * @TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+     * @TODO: integrate with soft delete.
+     */
+    protected function deleteUnsyncedModels(): int
+    {
+        $deleted = 0;
+
+        while ($this->unsynced()->exists()) {
+            $deleted += $this->unsynced()->delete();
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Get a query instance of unsynced models.
+     */
+    protected function unsynced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, false);
+    }
+
+    /**
      * Update below
-     * TODO: disable CS fixer code style ordering methods.
      */
 
     /**
@@ -259,22 +340,8 @@ abstract class TranslationSeeder implements Seeder
         foreach ($this->getRecordsForDailyUpdate()->chunk(1000) as $chunk) {
             $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
         }
-    }
 
-    /**
-     * Get the updatable attribute list.
-     */
-    protected function getUpdatableAttributes(): array
-    {
-        return [
-            'name',
-            'is_preferred',
-            'is_short',
-            'is_colloquial',
-            'is_historic',
-            'locale',
-            'updated_at',
-        ];
+        $this->deleteUnsyncedModels();
     }
 
     /**
@@ -284,7 +351,7 @@ abstract class TranslationSeeder implements Seeder
     {
         return new LazyCollection(function () {
             foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
-                $this->resetSyncForRecords($chunk);
+                $this->resetSyncedModelsByRecords($chunk);
 
                 $this->loadResourcesBeforeMapping($chunk);
 
@@ -294,8 +361,6 @@ abstract class TranslationSeeder implements Seeder
 
                 $this->unloadResourcesAfterMapping();
             }
-
-            $this->deleteUnsyncedModels();
         });
     }
 
@@ -327,9 +392,9 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Reset a "sync" state for the given records.
+     * Reset a "sync" state of models by the given records.
      */
-    protected function resetSyncForRecords(iterable $records): void
+    protected function resetSyncedModelsByRecords(iterable $records): void
     {
         $this->query()
             ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($records))
@@ -347,37 +412,8 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Delete unsynced models from the database and return its amount.
-     *
-     * @TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-     * @TODO: integrate with soft delete.
+     * Daily delete
      */
-    protected function deleteUnsyncedModels(): int
-    {
-        $deleted = 0;
-
-        while ($this->unsynced()->exists()) {
-            $deleted += $this->unsynced()->delete();
-        }
-
-        return $deleted;
-    }
-
-    /**
-     * Get a query instance of synced models.
-     */
-    protected function synced(): Builder
-    {
-        return $this->query()->where(self::IS_SYNCED, true);
-    }
-
-    /**
-     * Get a query instance of unsynced models.
-     */
-    protected function unsynced(): Builder
-    {
-        return $this->query()->where(self::IS_SYNCED, false);
-    }
 
     /**
      * Truncate the table with translations of the seeder.
