@@ -196,39 +196,3 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
-
-## 🔨 To Do
-
-- [ ] add addressing feature:
-  - https://twitter.com/danjharrin/status/1528682224916254720
-  - https://github.com/commerceguys/addressing
-- [ ] consider adding soft deletes.
-- [ ] seed only columns from mapping that are present in the database table
-- [ ] add report for daily update / delete
-- [ ] update cs fixer
-- [ ] add info about translations (powered by nevadskiy/laravel-translations package)
-- [ ] add possibility to use source with multiple countries
-- [ ] consider scopes for deletes what if records is using in the app?
-- [ ] probably add global method `withoutDeletes` to disable deleting at all (and in the sync method as well).
-- [ ] refactor filters for cities population or country only
-- [ ] add minimum laravel version with upserts (or throw an exception if version is lower)
-- [ ] add info about 256 MB memory required for seeding (add possibility to configure chunks)
-- [ ] add info about SYNC command (it can be used when parameters changed to sync according to new seeder configuration, for example, when new country added or population increased, etc)
-- [ ] add report for sync command (created: 3, updated: 12, deleted: 1)
-- [ ] probably return lazy collection from parser
-- [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
-- [ ] provide basic kit for local seeding and testing
-- [ ] feature model deleting (cities, divisions, countries, continents)
-- [ ] add GeonamesServiceProvider to publish and register there models and other set up
-- [ ] think about timestamps for syncing and daily updates
-- [ ] use minimal set up (no morph map, no nova resources, no uuid)
-- [ ] add doc how to avoid memory leaks (ignition, telescope, etc.), remove `GeonamesReadyEvent`
-  - [ ] for flare disable query report: report_query_bindings 
-- [ ] add possibility to store country capitals separately (probably use PCL code for capitals from cities table)
-- [ ] specify correct translations version
-- [ ] move nova resources into stubs
-- [ ] add possibility to customize models (probably also use them as stubs)
-- [ ] remove UUID
-- [ ] check `no-country.zip` geonames file
-
-- [ ] PR to laravel method that creates a lazy collection instance from iterator/generator
