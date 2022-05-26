@@ -37,6 +37,13 @@ abstract class TranslationSeeder implements Seeder
     protected $locales = ['*'];
 
     /**
+     * The parent model list for which translations are stored.
+     *
+     * @var array
+     */
+    protected $parentModels = [];
+
+    /**
      * Make a new seeder instance.
      */
     public function __construct()
@@ -48,6 +55,17 @@ abstract class TranslationSeeder implements Seeder
      * Get a model for which translations are stored.
      */
     abstract protected function baseModel(): Model;
+
+    /**
+     * Get a query of model translations.
+     */
+    protected function query(): Builder
+    {
+        return $this->baseModel()
+            ->translations()
+            ->getModel()
+            ->newQuery();
+    }
 
     /**
      * @inheritdoc
@@ -77,7 +95,9 @@ abstract class TranslationSeeder implements Seeder
         });
     }
 
-    // TODO: probably remove.
+    /**
+     * Get a collection of records.
+     */
     protected function getRecordsCollection(): LazyCollection
     {
         return new LazyCollection(function () {
@@ -87,84 +107,11 @@ abstract class TranslationSeeder implements Seeder
         });
     }
 
-    protected function loadResourcesBeforeMapping(LazyCollection $records): void
-    {
-        //
-    }
-
-    protected function unloadResourcesAfterMapping(): void
-    {
-        //
-    }
-
-    /**
-     * Prepare records for seeding.
-     */
-    protected function prepareRecords(iterable $records): LazyCollection
-    {
-        return new LazyCollection(function () use ($records) {
-            foreach ($records as $record) {
-                if ($this->filter($record)) {
-                    yield $this->map($record);
-                }
-            }
-        });
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function update(): void
-    {
-        $this->dailyUpdate();
-        $this->dailyDelete();
-    }
-
-    /**
-     * Truncate the table with translations of the seeder.
-     */
-    public function truncate(): void
-    {
-        $this->query()->truncate();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDailyModifications(): Generator
-    {
-        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
-
-        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDailyDeletes(): Generator
-    {
-        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesDeletes();
-
-        foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * Get a query of model translations.
-     */
-    protected function query(): Builder
-    {
-        return $this->baseModel()
-            ->translations()
-            ->getModel()
-            ->newQuery();
-    }
-
     /**
      * Get the source records.
+     *
+     * @TODO: use DI downloader.
+     * @TODO: use DI parser.
      */
     protected function getRecords(): Generator
     {
@@ -176,17 +123,50 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
+     * Load resources before record attributes mapping.
+     */
+    protected function loadResourcesBeforeMapping(LazyCollection $records): void
+    {
+        $this->parentModels = $this->baseModel()
+            ->newQuery()
+            ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
+            ->pluck('id', 'geoname_id')
+            ->toArray();
+    }
+
+    /**
+     * Unload resources after record attributes mapping.
+     */
+    protected function unloadResourcesAfterMapping(): void
+    {
+        $this->parentModels = [];
+    }
+
+    /**
+     * Prepare records for seeding.
+     */
+    protected function prepareRecords(iterable $records): iterable
+    {
+        foreach ($records as $record) {
+            if ($this->filter($record)) {
+                yield $this->map($record);
+            }
+        }
+    }
+
+    /**
      * Determine if the given record should be seeded.
      */
     protected function filter(array $record): bool
     {
-        // TODO: think about importing fallback locale... (what if fallback locale is custom, not english)
-
-        return $this->isSupportedLocale($record['isolanguage']);
+        return isset($this->parentModels[$record['geonameid']])
+            && $this->isSupportedLocale($record['isolanguage']);
     }
 
     /**
      * Determine if the given locale is supported.
+     *
+     * @TODO: consider importing fallback locale... (what if fallback locale is custom, not english)
      */
     protected function isSupportedLocale(?string $locale): bool
     {
@@ -238,7 +218,68 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Map the relation attributes of the record.
      */
-    abstract protected function mapRelation(array $record): array;
+    protected function mapRelation(array $record): array
+    {
+        return [
+            $this->getTranslationForeignKeyName() => $this->parentModels[$record['geonameid']],
+        ];
+    }
+
+    /**
+     * Get a foreign key name of the translation model.
+     */
+    protected function getTranslationForeignKeyName(): string
+    {
+        return $this->baseModel()
+            ->translations()
+            ->getForeignKeyName();
+    }
+
+    /**
+     * Update below
+     * TODO: disable CS fixer code style ordering methods.
+     */
+
+    /**
+     * @inheritdoc
+     */
+    public function update(): void
+    {
+        $this->dailyUpdate();
+        $this->dailyDelete();
+    }
+
+    /**
+     * Truncate the table with translations of the seeder.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getDailyModifications(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
+
+        foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getDailyDeletes(): Generator
+    {
+        $path = resolve(DownloadService::class)->downloadDailyAlternateNamesDeletes();
+
+        foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
+            yield $record;
+        }
+    }
 
     protected function getUpdatableAttributes(): array
     {
