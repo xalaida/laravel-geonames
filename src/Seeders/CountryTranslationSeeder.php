@@ -20,7 +20,7 @@ class CountryTranslationSeeder implements Seeder
     protected $countries;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -42,7 +42,7 @@ class CountryTranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function truncate(): void
     {
@@ -76,7 +76,7 @@ class CountryTranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function loadResourcesBeforeMapping(): void
     {
@@ -87,7 +87,7 @@ class CountryTranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function unloadResourcesAfterMapping(): void
     {

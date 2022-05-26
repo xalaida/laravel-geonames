@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CityTranslationSeeder extends TranslationSeeder
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function baseModel(): Model
     {

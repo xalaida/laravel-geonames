@@ -68,7 +68,7 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function seed(): void
     {
@@ -241,7 +241,7 @@ abstract class TranslationSeeder implements Seeder
      */
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(): void
     {
@@ -258,7 +258,7 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getDailyModifications(): Generator
     {
@@ -270,7 +270,7 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getDailyDeletes(): Generator
     {

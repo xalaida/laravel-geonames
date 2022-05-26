@@ -96,7 +96,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function loadResourcesBeforeMapping(): void
     {
@@ -105,7 +105,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function unloadResourcesAfterMapping(): void
     {
@@ -139,7 +139,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function filter(array $record): bool
     {
@@ -169,7 +169,7 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function mapAttributes(array $record): array
     {
