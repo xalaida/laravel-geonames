@@ -288,9 +288,6 @@ abstract class TranslationSeeder implements Seeder
 
     /**
      * Delete unsynced models from database and return its amount.
-     *
-     * @TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
-     * @TODO: integrate with soft delete.
      */
     protected function deleteUnsyncedModels(): int
     {
