@@ -11,6 +11,6 @@ class CountryTranslationSeeder extends TranslationSeeder
      */
     protected function baseModel(): Model
     {
-        return ContinentSeeder::model();
+        return CountrySeeder::model();
     }
 }
