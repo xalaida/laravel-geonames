@@ -126,26 +126,7 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Truncate a table of the model.
-     */
-    public function truncate(): void
-    {
-        $this->query()->truncate();
-    }
-
-    /**
-     * Perform a daily update of the database.
-     */
-    public function update(): void
-    {
-        $report = $this->dailyUpdate();
-        $report->incrementDeleted($this->dailyDelete());
-
-        // TODO: log report ($report->logUsing($this->logger))
-    }
-
-    /**
-     * Map the given dataset to records for seeding.
+     * Map records for seeding.
      */
     protected function mapRecords(iterable $records): LazyCollection
     {
@@ -154,18 +135,6 @@ abstract class ModelSeeder implements Seeder
                 if ($this->filter($record)) {
                     yield $this->map($record);
                 }
-            }
-        });
-    }
-
-    /**
-     * Map the given dataset to keyed records.
-     */
-    protected function mapRecordKeys(iterable $records): LazyCollection
-    {
-        return new LazyCollection(function () use ($records) {
-            foreach ($records as $record) {
-                yield $this->mapKey($record) => $record;
             }
         });
     }
@@ -192,6 +161,37 @@ abstract class ModelSeeder implements Seeder
      * Map fields to the model attributes.
      */
     abstract protected function mapAttributes(array $record): array;
+
+    /**
+     * Truncate a table of the model.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
+    }
+
+    /**
+     * Perform a daily update of the database.
+     */
+    public function update(): void
+    {
+        $report = $this->dailyUpdate();
+        $report->incrementDeleted($this->dailyDelete());
+
+        // TODO: log report ($report->logUsing($this->logger))
+    }
+
+    /**
+     * Map the given dataset to keyed records.
+     */
+    protected function mapRecordKeys(iterable $records): LazyCollection
+    {
+        return new LazyCollection(function () use ($records) {
+            foreach ($records as $record) {
+                yield $this->mapKey($record) => $record;
+            }
+        });
+    }
 
     /**
      * Map the record key.
