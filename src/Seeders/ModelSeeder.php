@@ -80,6 +80,8 @@ abstract class ModelSeeder implements Seeder
      */
     public function seed(): void
     {
+        $this->getLogger()->info(sprintf('Start seeding records using %s.', get_class($this)));
+
         $created = 0;
 
         foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
@@ -204,6 +206,8 @@ abstract class ModelSeeder implements Seeder
      */
     public function sync(): void
     {
+        $this->getLogger()->info(sprintf('Start syncing records using %s.', get_class($this)));
+
         $report = $this->withReport(function () {
             $this->resetSyncedModels();
 
@@ -324,6 +328,8 @@ abstract class ModelSeeder implements Seeder
      */
     public function update(): void
     {
+        $this->getLogger()->info(sprintf('Start updating records using %s.', get_class($this)));
+
         $report = $this->performDailyUpdate();
 
         $report->incrementDeleted(
