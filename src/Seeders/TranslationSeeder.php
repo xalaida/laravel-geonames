@@ -76,19 +76,19 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get prepared translation records for seeding.
+     * Get mapped translation records for seeding.
      */
     protected function getRecordsForSeeding(): LazyCollection
     {
         return new LazyCollection(function () {
             foreach ($this->getRecordsCollection()->chunk(1000) as $chunk) {
-                $this->loadResourcesBeforeMapping($chunk);
+                $this->loadResourcesBeforeChunkMapping($chunk);
 
-                foreach ($this->prepareRecords($chunk) as $record) {
+                foreach ($this->mapRecords($chunk) as $record) {
                     yield $record;
                 }
 
-                $this->unloadResourcesAfterMapping();
+                $this->unloadResourcesAfterChunkMapping($chunk);
             }
         });
     }
@@ -123,7 +123,7 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Load resources before record attributes mapping.
      */
-    protected function loadResourcesBeforeMapping(LazyCollection $records): void
+    protected function loadResourcesBeforeChunkMapping(LazyCollection $records): void
     {
         $this->parentModels = $this->baseModel()
             ->newQuery()
@@ -135,15 +135,15 @@ abstract class TranslationSeeder implements Seeder
     /**
      * Unload resources after record attributes mapping.
      */
-    protected function unloadResourcesAfterMapping(): void
+    protected function unloadResourcesAfterChunkMapping(LazyCollection $records): void
     {
         $this->parentModels = [];
     }
 
     /**
-     * Prepare records for seeding.
+     * Map records for seeding.
      */
-    protected function prepareRecords(iterable $records): iterable
+    protected function mapRecords(iterable $records): iterable
     {
         foreach ($records as $record) {
             if ($this->filter($record)) {
@@ -335,7 +335,7 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get prepared records for a daily update.
+     * Get mapped records for a daily update.
      */
     protected function getRecordsForDailyUpdate(): LazyCollection
     {
@@ -343,13 +343,13 @@ abstract class TranslationSeeder implements Seeder
             foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
                 $this->resetSyncedModelsByRecords($chunk);
 
-                $this->loadResourcesBeforeMapping($chunk);
+                $this->loadResourcesBeforeChunkMapping($chunk);
 
-                foreach ($this->prepareRecords($chunk) as $record) {
+                foreach ($this->mapRecords($chunk) as $record) {
                     yield $record;
                 }
 
-                $this->unloadResourcesAfterMapping();
+                $this->unloadResourcesAfterChunkMapping($chunk);
             }
         });
     }
@@ -414,7 +414,7 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get prepared records for a daily delete.
+     * Get records for a daily delete.
      */
     protected function getRecordsForDailyDelete(): LazyCollection
     {

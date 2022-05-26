@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 
-// TODO: add soft deletes to deleted methods.
+/**
+ * @TODO: add soft deletes to deleted methods.
+ */
 abstract class ModelSeeder implements Seeder
 {
-    use SeedsModelRecords;
     use SyncsModelRecords;
     use DailyUpdateModelRecords;
     use DailyDeleteModelRecords;
-    use LoadsMappingResources;
 
     /**
      * The column name of the synced date.
@@ -42,6 +42,87 @@ abstract class ModelSeeder implements Seeder
     protected function query(): Builder
     {
         return $this->newModel()->newQuery();
+    }
+
+    /**
+     * Get the source records.
+     */
+    abstract protected function getRecords(): iterable;
+
+    /**
+     * Seed records into database.
+     */
+    public function seed(): void
+    {
+        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+            $this->query()->insert($chunk->all());
+        }
+    }
+
+    /**
+     * Get mapped records for seeding.
+     */
+    protected function getRecordsForSeeding(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            $this->loadResourcesBeforeMapping();
+
+            foreach ($this->getRecordsCollection()->chunk(1000) as $chunk) {
+                $this->loadResourcesBeforeChunkMapping($chunk);
+
+                foreach ($this->mapRecords($chunk) as $record) {
+                    yield $record;
+                }
+
+                $this->unloadResourcesAfterChunkMapping($chunk);
+            }
+
+            $this->unloadResourcesAfterMapping();
+        });
+    }
+
+    /**
+     * Get a collection of records.
+     */
+    protected function getRecordsCollection(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getRecords() as $record) {
+                yield $record;
+            }
+        });
+    }
+
+    /**
+     * Load resources before records mapping of records.
+     */
+    protected function loadResourcesBeforeMapping(): void
+    {
+        //
+    }
+
+    /**
+     * Unload resources after mapping of records.
+     */
+    protected function unloadResourcesAfterMapping(): void
+    {
+        //
+    }
+
+    /**
+     * Load resources before mapping of chunk records.
+     */
+    protected function loadResourcesBeforeChunkMapping(LazyCollection $records): void
+    {
+        //
+    }
+
+    /**
+     * Unload resources after mapping of chunk records.
+     */
+    protected function unloadResourcesAfterChunkMapping(LazyCollection $records): void
+    {
+        //
     }
 
     /**
