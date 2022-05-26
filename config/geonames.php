@@ -67,6 +67,7 @@ return [
         /*
          * Indicates the locale list for translations.
          * Also, some translations have no defined concrete locale (nullable locale) that can be used for searching.
+         * TODO: refactor this to remove nullable from array.
          */
         'locales' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'pl', 'uk', 'ru', 'ja', 'zh', 'hi', 'ar', 'bn', null],
     ],
