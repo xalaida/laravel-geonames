@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * @TODO: add soft deletes to deleted methods.
@@ -31,6 +33,29 @@ abstract class ModelSeeder implements Seeder
      * @var string
      */
     protected const SYNC_KEY = 'geoname_id';
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface|null
+     */
+    protected $logger;
+
+    /**
+     * Set the logger instance.
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * Get the logger instance.
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger ?: new NullLogger();
+    }
 
     /**
      * Get a new model instance of the seeder.
@@ -55,9 +80,20 @@ abstract class ModelSeeder implements Seeder
      */
     public function seed(): void
     {
+        $created = 0;
+
         foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
             $this->query()->insert($chunk->all());
+
+            $created += $chunk->count();
         }
+
+        $this->getLogger()->info(sprintf(
+            "Records have been seeded using %s\n".
+            "Created: %s\n",
+            get_class($this),
+            number_format($created)
+        ));
     }
 
     /**
@@ -164,29 +200,34 @@ abstract class ModelSeeder implements Seeder
     abstract protected function mapAttributes(array $record): array;
 
     /**
-     * Get records for syncing database.
-     */
-    protected function getRecordsForSyncing(): iterable
-    {
-        return $this->getRecordsForSeeding();
-    }
-
-    /**
      * Sync database according to the dataset.
-     *
-     * @TODO: log report.
      */
     public function sync(): void
     {
-        $this->resetSyncedModels();
+        $report = $this->withReport(function () {
+            $this->resetSyncedModels();
 
-        $updatable = $this->getUpdatableAttributes();
+            $updatable = $this->getUpdatableAttributes();
 
-        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
-            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
-        }
+            foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+                $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
+            }
+        });
 
-        $this->deleteUnsyncedModels();
+        $report->incrementDeleted(
+            $this->deleteUnsyncedModels()
+        );
+
+        $this->getLogger()->info(sprintf(
+            "Records have been synced using %s\n".
+            "Created: %s\n".
+            "Updated: %s\n".
+            "Deleted: %s\n",
+            get_class($this),
+            number_format($report->getCreated()),
+            number_format($report->getUpdated()),
+            number_format($report->getDeleted())
+        ));
     }
 
     /**
@@ -280,19 +321,31 @@ abstract class ModelSeeder implements Seeder
 
     /**
      * Perform a daily update of the database.
-     *
-     * @TODO: log report ($report->logUsing($this->logger))
      */
     public function update(): void
     {
-        $report = $this->dailyUpdate();
-        $report->incrementDeleted($this->dailyDelete());
+        $report = $this->performDailyUpdate();
+
+        $report->incrementDeleted(
+            $this->performDailyDelete()
+        );
+
+        $this->getLogger()->info(sprintf(
+            "Records have been updated using %s\n".
+            "Created: %s\n".
+            "Updated: %s\n".
+            "Deleted: %s\n",
+            get_class($this),
+            number_format($report->getCreated()),
+            number_format($report->getUpdated()),
+            number_format($report->getDeleted())
+        ));
     }
 
     /**
      * Update database using the dataset with daily modifications.
      */
-    protected function dailyUpdate(): Report
+    protected function performDailyUpdate(): Report
     {
         $report = $this->withReport(function () {
             $updatable = $this->getUpdatableAttributes();
@@ -415,7 +468,7 @@ abstract class ModelSeeder implements Seeder
     /**
      * Delete records from database using the dataset of daily deletes.
      */
-    public function dailyDelete(): int
+    protected function performDailyDelete(): int
     {
         $deleted = 0;
 
@@ -451,5 +504,7 @@ abstract class ModelSeeder implements Seeder
     public function truncate(): void
     {
         $this->query()->truncate();
+
+        $this->getLogger()->info(sprintf('Table have been truncated using %s.', get_class($this)));
     }
 }

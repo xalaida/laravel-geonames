@@ -91,11 +91,12 @@ class CitySeeder extends ModelSeeder
 
     /**
      * @inheritdoc
-     * @TODO: refactor with DI downloader and parser.
+     * @TODO refactor with DI downloader and parser.
      */
     protected function getRecords(): iterable
     {
-        $path = resolve(DownloadService::class)->downloadAllCountries();
+        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
+        // $path = resolve(DownloadService::class)->downloadAllCountries();
 
         foreach (resolve(GeonamesParser::class)->each($path) as $record) {
             yield $record;
@@ -104,7 +105,7 @@ class CitySeeder extends ModelSeeder
 
     /**
      * @inheritdoc
-     * @TODO: refactor with DI downloader and parser.
+     * @TODO refactor with DI downloader and parser.
      */
     protected function getDailyModificationRecords(): iterable
     {
@@ -117,7 +118,7 @@ class CitySeeder extends ModelSeeder
 
     /**
      * @inheritdoc
-     * @TODO: refactor with DI downloader and parser.
+     * @TODO refactor with DI downloader and parser.
      */
     protected function getDailyDeleteRecords(): iterable
     {
