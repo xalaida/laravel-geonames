@@ -74,8 +74,7 @@ class DivisionSeeder extends ModelSeeder
      */
     protected function getRecords(): iterable
     {
-        $path = '/var/www/html/storage/meta/geonames/allCountries.txt';
-        // $path = resolve(DownloadService::class)->downloadAllCountries();
+        $path = resolve(DownloadService::class)->downloadAllCountries();
 
         foreach (resolve(GeonamesParser::class)->each($path) as $record) {
             yield $record;

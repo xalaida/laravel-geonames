@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
-use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
-use Nevadskiy\Geonames\Services\DownloadService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
