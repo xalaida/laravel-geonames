@@ -210,7 +210,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] probably add global method `withoutDeletes` to disable deleting at all (and in the sync method as well).
 - [ ] refactor filters for cities population or country only
 - [ ] add minimum laravel version with upserts (or throw an exception if version is lower)
-- [ ] add info about 256 MB memory required for seeding
+- [ ] add info about 256 MB memory required for seeding (add possibility to configure chunks)
 - [ ] add info about SYNC command (it can be used when parameters changed to sync according to new seeder configuration, for example, when new country added or population increased, etc)
 - [ ] add report for sync command (created: 3, updated: 12, deleted: 1)
 - [ ] probably return lazy collection from parser
