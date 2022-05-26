@@ -3,7 +3,7 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
+use Illuminate\Filesystem\Filesystem;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -50,8 +50,7 @@ class GeonamesUpdateCommand extends Command
     private function clean(): void
     {
         if ($this->option('clean')) {
-            // TODO: pass logger inside.
-            (new DirectoryCleaner())->clean(config('geonames.directory'));
+            (new Filesystem)->cleanDirectory(config('geonames.directory'));
         }
     }
 
