@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
@@ -278,14 +279,6 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Truncate a table of the model.
-     */
-    public function truncate(): void
-    {
-        $this->query()->truncate();
-    }
-
-    /**
      * Perform a daily update of the database.
      */
     public function update(): void
@@ -297,23 +290,82 @@ abstract class ModelSeeder implements Seeder
     }
 
     /**
-     * Map the given dataset to keyed records.
+     * Update database using the dataset with daily modifications.
      */
-    protected function mapRecordKeys(iterable $records): LazyCollection
+    protected function dailyUpdate(): Report
     {
-        return new LazyCollection(function () use ($records) {
-            foreach ($records as $record) {
-                yield $this->mapKey($record) => $record;
+        $report = $this->withReport(function () {
+            $updatable = $this->getUpdatableAttributes();
+
+            foreach ($this->getRecordsForDailyUpdate()->chunk(1000) as $chunk) {
+                $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
+            }
+        });
+
+        $report->incrementDeleted($this->deleteUnsyncedModels());
+
+        return $report;
+    }
+
+    /**
+     * Get mapped records for a daily update.
+     */
+    protected function getRecordsForDailyUpdate(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            $this->loadResourcesBeforeMapping();
+
+            foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
+                $this->resetSyncedModelsByRecords($chunk);
+
+                $this->loadResourcesBeforeChunkMapping($chunk);
+
+                foreach ($this->mapRecords($chunk) as $record) {
+                    yield $record;
+                }
+
+                $this->unloadResourcesAfterChunkMapping($chunk);
+            }
+
+            $this->unloadResourcesAfterMapping();
+        });
+    }
+
+    /**
+     * Get collection of records for daily modifications.
+     */
+    protected function getDailyModificationsCollection(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getDailyModificationRecords() as $record) {
+                yield $record;
             }
         });
     }
 
     /**
-     * Map the record key.
+     * Get records with daily modifications.
      */
-    protected function mapKey(array $record): string
+    abstract protected function getDailyModificationRecords(): iterable;
+
+    /**
+     * Reset a "sync" state of models by the given records.
+     */
+    protected function resetSyncedModelsByRecords(iterable $records): void
     {
-        return $record['geonameid'];
+        $this->query()
+            ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($records))
+            ->update([self::SYNCED_AT => null]);
+    }
+
+    /**
+     * Get sync keys by the given records.
+     */
+    protected function getSyncKeysByRecords(iterable $records): Collection
+    {
+        return (new Collection($records))->map(function (array $record) {
+            return $record['geonameid'];
+        });
     }
 
     /**
@@ -330,7 +382,6 @@ abstract class ModelSeeder implements Seeder
 
         $report->incrementCreated($this->query()->count() - $count);
         $report->incrementUpdated($this->getUpdateRecordsCountFrom($syncedAt));
-        $report->incrementDeleted($this->deleteUnsyncedModels());
 
         return $report;
     }
@@ -359,5 +410,13 @@ abstract class ModelSeeder implements Seeder
                 $query->whereDate(self::SYNCED_AT, '>', $syncDate);
             })
             ->count();
+    }
+
+    /**
+     * Truncate a table of the model.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
     }
 }
