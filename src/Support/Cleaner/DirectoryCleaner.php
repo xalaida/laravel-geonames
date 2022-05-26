@@ -4,6 +4,10 @@ namespace Nevadskiy\Geonames\Support\Cleaner;
 
 use DirectoryIterator;
 
+/**
+ * @TODO refactor
+ * @TODO log using logger (Directory has been cleaned: '...')
+ */
 class DirectoryCleaner
 {
     /**
@@ -15,6 +19,7 @@ class DirectoryCleaner
 
     /**
      * Do not remove the gitignore file.
+     * @todo Add 'except' method.
      *
      * @return $this
      */
