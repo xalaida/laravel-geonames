@@ -13,7 +13,7 @@ trait HasTranslations
     use BaseHasTranslations;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getEntityTranslationInstance(): Translation
     {

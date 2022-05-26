@@ -82,12 +82,12 @@ return [
 
     'seeders' => [
         Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
-        Nevadskiy\Geonames\Seeders\CountrySeeder::class,
-        Nevadskiy\Geonames\Seeders\DivisionSeeder::class,
-        Nevadskiy\Geonames\Seeders\CitySeeder::class,
         Nevadskiy\Geonames\Seeders\ContinentTranslationSeeder::class,
+        Nevadskiy\Geonames\Seeders\CountrySeeder::class,
         Nevadskiy\Geonames\Seeders\CountryTranslationSeeder::class,
+        Nevadskiy\Geonames\Seeders\DivisionSeeder::class,
         Nevadskiy\Geonames\Seeders\DivisionTranslationSeeder::class,
+        Nevadskiy\Geonames\Seeders\CitySeeder::class,
         Nevadskiy\Geonames\Seeders\CityTranslationSeeder::class,
     ],
 
