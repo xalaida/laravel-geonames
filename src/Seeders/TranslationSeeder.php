@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 use Generator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
@@ -12,7 +13,6 @@ use Nevadskiy\Geonames\Services\DownloadService;
 
 abstract class TranslationSeeder implements Seeder
 {
-    use Concerns\UpdatesTranslationRecordsDaily;
     use Concerns\DeletesTranslationRecordsDaily;
 
     /**
@@ -250,23 +250,141 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Truncate the table with translations of the seeder.
+     * Perform a daily update of the translation records.
      */
-    public function truncate(): void
+    protected function dailyUpdate(): void
     {
-        $this->query()->truncate();
+        $updatable = $this->getUpdatableAttributes();
+
+        foreach ($this->getRecordsForDailyUpdate()->chunk(1000) as $chunk) {
+            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
+        }
     }
 
     /**
-     * {@inheritdoc}
+     * Get the updatable attribute list.
      */
-    protected function getDailyModifications(): Generator
+    protected function getUpdatableAttributes(): array
+    {
+        return [
+            'name',
+            'is_preferred',
+            'is_short',
+            'is_colloquial',
+            'is_historic',
+            'locale',
+            'updated_at',
+        ];
+    }
+
+    /**
+     * Get prepared records for a daily update.
+     */
+    protected function getRecordsForDailyUpdate(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
+                $this->resetSyncForRecords($chunk);
+
+                $this->loadResourcesBeforeMapping($chunk);
+
+                foreach ($this->prepareRecords($chunk) as $record) {
+                    yield $record;
+                }
+
+                $this->unloadResourcesAfterMapping();
+            }
+
+            $this->deleteUnsyncedModels();
+        });
+    }
+
+    /**
+     * Get collection of records for daily modifications.
+     */
+    protected function getDailyModificationsCollection(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getDailyModificationRecords() as $record) {
+                yield $record;
+            }
+        });
+    }
+
+    /**
+     * Get records with daily modifications.
+     *
+     * @TODO: use DI downloader.
+     * @TODO: use DI parser.
+     */
+    protected function getDailyModificationRecords(): Generator
     {
         $path = resolve(DownloadService::class)->downloadDailyAlternateNamesModifications();
 
         foreach (resolve(AlternateNameParser::class)->each($path) as $record) {
             yield $record;
         }
+    }
+
+    /**
+     * Reset a "sync" state for the given records.
+     */
+    protected function resetSyncForRecords(iterable $records): void
+    {
+        $this->query()
+            ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($records))
+            ->update([self::IS_SYNCED => false]);
+    }
+
+    /**
+     * Get sync keys by the given records.
+     */
+    protected function getSyncKeysByRecords(iterable $records): Collection
+    {
+        return (new Collection($records))->map(function (array $record) {
+            return $record['alternateNameId'];
+        });
+    }
+
+    /**
+     * Delete unsynced models from the database and return its amount.
+     *
+     * @TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
+     * @TODO: integrate with soft delete.
+     */
+    protected function deleteUnsyncedModels(): int
+    {
+        $deleted = 0;
+
+        while ($this->unsynced()->exists()) {
+            $deleted += $this->unsynced()->delete();
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Get a query instance of synced models.
+     */
+    protected function synced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, true);
+    }
+
+    /**
+     * Get a query instance of unsynced models.
+     */
+    protected function unsynced(): Builder
+    {
+        return $this->query()->where(self::IS_SYNCED, false);
+    }
+
+    /**
+     * Truncate the table with translations of the seeder.
+     */
+    public function truncate(): void
+    {
+        $this->query()->truncate();
     }
 
     /**
@@ -279,18 +397,5 @@ abstract class TranslationSeeder implements Seeder
         foreach (resolve(AlternateNameDeletesParser::class)->each($path) as $record) {
             yield $record;
         }
-    }
-
-    protected function getUpdatableAttributes(): array
-    {
-        return [
-            'name',
-            'is_preferred',
-            'is_short',
-            'is_colloquial',
-            'is_historic',
-            'locale',
-            'updated_at',
-        ];
     }
 }
