@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
+use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,6 +30,8 @@ class GeonamesSyncCommand extends Command
     public function handle(): void
     {
         $this->sync($this->seeders());
+
+        $this->clean();
     }
 
     /**
@@ -38,6 +41,17 @@ class GeonamesSyncCommand extends Command
     {
         foreach ($seeders as $seeder) {
             $seeder->sync();
+        }
+    }
+
+    /**
+     * Clean the geonames downloads directory.
+     */
+    private function clean(): void
+    {
+        if ($this->option('clean')) {
+            // TODO: pass logger inside.
+            (new DirectoryCleaner())->clean(config('geonames.directory'));
         }
     }
 

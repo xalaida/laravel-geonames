@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
+use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,37 +33,24 @@ class GeonamesSeedCommand extends Command
     {
         $seeders = $this->seeders();
 
-        if ($this->option('truncate')) {
-            $this->truncate($seeders);
-        }
-
-        // TODO: do not import locales: wkdt, post, link, ...
-        // TODO: build console logger and set it from here like this:
-        // TODO: add decorator for downloader that captures all downloaded files and allow the possibility to delete them after.
-        // TODO: do not import locales: wkdt, post, link, ...
-        // TODO: configure donwloader to reuse existing file even when remote size is different
-
-        /*
-         * function handle(Parser $parser)
-         * {
-         *   $parser->setLogger($this->consoleLogger())
-         *   $parser->setProgress($this->consoleProgress())
-         * }
-         */
+        $this->truncate($seeders);
 
         $this->seed($seeders);
+
+        $this->clean();
     }
 
     /**
      * Truncate tables using given seeders.
+     *
+     * TODO: add prod confirmation.
      */
     private function truncate(array $seeders): void
     {
-        // TODO: add confirmation
-        // TODO: add success message
-
-        foreach (array_reverse($seeders) as $seeder) {
-            $seeder->truncate();
+        if ($this->option('truncate')) {
+            foreach (array_reverse($seeders) as $seeder) {
+                $seeder->truncate();
+            }
         }
     }
 
@@ -73,6 +61,17 @@ class GeonamesSeedCommand extends Command
     {
         foreach ($seeders as $seeder) {
             $seeder->seed();
+        }
+    }
+
+    /**
+     * Clean the geonames downloads directory.
+     */
+    private function clean(): void
+    {
+        if ($this->option('clean')) {
+            // TODO: pass logger inside.
+            (new DirectoryCleaner())->clean(config('geonames.directory'));
         }
     }
 
