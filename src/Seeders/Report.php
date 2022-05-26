@@ -64,7 +64,7 @@ class Report
      */
     public function incrementUpdated(int $updated): void
     {
-        $this->updated = $updated;
+        $this->updated += $updated;
     }
 
     /**
@@ -88,6 +88,6 @@ class Report
      */
     public function incrementDeleted(int $deleted): void
     {
-        $this->deleted = $deleted;
+        $this->deleted += $deleted;
     }
 }
