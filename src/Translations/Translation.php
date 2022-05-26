@@ -2,9 +2,9 @@
 
 namespace Nevadskiy\Geonames\Translations;
 
-use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Translatable\Strategies\AdditionalTable\Models\Translation as BaseTranslations;
 
-class Translation extends Model
+class Translation extends BaseTranslations
 {
     /**
      * The attributes that should be cast.
@@ -19,7 +19,5 @@ class Translation extends Model
         'is_synced' => 'boolean',
     ];
 
-    // TODO: probably extend AdditionalTable strategy model.
     // TODO: add some scopes for translation priority.
-    // TODO: make model use this trait
 }
