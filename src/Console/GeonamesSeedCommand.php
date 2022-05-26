@@ -11,12 +11,12 @@ class GeonamesSeedCommand extends Command
 {
     /**
      * The name and signature of the console command.
-     * TODO: add description to options
-     * TODO: rewrite keep files to clean files.
      *
      * @var string
      */
-    protected $signature = 'geonames:seed {--truncate} {--keep-files}';
+    protected $signature = 'geonames:seed
+                            {--truncate : Whether the table should be truncated before seeding}
+                            {--clean : Whether the directory with geonames downloads should be cleaned}';
 
     /**
      * The console command description.

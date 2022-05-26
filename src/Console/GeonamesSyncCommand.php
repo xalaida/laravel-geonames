@@ -11,12 +11,10 @@ class GeonamesSyncCommand extends Command
 {
     /**
      * The name and signature of the console command.
-     * TODO: add description to options
-     * TODO: rewrite keep files to clean files.
      *
      * @var string
      */
-    protected $signature = 'geonames:sync';
+    protected $signature = 'geonames:sync {--clean : Whether the directory with geonames downloads should be cleaned}';
 
     /**
      * The console command description.

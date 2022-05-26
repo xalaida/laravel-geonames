@@ -11,19 +11,17 @@ class GeonamesUpdateCommand extends Command
 {
     /**
      * The name and signature of the console command.
-     * TODO: add description to options
-     * TODO: rewrite keep files to clean files.
      *
      * @var string
      */
-    protected $signature = 'geonames:update';
+    protected $signature = 'geonames:update {--clean : Whether the directory with geonames downloads should be cleaned}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync the database according to the geonames dataset.';
+    protected $description = 'Perform a daily update of the database according to the geonames dataset.';
 
     /**
      * Execute the console command.
