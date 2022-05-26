@@ -234,10 +234,6 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Sync below
-     */
-
-    /**
      * Sync translations according to the geonames dataset.
      */
     public function sync(): void
@@ -314,10 +310,6 @@ abstract class TranslationSeeder implements Seeder
     {
         return $this->query()->where(self::IS_SYNCED, false);
     }
-
-    /**
-     * Update below
-     */
 
     /**
      * {@inheritdoc}
