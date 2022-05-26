@@ -12,9 +12,6 @@ use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
-use Nevadskiy\Geonames\Services\SupplyService;
-use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
-use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
 use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
 use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
@@ -44,7 +41,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloader();
         $this->registerFileReader();
         $this->registerParser();
-        $this->registerTranslationMapper();
         $this->registerIgnitionFixer();
     }
 
@@ -87,10 +83,6 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->app->when(BaseDownloader::class)
-                ->needs(LoggerInterface::class)
-                ->give(ConsoleLogger::class);
-
-            $this->app->when(SupplyService::class)
                 ->needs(LoggerInterface::class)
                 ->give(ConsoleLogger::class);
         }
@@ -137,28 +129,6 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any package translation mapper.
-     */
-    protected function registerTranslationMapper(): void
-    {
-        $this->app->bind(TranslationMapper::class, function () {
-            $mappers = collect([
-                'continent' => Suppliers\Translations\ContinentTranslationMapper::class,
-                'country' => Suppliers\Translations\CountryTranslationMapper::class,
-                'division' => Suppliers\Translations\DivisionTranslationMapper::class,
-                'city' => Suppliers\Translations\CityTranslationMapper::class,
-            ])
-                ->only(array_keys($this->app->make(Geonames::class)->modelClasses()))
-                ->map(function (string $mapper) {
-                    return $this->app->make($mapper);
-                })
-                ->toArray();
-
-            return new CompositeTranslationMapper($mappers);
-        });
-    }
-
-    /**
      * Register ignition memory limit fixer.
      */
     protected function registerIgnitionFixer(): void
@@ -178,11 +148,6 @@ class GeonamesServiceProvider extends ServiceProvider
                 Console\GeonamesSeedCommand::class,
                 Console\GeonamesSyncCommand::class,
                 Console\GeonamesUpdateCommand::class,
-
-                //Console\Insert\InsertCommand::class,
-                //Console\Insert\InsertTranslationsCommand::class,
-                //Console\Update\UpdateCommand::class,
-                //Console\Update\UpdateTranslationsCommand::class,
             ]);
         }
     }
