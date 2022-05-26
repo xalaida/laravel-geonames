@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
+use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
+use Nevadskiy\Geonames\Services\DownloadService;
 
 /**
  * @TODO: add soft deletes to deleted methods.
+ * @TODO: add possibility to use custom delete scopes.
  */
 abstract class ModelSeeder implements Seeder
 {
-    use DailyUpdateModelRecords;
-    use DailyDeleteModelRecords;
-
     /**
      * The column name of the synced date.
      *
@@ -280,13 +280,13 @@ abstract class ModelSeeder implements Seeder
 
     /**
      * Perform a daily update of the database.
+     *
+     * @TODO: log report ($report->logUsing($this->logger))
      */
     public function update(): void
     {
         $report = $this->dailyUpdate();
         $report->incrementDeleted($this->dailyDelete());
-
-        // TODO: log report ($report->logUsing($this->logger))
     }
 
     /**
@@ -411,6 +411,39 @@ abstract class ModelSeeder implements Seeder
             })
             ->count();
     }
+
+    /**
+     * Delete records from database using the dataset of daily deletes.
+     */
+    public function dailyDelete(): int
+    {
+        $deleted = 0;
+
+        foreach ($this->getRecordsForDailyDelete()->chunk(1000) as $chunk) {
+            $deleted += $this->query()
+                ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($chunk))
+                ->delete();
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Get records for a daily delete.
+     */
+    protected function getRecordsForDailyDelete(): LazyCollection
+    {
+        return new LazyCollection(function () {
+            foreach ($this->getDailyDeleteRecords() as $record) {
+                yield $record;
+            }
+        });
+    }
+
+    /**
+     * Get records with daily deletes.
+     */
+    abstract protected function getDailyDeleteRecords(): iterable;
 
     /**
      * Truncate a table of the model.
