@@ -4,7 +4,6 @@
 
 The package allows integrating geonames database with a Laravel application.
 
-
 ## 🗒️ Description
 
 The package is very useful for applications that rely on the geo data.
@@ -17,21 +16,30 @@ You can also set up the package to seed only data that belongs to specific count
 
 Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable).
 
-
 ## 🔌 Installation
 
 ```bash
 composer require nevadskiy/laravel-geonames
 ```
 
-
 ## ✅ Requirements
 
 - Laravel `7.0` or newer
 - PHP `7.2` or newer
 
-
 ## 🔨 Usage
+
+- publish config
+- publish migrations
+- publish models
+- customization
+  - (optional) edit migrations
+  - (optional) publish & edit seeders 
+  - (optional) specify seeders in config
+- migrate database
+- run seeders
+- set up daily updates in scheduler
+- (optional) publish nova resources
 
 ### Default structure and behaviour
 
@@ -182,16 +190,13 @@ php artisan geonames:insert --reset
 
 Please see [CHANGELOG](.github/CHANGELOG.md) for more information what has changed recently.
 
-
 ## ☕ Contributing
 
 Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
 
-
 ## 🔓 Security
 
 If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
-
 
 ## 📜 License
 
