@@ -5,10 +5,8 @@ namespace Nevadskiy\Geonames;
 use Facade\Ignition\QueryRecorder\QueryRecorder;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Nova\Nova;
 use Nevadskiy\Geonames\Events\GeonamesCommandReady;
 use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
-use Nevadskiy\Geonames\Nova as Resources;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
@@ -20,16 +18,10 @@ use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
 use Nevadskiy\Geonames\Support\FileReader\FileReader;
 use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
 use Nevadskiy\Geonames\Support\Output\OutputFactory;
-use Nevadskiy\Translatable\Translatable;
 use Psr\Log\LoggerInterface;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
-    /**
-     * The package's name.
-     */
-    protected const PACKAGE = 'geonames';
-
     /**
      * Register any package services.
      */
@@ -50,9 +42,7 @@ class GeonamesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootCommands();
-        $this->bootTranslatableMigrations();
         $this->publishConfig();
-        $this->publishMigrations();
     }
 
     /**
@@ -60,7 +50,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', self::PACKAGE);
+        $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', 'geonames');
     }
 
     /**
@@ -152,42 +142,12 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot any translatable migrations.
-     */
-    public function bootTranslatableMigrations(): void
-    {
-        $this->callAfterResolving(Translatable::class, function (Translatable $translatable) {
-            if (! $this->app[Geonames::class]->shouldSupplyTranslations()) {
-                $translatable->ignoreMigrations();
-            }
-        });
-    }
-
-    /**
      * Publish any package configurations.
      */
     protected function publishConfig(): void
     {
         $this->publishes([
             __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
-        ], self::PACKAGE.'-config');
-    }
-
-    /**
-     * Publish any package migrations.
-     */
-    protected function publishMigrations(): void
-    {
-        $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], self::PACKAGE.'-migrations');
-    }
-
-    /**
-     * Get the migration file with the given file name.
-     */
-    protected function migration(string $file): string
-    {
-        return __DIR__."/../database/migrations/{$file}";
+        ], 'geonames-config');
     }
 }
