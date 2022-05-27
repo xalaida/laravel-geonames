@@ -76,8 +76,6 @@ abstract class TranslationSeeder implements Seeder
 
         foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
             $this->query()->insert($chunk->all());
-
-            $created += $chunk->count();
         }
 
         $this->getLogger()->info(sprintf('Records have been seeded using %s.', get_class($this)));
