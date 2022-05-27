@@ -196,3 +196,7 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
+
+## To Do
+
+- [ ] specify correct `translatable` version.
