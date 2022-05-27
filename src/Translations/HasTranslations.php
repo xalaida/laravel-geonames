@@ -13,10 +13,10 @@ trait HasTranslations
     use BaseHasTranslations;
 
     /**
-     * {@inheritdoc}
+     * Get the translation model class.
      */
-    protected function getEntityTranslationInstance(): Translation
+    protected function getTranslationModelClass(): string
     {
-        return $this->newRelatedInstance(Translation::class);
+        return Translation::class;
     }
 }
