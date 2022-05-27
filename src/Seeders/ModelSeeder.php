@@ -488,6 +488,6 @@ abstract class ModelSeeder implements Seeder
     {
         $this->query()->truncate();
 
-        $this->getLogger()->info(sprintf('Table have been truncated using %s.', get_class($this)));
+        $this->getLogger()->info(sprintf('Table has been truncated using %s.', get_class($this)));
     }
 }
