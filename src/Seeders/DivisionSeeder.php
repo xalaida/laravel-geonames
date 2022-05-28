@@ -51,7 +51,7 @@ class DivisionSeeder extends ModelSeeder
     /**
      * Get the division model class.
      */
-    public function model(): string
+    public static function model(): string
     {
         return static::$model;
     }

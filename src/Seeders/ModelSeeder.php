@@ -36,14 +36,14 @@ abstract class ModelSeeder implements Seeder
     /**
      * Get the model name of the seeder.
      */
-    abstract protected function model(): string;
+    abstract public static function model(): string;
 
     /**
      * Get a new model instance of the seeder.
      */
     protected function newModel(): Model
     {
-        $model = $this->model();
+        $model = static::model();
 
         if (! is_a($model, Model::class, true)) {
             throw new RuntimeException(sprintf('The seeder model %s must extend the base Eloquent model.', $model));

@@ -65,7 +65,7 @@ class CountrySeeder extends ModelSeeder
     /**
      * Get the country model class.
      */
-    public function model(): string
+    public static function model(): string
     {
         return static::$model;
     }

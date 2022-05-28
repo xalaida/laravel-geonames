@@ -10,6 +10,7 @@ use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\Parsers\AlternateNameDeletesParser;
 use Nevadskiy\Geonames\Parsers\AlternateNameParser;
 use Nevadskiy\Geonames\Services\DownloadService;
+use RuntimeException;
 
 abstract class TranslationSeeder implements Seeder
 {
@@ -52,16 +53,30 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get a model for which translations are stored.
+     * Get a base model class for which translations are stored.
      */
-    abstract protected function baseModel(): Model;
+    abstract public static function baseModel(): string;
+
+    /**
+     * Get the base model instance of the seeder.
+     */
+    protected function newBaseModel(): Model
+    {
+        $model = static::baseModel();
+
+        if (! is_a($model, Model::class, true)) {
+            throw new RuntimeException(sprintf('The seeder model %s must extend the base Eloquent model.', $model));
+        }
+
+        return new $model();
+    }
 
     /**
      * Get a query of model translations.
      */
     protected function query(): Builder
     {
-        return $this->baseModel()
+        return $this->newBaseModel()
             ->translations()
             ->getModel()
             ->newQuery();
@@ -131,7 +146,7 @@ abstract class TranslationSeeder implements Seeder
      */
     protected function loadResourcesBeforeChunkMapping(LazyCollection $records): void
     {
-        $this->parentModels = $this->baseModel()
+        $this->parentModels = $this->newBaseModel()
             ->newQuery()
             ->whereIn('geoname_id', $records->pluck('geonameid')->unique())
             ->pluck('id', 'geoname_id')
@@ -234,7 +249,7 @@ abstract class TranslationSeeder implements Seeder
      */
     protected function getTranslationForeignKeyName(): string
     {
-        return $this->baseModel()
+        return $this->newBaseModel()
             ->translations()
             ->getForeignKeyName();
     }

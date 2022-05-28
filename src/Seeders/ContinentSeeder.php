@@ -53,7 +53,7 @@ class ContinentSeeder extends ModelSeeder
     /**
      * Get the continent model class.
      */
-    public function model(): string
+    public static function model(): string
     {
         return static::$model;
     }
