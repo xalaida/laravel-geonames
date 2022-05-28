@@ -218,7 +218,7 @@ Otherwise, you still can use the package without translations, just simply remov
 
 ## 📑 Changelog
 
-Please see [CHANGELOG](.github/CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
 ## ☕ Contributing
 
