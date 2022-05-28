@@ -27,8 +27,6 @@ class Translation extends BaseTranslations
     {
         static::addGlobalScope('sorting', function (Builder $query) {
             $query->orderBy('is_preferred');
-            $query->orderBy('is_short');
-            $query->orderByDesc('is_colloquial');
             $query->orderByDesc('is_historic');
         });
     }
