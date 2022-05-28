@@ -15,6 +15,7 @@ return [
     */
 
     'seeders' => [
+
         Nevadskiy\Geonames\Seeders\ContinentSeeder::class,
         Nevadskiy\Geonames\Seeders\ContinentTranslationSeeder::class,
         Nevadskiy\Geonames\Seeders\CountrySeeder::class,
@@ -23,6 +24,7 @@ return [
         Nevadskiy\Geonames\Seeders\DivisionTranslationSeeder::class,
         Nevadskiy\Geonames\Seeders\CitySeeder::class,
         Nevadskiy\Geonames\Seeders\CityTranslationSeeder::class,
+
     ],
 
     /*
