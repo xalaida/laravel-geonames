@@ -41,6 +41,15 @@ composer require nevadskiy/laravel-geonames
 - set up daily updates in scheduler
 - (optional) publish nova resources
 
+### Translations
+
+Translations are powered on the [nevadskiy/laravel-translatable](nevadskiy/laravel-translatable) package. 
+
+If you want to use them, download the package.
+
+If you don't want to use translations, you can remove the corresponding translation seeders from the config and the `HasTranslations` trait from published models as well.
+
+
 ### Default structure and behaviour
 
 - Migrate the database
@@ -204,5 +213,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## To Do
 
-- [ ] specify correct `translatable` version.
 - [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process) 
