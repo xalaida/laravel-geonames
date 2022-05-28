@@ -16,11 +16,11 @@ class CitySeeder extends ModelSeeder
     protected static $model = 'App\\Models\\Geo\\City';
 
     /**
-     * The population filter.
+     * The minimum population filter.
      *
      * @var int|null
      */
-    protected $population;
+    protected $minPopulation;
 
     /**
      * The allowed feature codes.
@@ -48,8 +48,8 @@ class CitySeeder extends ModelSeeder
      */
     public function __construct()
     {
-        $this->population = config('geonames.filters.cities.population');
         $this->featureCodes = config('geonames.filters.cities.feature_codes');
+        $this->minPopulation = config('geonames.filters.cities.min_population');
     }
 
     /**
@@ -162,11 +162,11 @@ class CitySeeder extends ModelSeeder
      */
     protected function isPopulationAllowed(array $record): bool
     {
-        if (is_null($this->population)) {
+        if (is_null($this->minPopulation)) {
             return true;
         }
 
-        return $record['population'] >= $this->population;
+        return $record['population'] >= $this->minPopulation;
     }
 
     /**

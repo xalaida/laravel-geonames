@@ -1,5 +1,7 @@
 <?php
 
+use Nevadskiy\Geonames\Definitions\FeatureCode;
+
 return [
 
     /*
@@ -34,9 +36,20 @@ return [
 
     'filters' => [
 
-        'countries' => ['*'],
+        'cities' => [
+            'min_population' => 500,
 
-        'population' => 500,
+            'feature_codes' => [
+                FeatureCode::PPL,
+                FeatureCode::PPLC,
+                FeatureCode::PPLA,
+                FeatureCode::PPLA2,
+                FeatureCode::PPLA3,
+                FeatureCode::PPLG,
+                FeatureCode::PPLS,
+                FeatureCode::PPLX,
+            ]
+        ],
 
     ],
 
@@ -50,6 +63,7 @@ return [
     */
 
     'translations' => [
+
         /*
          * The list of locales for which translations should be seeded.
          */
@@ -60,6 +74,7 @@ return [
          * These type of translations cannot be used for display but can be used for searching.
          */
         'nullable_locale' => true,
+
     ],
 
     /*
