@@ -2,11 +2,7 @@
 
 namespace Nevadskiy\Geonames;
 
-use Facade\Ignition\QueryRecorder\QueryRecorder;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
-use Nevadskiy\Geonames\Events\GeonamesCommandReady;
-use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
@@ -33,7 +29,6 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerDownloader();
         $this->registerFileReader();
         $this->registerParser();
-        $this->registerIgnitionFixer();
     }
 
     /**
@@ -115,16 +110,6 @@ class GeonamesServiceProvider extends ServiceProvider
             $this->app->extend(Parser::class, function (Parser $parser) {
                 return new ProgressParser($parser, OutputFactory::make());
             });
-        }
-    }
-
-    /**
-     * Register ignition memory limit fixer.
-     */
-    protected function registerIgnitionFixer(): void
-    {
-        if (class_exists(QueryRecorder::class)) {
-            $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
         }
     }
 
