@@ -167,14 +167,7 @@ class CitySeeder extends Seeder
 
 ### Nova resources
 
-- customization
-  - (optional) edit migrations
-  - (optional) publish & edit seeders 
-  - (optional) specify seeders in config
-- migrate database
-- run seeders
-- set up daily updates in scheduler
-- (optional) publish nova resources
+...
 
 ### Translations
 
