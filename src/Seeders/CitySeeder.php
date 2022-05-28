@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
 use Nevadskiy\Geonames\Services\DownloadService;
@@ -49,16 +48,8 @@ class CitySeeder extends ModelSeeder
      */
     public function __construct()
     {
-        $this->population = config('geonames.filters.population');
-        $this->featureCodes = [
-            FeatureCode::PPL,
-            FeatureCode::PPLC,
-            FeatureCode::PPLA,
-            FeatureCode::PPLA2,
-            FeatureCode::PPLA3,
-            FeatureCode::PPLX,
-            FeatureCode::PPLG,
-        ];
+        $this->population = config('geonames.filters.cities.population');
+        $this->featureCodes = config('geonames.filters.cities.feature_codes');
     }
 
     /**
