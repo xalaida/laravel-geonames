@@ -308,7 +308,9 @@ abstract class TranslationSeeder implements Seeder
      */
     protected function synced(): Builder
     {
-        return $this->query()->where(self::IS_SYNCED, true);
+        return $this->query()
+            ->whereNotNull(self::SYNC_KEY)
+            ->where(self::IS_SYNCED, true);
     }
 
     /**
@@ -330,7 +332,9 @@ abstract class TranslationSeeder implements Seeder
      */
     protected function unsynced(): Builder
     {
-        return $this->query()->where(self::IS_SYNCED, false);
+        return $this->query()
+            ->whereNotNull(self::SYNC_KEY)
+            ->where(self::IS_SYNCED, false);
     }
 
     /**

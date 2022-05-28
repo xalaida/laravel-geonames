@@ -262,9 +262,12 @@ abstract class ModelSeeder implements Seeder
      */
     protected function getColumns(): array
     {
-        return DB::connection()
+        return static::newModel()
+            ->getConnection()
             ->getSchemaBuilder()
-            ->getColumnListing(static::newModel()->getTable());
+            ->getColumnListing(
+                static::newModel()->getTable()
+            );
     }
 
     /**
@@ -285,7 +288,9 @@ abstract class ModelSeeder implements Seeder
      */
     protected function synced(): Builder
     {
-        return $this->query()->whereNotNull(self::SYNCED_AT);
+        return $this->query()
+            ->whereNotNull(self::SYNC_KEY)
+            ->whereNotNull(self::SYNCED_AT);
     }
 
     /**
@@ -310,7 +315,9 @@ abstract class ModelSeeder implements Seeder
      */
     protected function unsynced(): Builder
     {
-        return $this->query()->whereNull(self::SYNCED_AT);
+        return $this->query()
+            ->whereNotNull(self::SYNC_KEY)
+            ->whereNull(self::SYNCED_AT);
     }
 
     /**
