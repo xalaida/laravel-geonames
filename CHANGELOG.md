@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 
+## [0.4.0]
+### Added
+- Independent seeders
+- Laravel 9 support
+
+### Changed
+- Move models and nova resources to stubs
+
+### Removed
+- Unused code
+- Old suppliers
+- Direct translations dependency
+- UUID dependency
+
 ## [0.3.0] - 2022-04-29
 ### Changed
 - Rename `ReadOnly` trait to avoid conflict on PHP 8.1
