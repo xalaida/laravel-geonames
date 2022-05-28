@@ -9,8 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use RuntimeException;
 
 /**
  * @TODO: add soft deletes to deleted methods.
@@ -35,9 +34,23 @@ abstract class ModelSeeder implements Seeder
     protected const SYNC_KEY = 'geoname_id';
 
     /**
+     * Get the model name of the seeder.
+     */
+    abstract protected function model(): string;
+
+    /**
      * Get a new model instance of the seeder.
      */
-    abstract protected function newModel(): Model;
+    protected function newModel(): Model
+    {
+        $model = $this->model();
+
+        if (! is_a($model, Model::class, true)) {
+            throw new RuntimeException(sprintf('The seeder model %s must extend the base Eloquent model.', $model));
+        }
+
+        return new $model;
+    }
 
     /**
      * Get a query instance of the seeder's model.

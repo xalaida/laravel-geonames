@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
@@ -15,7 +14,7 @@ class DivisionSeeder extends ModelSeeder
      *
      * @var string
      */
-    protected static $model;
+    protected static $model = 'App\\Models\\Geo\\Division';
 
     /**
      * The allowed feature codes.
@@ -50,22 +49,11 @@ class DivisionSeeder extends ModelSeeder
     }
 
     /**
-     * Get the division model instance.
+     * Get the division model class.
      */
-    public static function model(): Model
+    public function model(): string
     {
-        // TODO: check if class exists and is a subclass of eloquent model
-        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
-
-        return new static::$model();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function newModel(): Model
-    {
-        return static::model();
+        return static::$model;
     }
 
     /**

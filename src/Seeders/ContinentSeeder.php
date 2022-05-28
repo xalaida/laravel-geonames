@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
 use Nevadskiy\Geonames\Parsers\GeonamesParser;
@@ -16,7 +15,7 @@ class ContinentSeeder extends ModelSeeder
      *
      * @var string
      */
-    protected static $model;
+    protected static $model = 'App\\Models\\Geo\\Continent';
 
     /**
      * The continent code generator instance.
@@ -52,22 +51,11 @@ class ContinentSeeder extends ModelSeeder
     }
 
     /**
-     * Get the continent model instance.
+     * Get the continent model class.
      */
-    public static function model(): Model
+    public function model(): string
     {
-        // TODO: check if class exists and is a subclass of eloquent model
-        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
-
-        return new static::$model();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function newModel(): Model
-    {
-        return static::model();
+        return static::$model;
     }
 
     /**

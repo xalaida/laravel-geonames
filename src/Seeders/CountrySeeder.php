@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Parsers\CountryInfoParser;
 use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
@@ -16,7 +15,7 @@ class CountrySeeder extends ModelSeeder
      *
      * @var string
      */
-    protected static $model;
+    protected static $model = 'App\\Models\\Geo\\Country';
 
     /**
      * The allowed feature codes.
@@ -64,22 +63,11 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Get the country model instance.
+     * Get the country model class.
      */
-    public static function model(): Model
+    public function model(): string
     {
-        // TODO: check if class exists and is a subclass of eloquent model
-        // TODO: consider guessing default model name (or skip it since the model should be published directly from stubs)
-
-        return new static::$model();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function newModel(): Model
-    {
-        return static::model();
+        return static::$model;
     }
 
     /**
