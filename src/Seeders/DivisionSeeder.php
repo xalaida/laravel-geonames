@@ -100,7 +100,7 @@ class DivisionSeeder extends ModelSeeder
      */
     protected function loadResourcesBeforeMapping(): void
     {
-        $this->countries = CountrySeeder::model()
+        $this->countries = CountrySeeder::newModel()
             ->newQuery()
             ->get()
             ->pluck('id', 'code')

@@ -41,7 +41,7 @@ abstract class ModelSeeder implements Seeder
     /**
      * Get a new model instance of the seeder.
      */
-    protected function newModel(): Model
+    public static function newModel(): Model
     {
         $model = static::model();
 
@@ -57,7 +57,7 @@ abstract class ModelSeeder implements Seeder
      */
     protected function query(): Builder
     {
-        return $this->newModel()->newQuery();
+        return static::newModel()->newQuery();
     }
 
     /**
@@ -181,7 +181,7 @@ abstract class ModelSeeder implements Seeder
      */
     protected function map(array $record): array
     {
-        return $this->newModel()
+        return static::newModel()
             ->forceFill($this->mapAttributes($record))
             ->getAttributes();
     }
@@ -264,7 +264,7 @@ abstract class ModelSeeder implements Seeder
     {
         return DB::connection()
             ->getSchemaBuilder()
-            ->getColumnListing($this->newModel()->getTable());
+            ->getColumnListing(static::newModel()->getTable());
     }
 
     /**

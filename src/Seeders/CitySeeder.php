@@ -130,7 +130,7 @@ class CitySeeder extends ModelSeeder
      */
     protected function loadCountries(): void
     {
-        $this->countries = CountrySeeder::model()
+        $this->countries = CountrySeeder::newModel()
             ->newQuery()
             ->pluck('id', 'code')
             ->all();
@@ -141,7 +141,7 @@ class CitySeeder extends ModelSeeder
      */
     protected function loadDivisions(): void
     {
-        $this->divisions = DivisionSeeder::model()
+        $this->divisions = DivisionSeeder::newModel()
             ->newQuery()
             ->get(['id', 'country_id', 'code'])
             ->groupBy(['country_id', 'code'])

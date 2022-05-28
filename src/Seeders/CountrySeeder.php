@@ -145,7 +145,7 @@ class CountrySeeder extends ModelSeeder
      */
     protected function loadContinents(): void
     {
-        $this->continents = ContinentSeeder::model()
+        $this->continents = ContinentSeeder::newModel()
             ->newQuery()
             ->get()
             ->pluck('id', 'code')
