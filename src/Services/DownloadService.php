@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Services;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
-use Nevadskiy\Geonames\Geonames;
 use Nevadskiy\Geonames\Support\Downloader\Downloader;
 
 class DownloadService
@@ -45,19 +44,19 @@ class DownloadService
     protected $downloader;
 
     /**
-     * The geonames instance.
+     * The path of directory for downloads.
      *
-     * @var Geonames
+     * @var string
      */
-    protected $geonames;
+    protected $directory;
 
     /**
      * DownloadService constructor.
      */
-    public function __construct(Downloader $downloader, Geonames $geonames)
+    public function __construct(Downloader $downloader)
     {
         $this->downloader = $downloader;
-        $this->geonames = $geonames;
+        $this->directory = config('geonames.directory');
     }
 
     /**
@@ -147,15 +146,18 @@ class DownloadService
     /**
      * Perform the downloading process.
      *
+     * @todo fix
      * @return array|string
      */
     protected function download(string $url)
     {
-        return $this->downloader->download($url, $this->geonames->directory());
+        return $this->downloader->download($url, $this->directory);
     }
 
     /**
      * Get the URLs of the geonames sources.
+     *
+     * @todo fix
      */
     protected function getSourceUrls(): array
     {
@@ -222,6 +224,8 @@ class DownloadService
 
     /**
      * Get the geonames alternate names resource URLs.
+     *
+     * @todo fix
      */
     protected function getAlternateNamesUrl(): array
     {

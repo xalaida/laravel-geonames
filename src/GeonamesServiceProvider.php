@@ -24,7 +24,6 @@ class GeonamesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerConfig();
-        $this->registerGeonames();
         $this->registerLogger();
         $this->registerDownloader();
         $this->registerFileReader();
@@ -47,14 +46,6 @@ class GeonamesServiceProvider extends ServiceProvider
     protected function registerConfig(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', 'geonames');
-    }
-
-    /**
-     * Register the geonames.
-     */
-    protected function registerGeonames(): void
-    {
-        $this->app->singleton(Geonames::class);
     }
 
     /**
