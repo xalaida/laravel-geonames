@@ -38,6 +38,13 @@ abstract class TranslationSeeder implements Seeder
     protected $locales = ['*'];
 
     /**
+     * Indicates if a nullable locale is allowed.
+     *
+     * @var array
+     */
+    protected $nullableLocale = true;
+
+    /**
      * The parent model list for which translations are stored.
      *
      * @var array
@@ -50,6 +57,7 @@ abstract class TranslationSeeder implements Seeder
     public function __construct()
     {
         $this->locales = config('geonames.translations.locales');
+        $this->nullableLocale = config('geonames.translations.nullable_locale');
     }
 
     /**
@@ -189,6 +197,10 @@ abstract class TranslationSeeder implements Seeder
      */
     protected function isSupportedLocale(?string $locale): bool
     {
+        if (is_null($locale)) {
+            return $this->nullableLocale;
+        }
+
         if ($this->isWildcardLocale()) {
             return true;
         }
