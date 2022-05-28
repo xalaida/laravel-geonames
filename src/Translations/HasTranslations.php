@@ -7,7 +7,6 @@ use Nevadskiy\Translatable\Strategies\AdditionalTableExtended\HasTranslations as
 
 /**
  * @mixin Model
- * @todo delete this file and add getTranslationModelClass() method to each model.
  */
 trait HasTranslations
 {
