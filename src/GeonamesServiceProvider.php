@@ -43,6 +43,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->bootCommands();
         $this->publishConfig();
+        $this->publishMigrations();
     }
 
     /**
@@ -136,7 +137,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $this->commands([
                 Console\GeonamesSeedCommand::class,
                 Console\GeonamesSyncCommand::class,
-                Console\GeonamesUpdateCommand::class,
+                Console\GeonamesDailyUpdateCommand::class,
             ]);
         }
     }
@@ -149,5 +150,17 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
         ], 'geonames-config');
+    }
+
+    /**
+     * Publish any package migrations.
+     *
+     * @TODO consider publishing from stubs.
+     */
+    protected function publishMigrations(): void
+    {
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'geonames-migrations');
     }
 }

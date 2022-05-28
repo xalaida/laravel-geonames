@@ -8,14 +8,14 @@ use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GeonamesUpdateCommand extends Command
+class GeonamesDailyUpdateCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'geonames:update {--clean : Whether the directory with geonames downloads should be cleaned}';
+    protected $signature = 'geonames:daily-update {--clean : Whether the directory with geonames downloads should be cleaned}';
 
     /**
      * The console command description.
