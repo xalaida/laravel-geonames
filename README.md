@@ -35,9 +35,138 @@ composer require nevadskiy/laravel-translatable
 
 ## 🔨 Usage
 
-- publish config
-- publish migrations
-- publish models
+Publish the geonames files.
+
+```
+php artisan ...
+```
+
+It will publish the package migrations and models.
+
+### Seeding
+
+Before seeding, make sure you run the database migrations.
+
+```bash
+php artisan migrate
+```
+
+Then, run the seeding process.
+
+```bash
+php artisan geonames:seed
+```
+
+It will download geonames resources and insert the dataset into your database.
+
+> Note that the seeding process may take some time. On average, it takes about 40 minutes (without downloading time) to seed the full dataset with translations.
+
+### Filtering
+
+To reduce the database size, you can set up filters for seeding only those geo data that you really need in your application.
+
+For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
+
+Filters can be set up in the config file by the `geonames.filters` path.
+
+### Memory leaks
+
+...
+
+### Schedule updates
+
+Add the following code to your console kernel (`app/Console/Kernel.php`) if you want to receive geonames daily updates.
+
+Geonames daily updates are published at 3:00 in the UTC time zone, so to be sure that they are already available, it is recommended to run the command a bit later.
+
+```php
+protected function schedule(Schedule $schedule)
+{
+    $schedule->command('geonames:daily-update')->dailyAt('4:00');
+}
+```
+
+> Note that time is specified for the `UTC` timezone.
+
+### Syncing
+
+If you missed some daily updates or just decided to change seeder filters, you can force the sync process.
+
+```bash
+php artisan geonames:sync
+```
+
+This command will create missing records, remove redundant ones, and updated modified ones according to the current dataset.
+
+### Customization
+
+If you want to customize migrations or data that should be imported, also publish seeders and the config file.
+
+Publish the package config.
+
+```bash
+php artisan vendor:publish --tag=geonames-config
+```
+
+Publish the package seeders.
+
+```bash
+php artisan ...
+```
+
+After publishing the seeders, make sure that you have specified those classes instead of original ones in the config file by the `geonames.seeders` path.
+
+#### Removing unnecessary fields from database tables
+
+You can reduce the database size by removing unnecessary fields from the database tables.
+
+To do that, just remove those fields from the migrations and the seeder will handle in automatically.
+
+> Note that the `synced_at` and `geoname_id` fields are needed to synchronize data, so they should be present.
+
+#### Custom seeders
+
+For a more significant change in the structure, you can add your own seeders or extend existing ones.
+
+Each seeder must implement the `Nevadskiy\Geonames\Seeders\Seeder` interface.
+
+All seeders that are specified in the config for the `geonames.seeders` path will be executed one after another in the specified order.
+
+#### Attributes mapping
+
+To add custom fields to the table, you also need to tell the seeder how to fill those fields using the `mapAttributes` method.
+
+For example, if you want to use UUIDs as primary keys, you can extend the original seeder as following:
+
+```php
+<?php
+
+namespace App\Seeders;
+
+use App\Models\Geo\City;
+use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
+
+class CitySeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected static $model = City::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return array_merge(parent::mapAttributes($record), [
+            'id' => City::generateUuid(),
+        ]);
+    }
+}
+```
+
+### Nova resources
+
 - customization
   - (optional) edit migrations
   - (optional) publish & edit seeders 
@@ -49,157 +178,15 @@ composer require nevadskiy/laravel-translatable
 
 ### Translations
 
-Translations are powered on the [nevadskiy/laravel-translatable](nevadskiy/laravel-translatable) package. 
+To use translations you need to install the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-If you want to use them, download the package.
+Read its documentation to learn more about how it works. You can also use it to handle translations of other models.
 
-If you don't want to use translations, you can remove the corresponding translation seeders from the config and the `HasTranslations` trait from published models as well.
+Otherwise, you still can use the package without translations, just simply remove the following:
 
-
-### Default structure and behaviour
-
-- Migrate the database
-
-```bash
-php artisan migrate
-```
-
-- Run insert process
-
-```bash
-php artisan geonames:insert
-```
-
-It will insert download and insert the geonames dataset into your database.
-
-> Note that the insert process may take some time. On average, it is about 15 minutes (without downloading time). 
-
-### Schedule updates
-
-Add the following code to your console kernel (`app/Console/Kernel.php`) if you want to receive geonames daily updates.
-
-```php
-protected function schedule(Schedule $schedule)
-{
-    $schedule->command('geonames:update')->dailyAt('4:00');
-}
-```
-
-> Note, that time is specified for the `UTC` timezone, so if you run server on another timezone, you need to convert time according to it. 
-
-### Configure custom structure
-
-If you want to configure package according to your needs, you need to publish the package configuration first.
-
-```
-php artisan vendor:publish --tag=geonames-config
-```
-
-#### Specifying source
-
-You can choose appropriate data source for seeding as one of `SOURCE_ALL_COUNTRIES`, `SOURCE_SINGLE_COUNTRY` or `SOURCE_ONLY_CITIES`.
-
-The default is `SOURCE_ALL_COUNTRIES` that indicates to fetch data from the [allCountries.zip](http://download.geonames.org/export/dump/) file.
-It contains all 4 models (`continents`, `countries`, `divisions` and `cities`). 
-You can configure [filters](#specifying-filters)  in the `geonames` configuration file to specify [countries](#countries-filter) that is going to be seeded and [minimal population](#population-filter).
-
-The `SOURCE_SINGLE_COUNTRY` source is used to fetch data from country-based files (e.g. [US.zip](http://download.geonames.org/export/dump/)).
-The `continents` table will not be seeded with this source.
-You can specify which country (or countries) you are going to seed specifying [countries filter](#countries-filter) in the `geonames` configuration file.
-
-The `SOURCE_ONLY_CITIES` source is used to fetch data from city-based files (e.g. [cities500.zip](http://download.geonames.org/export/dump/)).
-There is only `cities` table available with this source type.
-You can specify [minimal population filter](#population-filter) to indicate which file it is going to fetch by population.
-It is also possible to use countries filter to seed cities that belongs only to specific countries.
-
-#### Specifying filters
-
-By default, there are two filters which you can use to filter data being seeded.
-
-#### Countries filter
-
-The `countries` filter is used to filter data that belongs only to specific country (or countries).
-If the `SOURCE_SINGLE_COUNTRY` [source](#specifying-source) is specified, this filter will be used to download a country-based data source.
-The default is `*` that indicates that all countries are allowed. Multiple countries can be specified as an array of ISO country codes.
-
-Example:
-```php
-'filters' => [
-    'countries' => ['AU', 'US']
-]
-```
-
-#### Population filter
-
-The `population` filter is used to filter cities by the indicated minimal population.
-If the `SOURCE_ONLY_CITIES` [source](#specifying-source) is specified, this filter will be used to download a city-based data source.
-Any value from `0` and higher has be used, but in combination with the `SOURCE_ONLY_CITIES` source, available values are only `500`, `1000`, `5000` and `15000`.
-
-Example:
-
-```php
-'filters' => [
-    'population' => 15000
-]
-```
-
-#### Overriding models
-
-Most likely you will need your own models with their own behaviour and relations instead of provided ones by default.
-
-To override them, use `models` key in the `geonames` configuration file.
-
-If you are not going to use any model, you can switch the value to `false` and then corresponding tables will not be migrated at all.
-
-For example, most applications probably will not need continent model.
-
-```php
-'models' => [
-    'continent' => false,
-    'country' => App\Models\Country::class,
-    'division' => App\Models\Division::class,
-    'city' => App\Models\City::class,
-],
-```
-
-#### Overriding migrations
-
-To rename tables or remove unnecessary fields, you can publish migrations and edit them before execution migrations command.
-
-- To publish default migrations, use the following command:
-
-```
-php artisan vendor:publish --tag=geonames-migrations
-```
-
-- Then disable default migrations from being migrated, setting `default_migrations` to `false` in the `geonames` configuration file.
-
-```php
-'default_migrations' => false
-```
-
-#### Inserting custom structure
-
-- After configuring [source](#specifying-source) and [filters](#specifying-filters), you can execute migrations command.
-It will determine which tables should be migrated and create them in the database.
-
-```bash
-php artisan migrate
-```
-
-- Then you can run insert command.
-
-```bash
-php artisan geonames:insert
-```
-
-#### Reinserting dataset
-
-Sometimes you may need to delete all data and reinsert it again. To do it, pass the `--reset` option to `geonames:insert` command.
-
-```bash
-php artisan geonames:insert --reset
-```
+- translation seeders from the config file
+- translation migrations
+- the `HasTranslations` trait from published models
 
 ## 📑 Changelog
 
@@ -217,6 +204,9 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
-## To Do
-
-- [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process) 
+## 🔨 To Do
+ 
+- [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
+- [ ] refactor seeders to use DI parser and downloader.
+- [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
+- [ ] consider local seeding with testing data
