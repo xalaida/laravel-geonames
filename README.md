@@ -61,6 +61,45 @@ It will download geonames resources and insert the dataset into your database.
 
 > Note that the seeding process may take some time. On average, it takes about 40 minutes (without downloading time) to seed the full dataset with translations.
 
+### Memory leaks
+
+One of the most popular errors associated with seeding large amounts of data is a memory leak.
+
+This package reads files using PHP generators and [lazy collections](https://laravel.com/docs/9.x/collections#lazy-collection-introduction) so as not to load the entire file into memory.
+
+However, there are packages that log database queries and model events during long-running commands to memory, which leads to memory leaks.
+
+There are instructions on how to avoid memory leaks when working with the following packages:
+
+- [Laravel Ignition](https://github.com/spatie/laravel-ignition)
+
+Publish flare config using `php artisan vendor:publish --tag=flare-config`.
+
+Set `report_query_bindings` to `false` in the `flare.php` config file as following:
+
+```php
+'flare_middleware' => [
+    ...
+    AddQueries::class => [
+        'maximum_number_of_collected_queries' => 200,
+        'report_query_bindings' => false,
+    ],
+    ...
+]
+```
+
+- [Laravel Telescope](https://github.com/laravel/telescope)
+
+Update the `telescope.php` config file as following:
+
+```php
+'ignore_commands' => [
+    'geonames:seed',
+    'geonames:sync',
+    'geonames:daily-update',
+]
+```
+
 ### Filtering
 
 To reduce the database size, you can set up filters for seeding only those geo data that you really need in your application.
@@ -68,10 +107,6 @@ To reduce the database size, you can set up filters for seeding only those geo d
 For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
 
 Filters can be set up in the config file by the `geonames.filters` path.
-
-### Memory leaks
-
-...
 
 ### Schedule updates
 
@@ -204,3 +239,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
 - [ ] consider local seeding with testing data
 - [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API)
+- [ ] log total time of execution console commands in human friendly format
