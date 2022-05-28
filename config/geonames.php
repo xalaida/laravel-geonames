@@ -37,7 +37,7 @@ return [
     'filters' => [
 
         'cities' => [
-            'min_population' => 500,
+            'min_population' => 5000,
 
             'feature_codes' => [
                 FeatureCode::PPL,

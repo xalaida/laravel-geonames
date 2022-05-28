@@ -234,9 +234,11 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
  
+- [ ] add stubs
 - [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
 - [ ] refactor seeders to use DI parser and downloader.
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
 - [ ] consider local seeding with testing data
 - [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API)
 - [ ] log total time of execution console commands in human friendly format
+- [ ] fix tests
