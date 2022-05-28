@@ -2,19 +2,19 @@
 
 **Currently, the work in progress. It will receive updates with possible breaking changes. Not recommended using in production environments yet.**
 
-The package allows integrating geonames database with a Laravel application.
+The package provides geonames seeders for a Laravel application.
 
 ## 🗒️ Description
 
-The package is very useful for applications that rely on the geo data.
+The package is useful for applications that rely on the geo data.
 
-By default, the package provides 5 tables: `continents`, `countries`, `divisions`, `cities` and `translations` and fills them with data from the [geonames](https://www.geonames.org/) service.
+It allows seeding the database using the [geonames](https://www.geonames.org/) service.
 
-It also allows to keep the data **up-to-date**, so the package fetches all daily modifications provided by the [geonames](https://www.geonames.org/) service and use them to synchronize your own database.
+By default, it provides 4 models: `Continent`, `Country`, `Division`, `City` and also allows you to add translations for them.
 
-You can also set up the package to seed only data that belongs to specific countries, disable unneeded tables, set up minimal population filter and use your own custom models.
+Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable).
+The package also keeps the data **up-to-date** by fetching daily modifications provided by the [geonames](https://www.geonames.org/) service and using them to synchronize your own database.
 
 ## 🔌 Installation
 
@@ -22,10 +22,16 @@ Translations are powered by the [nevadskiy/laravel-translatable](https://github.
 composer require nevadskiy/laravel-geonames
 ```
 
+If you are going to use translations, you also need to install an additional package.
+
+```bash
+composer require nevadskiy/laravel-translatable
+```
+
 ## ✅ Requirements
 
-- Laravel `7.0` or newer
-- PHP `7.2` or newer
+- Laravel `8.0` or newer
+- PHP `7.3` or newer
 
 ## 🔨 Usage
 
