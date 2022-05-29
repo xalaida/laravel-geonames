@@ -35,10 +35,10 @@ composer require nevadskiy/laravel-translatable
 
 ## 🔨 Usage
 
-Publish the geonames files.
+Publish geonames resources.
 
 ```
-php artisan ...
+php artisan vendor:publish --tag=geonames-migrations --tag=geonames-models
 ```
 
 It will publish the package migrations and models.
@@ -233,8 +233,7 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
- 
-- [ ] add stubs
+
 - [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
 - [ ] refactor seeders to use DI parser and downloader.
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).

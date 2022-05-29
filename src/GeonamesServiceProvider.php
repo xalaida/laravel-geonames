@@ -137,7 +137,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function publishMigrations(): void
     {
-        $this->publishes($this->stubPaths('database/migrations'), ['geonames-migrations']);
+        $this->publishes($this->stubPaths('database/migrations'), 'geonames-migrations');
     }
 
     /**
@@ -145,7 +145,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function publishModels(): void
     {
-        $this->publishes($this->stubPaths('app/Models/Geo'), ['geonames-models']);
+        $this->publishes($this->stubPaths('app/Models/Geo'), 'geonames-models');
     }
 
     /**
