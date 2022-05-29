@@ -157,7 +157,7 @@ class GeonamesServiceProvider extends ServiceProvider
 
         return collect((new Filesystem())->allFiles(__DIR__.'/../stubs/'.$path))
             ->mapWithKeys(function (SplFileInfo $file) use ($path) {
-                return [$file->getPathname() => base_path($path.'/'.Str::beforeLast($file->getFilename(), '.stub'))];
+                return [$file->getPathname() => base_path($path.'/'.Str::replaceLast('.stub', '.php', $file->getFilename()))];
             })
             ->all();
     }
