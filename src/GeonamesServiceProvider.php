@@ -2,7 +2,9 @@
 
 namespace Nevadskiy\Geonames;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Nevadskiy\Geonames\Parsers\FileParser;
 use Nevadskiy\Geonames\Parsers\Parser;
 use Nevadskiy\Geonames\Parsers\ProgressParser;
@@ -15,6 +17,7 @@ use Nevadskiy\Geonames\Support\FileReader\FileReader;
 use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
 use Nevadskiy\Geonames\Support\Output\OutputFactory;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
@@ -130,13 +133,29 @@ class GeonamesServiceProvider extends ServiceProvider
 
     /**
      * Publish any package migrations.
-     *
-     * @TODO consider publishing from stubs.
      */
     protected function publishMigrations(): void
     {
-        $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], 'geonames-migrations');
+        $this->publishes($this->migrations(), ['geonames-migrations']);
+    }
+
+    /**
+     * Get the migrations for publishing.
+     */
+    protected function migrations(): array
+    {
+        return collect((new Filesystem())->allFiles(__DIR__."/../stubs/database/migrations"))
+            ->mapWithKeys(function (SplFileInfo $file) {
+                return [$file->getPathname() => $this->migrationPath(Str::beforeLast($file->getFilename(), '.stub'))];
+            })
+            ->all();
+    }
+
+    /**
+     * Get the published migration path by the given migration name.
+     */
+    protected function migrationPath(string $name): string
+    {
+        return database_path(sprintf('migrations/%s.php', $name));
     }
 }
