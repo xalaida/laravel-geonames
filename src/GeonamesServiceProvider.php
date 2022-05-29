@@ -113,7 +113,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $this->commands([
                 Console\GeonamesSeedCommand::class,
                 Console\GeonamesSyncCommand::class,
-                Console\GeonamesDailyUpdateCommand::class,
+                Console\GeonamesUpdateCommand::class,
             ]);
         }
     }

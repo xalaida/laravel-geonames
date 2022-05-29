@@ -95,8 +95,8 @@ Update the `telescope.php` config file as following:
 ```php
 'ignore_commands' => [
     'geonames:seed',
+    'geonames:update',
     'geonames:sync',
-    'geonames:daily-update',
 ]
 ```
 
@@ -110,14 +110,14 @@ Filters can be set up in the config file by the `geonames.filters` path.
 
 ### Schedule updates
 
-Add the following code to your console kernel (`app/Console/Kernel.php`) if you want to receive geonames daily updates.
+Add the following code to the `app/Console/Kernel.php` file if you want to receive geonames daily updates.
 
 Geonames daily updates are published at 3:00 in the UTC time zone, so to be sure that they are already available, it is recommended to run the command a bit later.
 
 ```php
 protected function schedule(Schedule $schedule)
 {
-    $schedule->command('geonames:daily-update')->dailyAt('4:00');
+    $schedule->command('geonames:update')->dailyAt('4:00');
 }
 ```
 
