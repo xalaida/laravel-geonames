@@ -41,6 +41,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->bootCommands();
         $this->publishConfig();
         $this->publishMigrations();
+        $this->publishModels();
     }
 
     /**
@@ -136,26 +137,28 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function publishMigrations(): void
     {
-        $this->publishes($this->migrations(), ['geonames-migrations']);
+        $this->publishes($this->stubPaths('database/migrations'), ['geonames-migrations']);
     }
 
     /**
-     * Get the migrations for publishing.
+     * Publish any package models.
      */
-    protected function migrations(): array
+    protected function publishModels(): void
     {
-        return collect((new Filesystem())->allFiles(__DIR__."/../stubs/database/migrations"))
-            ->mapWithKeys(function (SplFileInfo $file) {
-                return [$file->getPathname() => $this->migrationPath(Str::beforeLast($file->getFilename(), '.stub'))];
+        $this->publishes($this->stubPaths('app/Models/Geo'), ['geonames-models']);
+    }
+
+    /**
+     * Get the stub paths for publishing by the given path.
+     */
+    protected function stubPaths(string $path): array
+    {
+        $path = trim($path, '/');
+
+        return collect((new Filesystem())->allFiles(__DIR__.'/../stubs/'.$path))
+            ->mapWithKeys(function (SplFileInfo $file) use ($path) {
+                return [$file->getPathname() => base_path($path.'/'.Str::beforeLast($file->getFilename(), '.stub'))];
             })
             ->all();
-    }
-
-    /**
-     * Get the published migration path by the given migration name.
-     */
-    protected function migrationPath(string $name): string
-    {
-        return database_path(sprintf('migrations/%s.php', $name));
     }
 }
