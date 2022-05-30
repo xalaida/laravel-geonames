@@ -2,7 +2,6 @@
 
 namespace App\Seeders;
 
-use App\Models\Geo\Translation;
 use Nevadskiy\Geonames\Seeders\CountryTranslationSeeder as Seeder;
 
 class CountryTranslationSeeder extends Seeder
