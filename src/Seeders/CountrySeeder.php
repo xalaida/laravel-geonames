@@ -29,14 +29,14 @@ class CountrySeeder extends ModelSeeder
      *
      * @var array
      */
-    private $countryInfo = [];
+    protected $countryInfo = [];
 
     /**
      * The continent list.
      *
      * @var array
      */
-    private $continents = [];
+    protected $continents = [];
 
     /**
      * Make a new seeder instance.
@@ -171,9 +171,9 @@ class CountrySeeder extends ModelSeeder
     {
         return array_merge($this->mapCountryInfoAttributes($record), [
             'name_official' => $record['asciiname'] ?: $record['name'],
-            'timezone_id' => $record['timezone'],
             'latitude' => $record['latitude'],
             'longitude' => $record['longitude'],
+            'timezone_id' => $record['timezone'],
             'population' => $record['population'],
             'elevation' => $record['elevation'],
             'dem' => $record['dem'],

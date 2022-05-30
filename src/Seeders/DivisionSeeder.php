@@ -28,7 +28,7 @@ class DivisionSeeder extends ModelSeeder
      *
      * @var array
      */
-    private $countries = [];
+    protected $countries = [];
 
     /**
      * Make a new seeder instance.
