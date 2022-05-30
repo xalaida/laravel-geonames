@@ -133,6 +133,8 @@ php artisan geonames:sync
 
 This command will create missing records, remove redundant ones, and updated modified ones according to the current dataset.
 
+> Note that the `synced_at` and `geoname_id` fields are required to synchronize data. For translation tables, these are the `is_synced` and `alternate_name_id` fields.
+
 ### Customization
 
 If you want to customize migrations or data that should be imported, also publish seeders and the config file.
@@ -150,14 +152,6 @@ php artisan vendor:publish --tag=geonames-seeders
 ```
 
 After publishing the seeders, make sure that you have specified those classes in the config file by the `geonames.seeders` path.
-
-#### Removing unnecessary fields from database tables
-
-You can reduce the database size by removing unnecessary fields from the database tables.
-
-To do that, just remove those fields from the migrations and the seeder will handle in automatically.
-
-> Note that the `synced_at` and `geoname_id` fields are required to synchronize data.
 
 #### Custom seeders
 
@@ -234,10 +228,12 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
+- [ ] refactor with base seeder.
 - [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
 - [ ] refactor seeders to use DI parser and downloader.
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
-- [ ] consider local seeding with testing data
-- [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API)
-- [ ] log total time of execution console commands in human friendly format
-- [ ] fix tests
+- [ ] consider local seeding with testing data.
+- [ ] doc `updatable` attribute columns.
+- [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API).
+- [ ] log total time of execution console commands in human friendly format.
+- [ ] fix tests.
