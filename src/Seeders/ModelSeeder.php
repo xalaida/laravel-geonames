@@ -7,7 +7,6 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 use RuntimeException;
 
@@ -236,7 +235,11 @@ abstract class ModelSeeder implements Seeder
         }
 
         return collect($this->getColumns())
-            ->diff(['id', self::SYNC_KEY, 'created_at'])
+            ->diff([
+                static::newModel()->getKeyName(),
+                self::SYNC_KEY,
+                static::newModel()::CREATED_AT
+            ])
             ->values()
             ->all();
     }
@@ -262,12 +265,10 @@ abstract class ModelSeeder implements Seeder
      */
     protected function getColumns(): array
     {
-        return static::newModel()
+        return $this->query()
             ->getConnection()
             ->getSchemaBuilder()
-            ->getColumnListing(
-                static::newModel()->getTable()
-            );
+            ->getColumnListing(static::newModel()->getTable());
     }
 
     /**

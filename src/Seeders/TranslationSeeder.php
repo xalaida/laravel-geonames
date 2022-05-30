@@ -287,19 +287,51 @@ abstract class TranslationSeeder implements Seeder
     }
 
     /**
-     * Get the updatable attribute list.
+     * Get updatable attributes of the model.
      */
     protected function getUpdatableAttributes(): array
     {
-        return [
-            'name',
-            'is_preferred',
-            'is_short',
-            'is_colloquial',
-            'is_historic',
-            'locale',
-            'updated_at',
-        ];
+        $updatable = $this->updatable();
+
+        if (! $this->isWildcardAttributes($updatable)) {
+            return $updatable;
+        }
+
+        return collect($this->getColumns())
+            ->diff([
+                $this->query()->getModel()->getKeyName(),
+                self::SYNC_KEY,
+                $this->query()->getModel()::CREATED_AT
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Determine if the given attributes is a wildcard.
+     */
+    protected function isWildcardAttributes(array $attributes): bool
+    {
+        return count($attributes) === 1 && $attributes[0] === '*';
+    }
+
+    /**
+     * Get the updatable attributes of the model.
+     */
+    protected function updatable(): array
+    {
+        return ['*'];
+    }
+
+    /**
+     * Get column list for the database model.
+     */
+    protected function getColumns(): array
+    {
+        return $this->query()
+            ->getConnection()
+            ->getSchemaBuilder()
+            ->getColumnListing($this->query()->getModel()->getTable());
     }
 
     /**
