@@ -42,6 +42,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->publishConfig();
         $this->publishMigrations();
         $this->publishModels();
+        $this->publishSeeders();
     }
 
     /**
@@ -146,6 +147,14 @@ class GeonamesServiceProvider extends ServiceProvider
     protected function publishModels(): void
     {
         $this->publishes($this->stubPaths('app/Models/Geo'), 'geonames-models');
+    }
+
+    /**
+     * Publish any package seeders.
+     */
+    protected function publishSeeders(): void
+    {
+        $this->publishes($this->stubPaths('app/Seeders'), 'geonames-seeders');
     }
 
     /**

@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Seeders;
+
+use App\Models\Geo\City;
+use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
+
+class CitySeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected static $model = City::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return parent::mapAttributes($record);
+    }
+}

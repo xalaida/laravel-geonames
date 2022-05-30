@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Seeders;
+
+use App\Models\Geo\Country;
+use Nevadskiy\Geonames\Seeders\CountrySeeder as Seeder;
+
+class CountrySeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected static $model = Country::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return parent::mapAttributes($record);
+    }
+}

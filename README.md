@@ -146,10 +146,10 @@ php artisan vendor:publish --tag=geonames-config
 Publish the package seeders.
 
 ```bash
-php artisan ...
+php artisan vendor:publish --tag=geonames-seeders
 ```
 
-After publishing the seeders, make sure that you have specified those classes instead of original ones in the config file by the `geonames.seeders` path.
+After publishing the seeders, make sure that you have specified those classes in the config file by the `geonames.seeders` path.
 
 #### Removing unnecessary fields from database tables
 
@@ -157,7 +157,7 @@ You can reduce the database size by removing unnecessary fields from the databas
 
 To do that, just remove those fields from the migrations and the seeder will handle in automatically.
 
-> Note that the `synced_at` and `geoname_id` fields are needed to synchronize data, so they should be present.
+> Note that the `synced_at` and `geoname_id` fields are required to synchronize data.
 
 #### Custom seeders
 

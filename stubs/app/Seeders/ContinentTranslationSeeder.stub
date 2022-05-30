@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Seeders;
+
+use App\Models\Geo\Translation;
+use Nevadskiy\Geonames\Seeders\ContinentTranslationSeeder as Seeder;
+
+class ContinentTranslationSeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return parent::mapAttributes($record);
+    }
+}
