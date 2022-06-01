@@ -237,3 +237,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API).
 - [ ] log total time of execution console commands in human friendly format.
 - [ ] fix tests.
+- [ ] remove doc blocks from models and resources to allow generating them locally using ide helper
