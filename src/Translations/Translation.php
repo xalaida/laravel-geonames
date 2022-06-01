@@ -3,7 +3,7 @@
 namespace Nevadskiy\Geonames\Translations;
 
 use Illuminate\Database\Eloquent\Builder;
-use Nevadskiy\Translatable\Strategies\AdditionalTable\Models\Translation as BaseTranslations;
+use Nevadskiy\Translatable\Strategies\ExtraTable\Models\Translation as BaseTranslations;
 
 class Translation extends BaseTranslations
 {

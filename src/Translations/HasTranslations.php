@@ -3,7 +3,7 @@
 namespace Nevadskiy\Geonames\Translations;
 
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Translatable\Strategies\AdditionalTableExtended\HasTranslations as BaseHasTranslations;
+use Nevadskiy\Translatable\Strategies\ExtraTableExtended\HasTranslations as BaseHasTranslations;
 
 /**
  * @mixin Model
