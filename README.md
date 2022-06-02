@@ -229,6 +229,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🔨 To Do
 
 - [ ] refactor with base seeder.
+- [ ] remove wildcard updatable attributes syntax, need to specify them directly
 - [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
 - [ ] refactor seeders to use DI parser and downloader.
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
