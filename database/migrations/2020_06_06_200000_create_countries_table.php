@@ -38,7 +38,7 @@ class CreateCountriesTable extends Migration
             $table->string('postal_code_regex')->nullable();
             $table->string('languages')->nullable(); // Can be normalized using separate table.
             $table->string('neighbours')->nullable(); // Can be normalized using separate table.
-            $table->float('area')->unsigned()->comment('In square kilometers.');
+            $table->float('area' 10, 2)->unsigned()->comment('In square kilometers.');
             $table->string('fips', 2)->nullable()->comment('Subject to change to iso code.');
             $table->bigInteger('population')->unsigned()->nullable();
             $table->smallInteger('dem')->nullable()->comment('Digital elevation model, srtm3 or gtopo30.');
