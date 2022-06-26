@@ -84,6 +84,7 @@ class GeonamesSeedCommand extends Command
             ->map(function ($seeder) {
                 $seeder = resolve($seeder);
 
+                // TODO: use LoggerAwareInterface
                 if (method_exists($seeder, 'setLogger')) {
                     // TODO: add stack logger that uses file log (resolve from config)
                     $seeder->setLogger(new ConsoleLogger($this->getOutput(), [
