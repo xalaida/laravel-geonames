@@ -16,16 +16,7 @@ class Unzipper
 
         if (! $destination) {
             $destination = $this->getDestinationDirectory($path);
-
-            // TODO: check if directory exists...
-
-            // TODO: create directory
-            if (!mkdir($destination) && !is_dir($destination)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $destination));
-            }
         }
-
-        $this->ensureDirectoryWritable($destination);
 
         $zip = new ZipArchive();
 
@@ -33,6 +24,7 @@ class Unzipper
             throw new RuntimeException(sprintf('Cannot open a ZIP archive: "%s"', $path));
         }
 
+        // TODO: check this on failure.
         $zip->extractTo($destination);
 
         $zip->close();
@@ -56,16 +48,6 @@ class Unzipper
     public function canBeUnzipped(string $path): bool
     {
         return substr($path, -4) === '.zip';
-    }
-
-    /**
-     * Ensure the given directory exists and is writable.
-     */
-    protected function ensureDirectoryWritable(string $directory): void
-    {
-        if (! is_dir($directory) || ! is_writable($directory)) {
-            throw new RuntimeException(sprintf('The "%s" must be a writable directory', $directory));
-        }
     }
 
     /**
