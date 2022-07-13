@@ -4,12 +4,11 @@ namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Psr\Log\LogLevel;
-use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class GeonamesSyncCommand extends Command
 {
+    use Seeders;
+
     /**
      * The name and signature of the console command.
      *
@@ -52,29 +51,5 @@ class GeonamesSyncCommand extends Command
         if ($this->option('clean')) {
             (new Filesystem)->cleanDirectory(config('geonames.directory'));
         }
-    }
-
-    /**
-     * Get the seeders list.
-     * TODO: refactor using CompositeSeeder that resolves list automatically according to the config options.
-     */
-    protected function seeders(): array
-    {
-        return collect(config('geonames.seeders'))
-            ->map(function ($seeder) {
-                $seeder = resolve($seeder);
-
-                // TODO: use LoggerAwareInterface
-                if (method_exists($seeder, 'setLogger')) {
-                    // TODO: add stack logger that uses file log (resolve from config)
-                    $seeder->setLogger(new ConsoleLogger($this->getOutput(), [
-                        LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-                        LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
-                    ]));
-                }
-
-                return $seeder;
-            })
-            ->all();
     }
 }
