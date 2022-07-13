@@ -1,5 +1,5 @@
 # Install the app
-install: build deps
+install: build composer.install
 
 # Build the app container
 build:
@@ -10,7 +10,7 @@ rebuild:
 	docker build --no-cache -t app .
 
 # Install app dependencies
-deps:
+composer.install:
 	docker run --rm -it -v ${PWD}:/app app composer install
 
 # Update app dependencies
