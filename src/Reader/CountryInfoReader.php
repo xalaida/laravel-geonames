@@ -43,7 +43,7 @@ class CountryInfoReader implements Reader
      */
     public function __construct(Reader $reader)
     {
-        $this->reader = $reader;
+        $this->reader = new HeadersReader($reader, $this->headers);
     }
 
     /**
@@ -51,16 +51,6 @@ class CountryInfoReader implements Reader
      */
     public function getRecords(string $path): iterable
     {
-        foreach ($this->reader->getRecords($path) as $record) {
-            yield $this->map($record);
-        }
-    }
-
-    /**
-     * Map headers to the record.
-     */
-    protected function map($record): array
-    {
-        return array_combine($this->headers, $record);
+        return $this->reader->getRecords($path);
     }
 }
