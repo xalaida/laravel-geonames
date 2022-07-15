@@ -6,13 +6,17 @@ class GeonamesReader implements Reader
 {
     /**
      * The reader instance.
+     *
+     * @var Reader
      */
-    private Reader $reader;
+    private $reader;
 
     /**
      * The record headers.
+     *
+     * @var array
      */
-    private array $headers = [
+    private $headers = [
         'geonameid', // integer id of record in geonames database
         'name', // name of geographical point (utf8) varchar(200)
         'asciiname', // name of geographical point in plain ascii characters, varchar(200)

@@ -60,6 +60,8 @@ class ConsoleProgressReader implements Reader
      */
     protected function getFileSize(string $path): int
     {
+        // TODO: consider cleaning file stats
+
         return filesize($path);
     }
 }
