@@ -21,6 +21,13 @@ class ConsoleProgressReader implements Reader
     protected $output;
 
     /**
+     * Indicates if a new line should be printed when progress bar finishes.
+     *
+     * @var string
+     */
+    protected $printNewLine = true;
+
+    /**
      * Make a new progress parser instance.
      */
     public function __construct(Reader $reader, OutputStyle $output)
@@ -45,6 +52,10 @@ class ConsoleProgressReader implements Reader
         }
 
         $progress->finish();
+
+        if ($this->printNewLine) {
+            $this->output->newLine();
+        }
     }
 
     /**
