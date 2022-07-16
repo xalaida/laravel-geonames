@@ -13,7 +13,7 @@ use RuntimeException;
  * @TODO: add soft deletes to deleted methods.
  * @TODO: add possibility to use custom delete scopes (by overriding default seeders).
  */
-abstract class NextModelSeeder extends BaseSeeder
+abstract class ModelSeeder extends BaseSeeder
 {
     /**
      * The column name of the sync key.

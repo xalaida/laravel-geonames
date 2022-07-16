@@ -6,7 +6,7 @@ use Illuminate\Support\Carbon;
 use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\Reader;
 
-class CitySeeder extends NextModelSeeder
+class CitySeeder extends ModelSeeder
 {
     /**
      * The city model class.

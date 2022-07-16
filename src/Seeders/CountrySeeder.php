@@ -7,7 +7,7 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Reader\CountryInfoReader;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountrySeeder extends NextModelSeeder
+class CountrySeeder extends ModelSeeder
 {
     /**
      * The country model class.

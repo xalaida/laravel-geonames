@@ -8,7 +8,7 @@ use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Reader\Reader;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
 
-class ContinentSeeder extends NextModelSeeder
+class ContinentSeeder extends ModelSeeder
 {
     /**
      * The continent model class.

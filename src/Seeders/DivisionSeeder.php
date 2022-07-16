@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 
-class DivisionSeeder extends NextModelSeeder
+class DivisionSeeder extends ModelSeeder
 {
     /**
      * The seeder division model class.
