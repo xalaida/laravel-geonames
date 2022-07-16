@@ -71,7 +71,7 @@ abstract class BaseSeeder implements Seeder
             $this->query()->insert($chunk->all());
         }
 
-        $this->getLogger()->info(sprintf('Start seeding records using: %s', get_class($this)));
+        $this->getLogger()->info(sprintf('Finish seeding records using: %s', get_class($this)));
     }
 
     /**
