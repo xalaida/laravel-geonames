@@ -17,7 +17,6 @@ class Translation extends BaseTranslations
         'is_short' => 'boolean',
         'is_colloquial' => 'boolean',
         'is_historic' => 'boolean',
-        'is_synced' => 'boolean',
     ];
 
     /**

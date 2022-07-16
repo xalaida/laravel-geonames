@@ -21,7 +21,6 @@ return new class extends Migration
             $table->boolean('is_historic');
             $table->string('locale', 24)->nullable()->comment('RFC 5646. See: https://www.rfc-editor.org/rfc/rfc5646.txt.');
             $table->integer('alternate_name_id')->unsigned()->unique()->comment('Geonames database identifier.');
-            $table->boolean('is_synced')->index();
             $table->timestamps();
 
             $table->index(['country_id', 'locale']);

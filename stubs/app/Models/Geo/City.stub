@@ -25,7 +25,6 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property int|null dem
  * @property string feature_code
  * @property int geoname_id
- * @property Carbon synced_at
  * @property Carbon created_at
  * @property Carbon updated_at
  */
@@ -41,7 +40,6 @@ class City extends Model
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
-        'synced_at' => 'date',
     ];
 
     /**

@@ -23,7 +23,6 @@ use Nevadskiy\Geonames\ValueObjects\Location;
  * @property string code
  * @property string feature_code
  * @property int geoname_id
- * @property Carbon synced_at
  * @property Carbon created_at
  * @property Carbon updated_at
  */
@@ -39,7 +38,6 @@ class Division extends Model
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
-        'synced_at' => 'date',
     ];
 
     /**
