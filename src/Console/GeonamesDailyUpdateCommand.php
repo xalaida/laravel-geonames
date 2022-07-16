@@ -5,7 +5,7 @@ namespace Nevadskiy\Geonames\Console;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
-class GeonamesUpdateCommand extends Command
+class GeonamesDailyUpdateCommand extends Command
 {
     use Seeders;
 
@@ -14,7 +14,7 @@ class GeonamesUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:update {--clean : Whether the directory with geonames downloads should be cleaned}';
+    protected $signature = 'geonames:daily-update {--clean : Whether the directory with geonames downloads should be cleaned}';
 
     /**
      * The console command description.
@@ -39,7 +39,7 @@ class GeonamesUpdateCommand extends Command
     protected function update(array $seeders): void
     {
         foreach ($seeders as $seeder) {
-            $seeder->update();
+            $seeder->dailyUpdate();
         }
     }
 

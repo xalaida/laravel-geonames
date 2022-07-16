@@ -17,7 +17,7 @@ interface Seeder
     /**
      * Perform a daily update of the database.
      */
-    public function update(): void;
+    public function dailyUpdate(): void;
 
     /**
      * Truncate database before seeding.
