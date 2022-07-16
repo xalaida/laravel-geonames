@@ -35,6 +35,13 @@ class ConsoleProgressDownloader implements Downloader
     protected $progress;
 
     /**
+     * A format of the progress bar.
+     *
+     * @var string|null
+     */
+    protected $format;
+
+    /**
      * Indicates if a new line should be printed when progress bar finishes.
      *
      * @var string
@@ -50,6 +57,14 @@ class ConsoleProgressDownloader implements Downloader
         $this->output = $output;
 
         $this->setUpCurl();
+    }
+
+    /**
+     * Specify the format of the progress bar.
+     */
+    public function setFormat(string $format)
+    {
+        $this->format = $format;
     }
 
     /**
@@ -76,6 +91,10 @@ class ConsoleProgressDownloader implements Downloader
     public function download(string $url, string $destination): string
     {
         $this->progress = $this->output->createProgressBar();
+
+        if ($this->format) {
+            $this->progress->setFormat($this->format);
+        }
 
         $this->progress->start();
 
