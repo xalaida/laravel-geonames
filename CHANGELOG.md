@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- `nevadskiy/downloader` library
+- `league/csv` library
+
+### Changed
+- Refactoring
+- Syncing strategy
+- Fix migration fields
+
+### Removed
+- `FileReader` class
+- `Downloader` class
 
 ## [0.4.0]
 ### Added
