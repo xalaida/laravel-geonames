@@ -7,7 +7,7 @@ class DivisionTranslationSeeder extends TranslationSeeder
     /**
      * {@inheritdoc}
      */
-    public static function baseModel(): string
+    public static function translatableModel(): string
     {
         return DivisionSeeder::model();
     }

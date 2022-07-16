@@ -7,7 +7,7 @@ class CityTranslationSeeder extends TranslationSeeder
     /**
      * {@inheritdoc}
      */
-    public static function baseModel(): string
+    public static function translatableModel(): string
     {
         return CitySeeder::model();
     }
