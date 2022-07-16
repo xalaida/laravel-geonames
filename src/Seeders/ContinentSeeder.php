@@ -2,13 +2,13 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Support\Carbon;
+use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
-use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
+use Nevadskiy\Geonames\Reader\Reader;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
-use Nevadskiy\Geonames\Services\DownloadService;
 
-class ContinentSeeder extends ModelSeeder
+class ContinentSeeder extends NextModelSeeder
 {
     /**
      * The continent model class.
@@ -29,21 +29,22 @@ class ContinentSeeder extends ModelSeeder
      *
      * @var array
      */
-    protected $featureCodes = [];
+    protected $featureCodes = [
+        FeatureCode::CONT,
+    ];
 
     /**
      * Make a new seeder instance.
      */
-    public function __construct(ContinentCodeGenerator $codeGenerator)
+    public function __construct(Downloader $downloader, Reader $reader, ContinentCodeGenerator $codeGenerator)
     {
+        parent::__construct($downloader, $reader);
         $this->codeGenerator = $codeGenerator;
-        $this->featureCodes = [
-            FeatureCode::CONT,
-        ];
     }
 
     /**
      * Use the given continent model class.
+     * @TODO consider moving to parent class
      */
     public static function useModel(string $model): void
     {
@@ -56,45 +57,6 @@ class ContinentSeeder extends ModelSeeder
     public static function model(): string
     {
         return static::$model;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadAllCountries();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyModificationRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyModifications();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyDeleteRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyDeletes();
-
-        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
     }
 
     /**
@@ -120,9 +82,8 @@ class ContinentSeeder extends ModelSeeder
             'dem' => $record['dem'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-            'synced_at' => $record['modification date'],
             'created_at' => now(),
-            'updated_at' => now(),
+            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date']),
         ];
     }
 }

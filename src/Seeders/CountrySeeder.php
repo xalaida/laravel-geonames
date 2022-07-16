@@ -2,13 +2,12 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
-use Nevadskiy\Geonames\Parsers\CountryInfoParser;
-use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
+use Nevadskiy\Geonames\Reader\CountryInfoReader;
 use Nevadskiy\Geonames\Services\DownloadService;
 
-class CountrySeeder extends ModelSeeder
+class CountrySeeder extends NextModelSeeder
 {
     /**
      * The country model class.
@@ -22,7 +21,15 @@ class CountrySeeder extends ModelSeeder
      *
      * @var array
      */
-    protected $featureCodes = [];
+    protected $featureCodes = [
+        FeatureCode::PCLI,
+        FeatureCode::PCLD,
+        FeatureCode::TERR,
+        FeatureCode::PCLIX,
+        FeatureCode::PCLS,
+        FeatureCode::PCLF,
+        FeatureCode::PCL,
+    ];
 
     /**
      * The country info list.
@@ -37,22 +44,6 @@ class CountrySeeder extends ModelSeeder
      * @var array
      */
     protected $continents = [];
-
-    /**
-     * Make a new seeder instance.
-     */
-    public function __construct()
-    {
-        $this->featureCodes = [
-            FeatureCode::PCLI,
-            FeatureCode::PCLD,
-            FeatureCode::TERR,
-            FeatureCode::PCLIX,
-            FeatureCode::PCLS,
-            FeatureCode::PCLF,
-            FeatureCode::PCL,
-        ];
-    }
 
     /**
      * Use the given country model class.
@@ -72,45 +63,6 @@ class CountrySeeder extends ModelSeeder
 
     /**
      * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadAllCountries();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyModificationRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyModifications();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyDeleteRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyDeletes();
-
-        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
      */
     protected function loadResourcesBeforeMapping(): void
     {
@@ -119,25 +71,23 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function unloadResourcesAfterMapping(): void
-    {
-        $this->countryInfo = [];
-        $this->continents = [];
-    }
-
-    /**
      * Load the country info resources.
      */
     protected function loadCountryInfo(): void
     {
-        // TODO: refactor downloading by passing Downloader instance from constructor.
-        $path = resolve(DownloadService::class)->downloadCountryInfo();
-
-        $this->countryInfo = collect(resolve(CountryInfoParser::class)->all($path))
-            ->keyBy('geonameid')
+        $this->countryInfo = collect($this->getCountryInfoRecords())
+            ->keyBy('geoname_id')
             ->all();
+    }
+
+    /**
+     * Get the country info records.
+     */
+    protected function getCountryInfoRecords(): iterable
+    {
+        return (new CountryInfoReader($this->reader))->getRecords(
+            (new DownloadService($this->downloader))->downloadCountryInfo()
+        );
     }
 
     /**
@@ -147,9 +97,17 @@ class CountrySeeder extends ModelSeeder
     {
         $this->continents = ContinentSeeder::newModel()
             ->newQuery()
-            ->get()
             ->pluck('id', 'code')
             ->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function unloadResourcesAfterMapping(): void
+    {
+        $this->countryInfo = [];
+        $this->continents = [];
     }
 
     /**
@@ -179,9 +137,8 @@ class CountrySeeder extends ModelSeeder
             'dem' => $record['dem'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-            'synced_at' => $record['modification date'],
             'created_at' => now(),
-            'updated_at' => now(),
+            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date']),
         ]);
     }
 
