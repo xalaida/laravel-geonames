@@ -7,7 +7,7 @@ class ContinentTranslationSeeder extends TranslationSeeder
     /**
      * {@inheritdoc}
      */
-    public static function baseModel(): string
+    public static function translatableModel(): string
     {
         return ContinentSeeder::model();
     }
