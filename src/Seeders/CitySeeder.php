@@ -2,11 +2,11 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Services\DownloadService;
+use Illuminate\Support\Carbon;
+use Nevadskiy\Downloader\Downloader;
+use Nevadskiy\Geonames\Reader\Reader;
 
-class CitySeeder extends ModelSeeder
+class CitySeeder extends NextModelSeeder
 {
     /**
      * The city model class.
@@ -46,8 +46,9 @@ class CitySeeder extends ModelSeeder
     /**
      * Make a new seeder instance.
      */
-    public function __construct()
+    public function __construct(Downloader $downloader, Reader $reader)
     {
+        parent::__construct($downloader, $reader);
         $this->featureCodes = config('geonames.filters.cities.feature_codes');
         $this->minPopulation = config('geonames.filters.cities.min_population');
     }
@@ -66,45 +67,6 @@ class CitySeeder extends ModelSeeder
     public static function model(): string
     {
         return static::$model;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO: refactor with DI downloader and parser.
-     */
-    protected function getRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadAllCountries();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO: refactor with DI downloader and parser.
-     */
-    protected function getDailyModificationRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyModifications();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO: refactor with DI downloader and parser.
-     */
-    protected function getDailyDeleteRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyDeletes();
-
-        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
     }
 
     /**
@@ -186,9 +148,8 @@ class CitySeeder extends ModelSeeder
             'dem' => $record['dem'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-            'synced_at' => $record['modification date'],
             'created_at' => now(),
-            'updated_at' => now(),
+            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date']),
         ];
     }
 

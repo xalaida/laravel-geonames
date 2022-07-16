@@ -16,6 +16,7 @@ use Nevadskiy\Geonames\Reader\Reader;
  * @TODO: add possibility to use custom delete scopes.
  * @TODO: delete static::newModel call (this is not abstract function)
  * @TODO: rename methods that return collection (getCollection or something)
+ * @TODO: add possibility to change chunk size
  */
 abstract class BaseSeeder implements Seeder
 {
@@ -376,7 +377,7 @@ abstract class BaseSeeder implements Seeder
     }
 
     /**
-     * Get a previous "synced_at" date.
+     * Get a previous "" date.
      */
     protected function getPreviousSyncDate(): ?DateTimeInterface
     {

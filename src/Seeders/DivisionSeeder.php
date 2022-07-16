@@ -2,12 +2,10 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
-use Nevadskiy\Geonames\Parsers\GeonamesDeletesParser;
-use Nevadskiy\Geonames\Parsers\GeonamesParser;
-use Nevadskiy\Geonames\Services\DownloadService;
 
-class DivisionSeeder extends ModelSeeder
+class DivisionSeeder extends NextModelSeeder
 {
     /**
      * The seeder division model class.
@@ -21,7 +19,9 @@ class DivisionSeeder extends ModelSeeder
      *
      * @var array
      */
-    protected $featureCodes = [];
+    protected $featureCodes = [
+        FeatureCode::ADM1
+    ];
 
     /**
      * The country list.
@@ -29,16 +29,6 @@ class DivisionSeeder extends ModelSeeder
      * @var array
      */
     protected $countries = [];
-
-    /**
-     * Make a new seeder instance.
-     */
-    public function __construct()
-    {
-        $this->featureCodes = [
-            FeatureCode::ADM1,
-        ];
-    }
 
     /**
      * Use the given division model class.
@@ -58,51 +48,11 @@ class DivisionSeeder extends ModelSeeder
 
     /**
      * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadAllCountries();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyModificationRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyModifications();
-
-        foreach (resolve(GeonamesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @TODO refactor with DI downloader and parser.
-     */
-    protected function getDailyDeleteRecords(): iterable
-    {
-        $path = resolve(DownloadService::class)->downloadDailyDeletes();
-
-        foreach (resolve(GeonamesDeletesParser::class)->each($path) as $record) {
-            yield $record;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
      */
     protected function loadResourcesBeforeMapping(): void
     {
         $this->countries = CountrySeeder::newModel()
             ->newQuery()
-            ->get()
             ->pluck('id', 'code')
             ->all();
     }
@@ -140,9 +90,8 @@ class DivisionSeeder extends ModelSeeder
             'code' => $record['admin1 code'],
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
-            'synced_at' => $record['modification date'],
             'created_at' => now(),
-            'updated_at' => now(),
+            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date']),
         ];
     }
 }

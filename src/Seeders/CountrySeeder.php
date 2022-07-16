@@ -75,9 +75,9 @@ class CountrySeeder extends NextModelSeeder
      */
     protected function loadCountryInfo(): void
     {
-        $this->countryInfo = collect($this->getCountryInfoRecords())
-            ->keyBy('geoname_id')
-            ->all();
+        foreach ($this->getCountryInfoRecords() as $record) {
+            $this->countryInfo[$record['geonameid']] = $record;
+        }
     }
 
     /**
