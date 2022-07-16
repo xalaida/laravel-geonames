@@ -2,14 +2,13 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
-use Carbon\Carbon;
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\Reader;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * @TODO: add soft deletes to deleted methods.
@@ -37,6 +36,13 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     protected $reader;
 
     /**
+     * The logger instance.
+     *
+     * @var LoggerInterface|null
+     */
+    protected $logger;
+
+    /**
      * The chunk size of the records.
      */
     protected $chunkSize = 1000;
@@ -58,12 +64,28 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Get the sync key of the seeder.
      */
-    abstract protected function getSyncKey(): string;
+    abstract protected function getSyncKeyName(): string;
 
     /**
      * Get the source records.
      */
     abstract protected function getRecords(): iterable;
+
+    /**
+     * Set the logger instance.
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * Get the logger instance.
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger ?: new NullLogger();
+    }
 
     /**
      * Seed records into database.
@@ -195,7 +217,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         $updatable = $this->getUpdatableAttributes();
 
         foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
-            $this->query()->upsert($chunk->all(), [$this->getSyncKey()], $updatable);
+            $this->query()->upsert($chunk->all(), [$this->getSyncKeyName()], $updatable);
         }
 
         $this->deleteUnsyncedModels();
@@ -216,9 +238,9 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
         return collect($this->getColumns())
             ->diff([
-                static::newModel()->getKeyName(),
-                $this->getSyncKey(),
-                static::newModel()::CREATED_AT
+                static::query()->getModel()->getKeyName(),
+                $this->getSyncKeyName(),
+                static::query()->getModel()::CREATED_AT
             ])
             ->values()
             ->all();
@@ -248,7 +270,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         return $this->query()
             ->getConnection()
             ->getSchemaBuilder()
-            ->getColumnListing(static::newModel()->getTable());
+            ->getColumnListing(static::query()->getModel()->getTable());
     }
 
     /**
@@ -269,7 +291,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     protected function synced(): Builder
     {
         return $this->query()
-            ->whereNotNull($this->getSyncKey())
+            ->whereNotNull($this->getSyncKeyName())
             ->whereNotNull('updated_at');
     }
 
@@ -294,33 +316,32 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     protected function unsynced(): Builder
     {
         return $this->query()
-            ->whereNotNull($this->getSyncKey())
+            ->whereNotNull($this->getSyncKeyName())
             ->whereNull('updated_at');
     }
 
     /**
      * Perform a daily update of the database.
-     * @TODO consider renaming to dailyUpdate (and then rename current daily update to applyDailyModifications applyDailyDeletes)
-     * @TODO add to add custom deleting models hook
      */
-    public function update(): void
+    public function dailyUpdate(): void
     {
-        $report = $this->performDailyUpdate();
+        $this->getLogger()->info(sprintf('Start updating records using: %s', get_class($this)));
 
-        $report->incrementDeleted(
-            $this->performDailyDelete()
-        );
+        $this->applyDailyModifications();
+        $this->applyDailyDeletes();
+
+        $this->getLogger()->info(sprintf('Finish updating records using: %s', get_class($this)));
     }
 
     /**
      * Update database using the dataset with daily modifications.
      */
-    protected function performDailyUpdate(): void
+    protected function applyDailyModifications(): void
     {
         $updatable = $this->getUpdatableAttributes();
 
         foreach ($this->getRecordsForDailyUpdate()->chunk($this->chunkSize) as $chunk) {
-            $this->query()->upsert($chunk->all(), [$this->getSyncKey()], $updatable);
+            $this->query()->upsert($chunk->all(), [$this->getSyncKeyName()], $updatable);
         }
 
         $this->deleteUnsyncedModels();
@@ -370,59 +391,38 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Reset a "sync" state of models by the given records.
      */
-    protected function resetSyncedModelsByRecords(iterable $records): void
+    protected function resetSyncedModelsByRecords(LazyCollection $records): void
     {
         $this->query()
-            ->whereIn($this->getSyncKey(), $this->getSyncKeysByRecords($records))
+            ->whereIn($this->getSyncKeyName(), $this->getSyncKeysByRecords($records))
             ->update(['updated_at' => null]);
     }
 
     /**
      * Get sync keys by the given records.
      */
-    protected function getSyncKeysByRecords(iterable $records): Collection
+    protected function getSyncKeysByRecords(LazyCollection $records): LazyCollection
     {
-        return (new Collection($records))->map(function (array $record) {
-            return $record['geonameid'];
+        return $records->map(function (array $record) {
+            return $this->getSyncKeyByRecord($record);
         });
     }
 
     /**
-     * Get a previous "" date.
+     * Get a sync key by the given record.
      */
-    protected function getPreviousSyncDate(): ?DateTimeInterface
-    {
-        $syncedAt = $this->query()->max('updated_at');
-
-        if (! $syncedAt) {
-            return null;
-        }
-
-        return Carbon::parse($syncedAt);
-    }
-
-    /**
-     * Get an updated records count from the given sync date.
-     */
-    protected function getUpdateRecordsCountFrom(?DateTimeInterface $syncDate): int
-    {
-        return $this->query()
-            ->when($syncDate, function (Builder $query) use ($syncDate) {
-                $query->whereDate('updated_at', '>', $syncDate);
-            })
-            ->count();
-    }
+    abstract protected function getSyncKeyByRecord(array $record): int;
 
     /**
      * Delete records from database using the dataset of daily deletes.
      */
-    protected function performDailyDelete(): int
+    protected function applyDailyDeletes(): int
     {
         $deleted = 0;
 
         foreach ($this->getRecordsForDailyDelete()->chunk($this->chunkSize) as $chunk) {
             $deleted += $this->query()
-                ->whereIn($this->getSyncKey(), $this->getSyncKeysByRecords($chunk))
+                ->whereIn($this->getSyncKeyName(), $this->getSyncKeysByRecords($chunk))
                 ->delete();
         }
 
