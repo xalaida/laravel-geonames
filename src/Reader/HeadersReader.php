@@ -40,8 +40,14 @@ class HeadersReader implements Reader
     /**
      * Map headers to the record.
      */
-    protected function map($record): array
+    protected function map(array $record): array
     {
-        return array_combine($this->headers, $record);
+        $values = [];
+
+        foreach ($record as $key => $value) {
+            $values[$this->headers[$key] ?? $key] = $value;
+        }
+
+        return $values;
     }
 }
