@@ -35,6 +35,13 @@ class ConsoleProgressDownloader implements Downloader
     protected $progress;
 
     /**
+     * Indicates if a new line should be printed when progress bar finishes.
+     *
+     * @var string
+     */
+    protected $printNewLine = true;
+
+    /**
      * Make a new downloader instance.
      */
     public function __construct(CurlDownloader $downloader, OutputStyle $output)
@@ -75,6 +82,10 @@ class ConsoleProgressDownloader implements Downloader
         $destination = $this->downloader->download($url, $destination);
 
         $this->progress->finish();
+
+        if ($this->printNewLine) {
+            $this->output->newLine();
+        }
 
         return $destination;
     }
