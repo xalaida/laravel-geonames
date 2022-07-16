@@ -149,7 +149,7 @@ class CitySeeder extends ModelSeeder
             'feature_code' => $record['feature code'],
             'geoname_id' => $record['geonameid'],
             'created_at' => now(),
-            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date']),
+            'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date'])->startOfDay(),
         ];
     }
 
