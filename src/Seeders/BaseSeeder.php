@@ -12,7 +12,6 @@ use Nevadskiy\Geonames\Reader\Reader;
 use Psr\Log\LoggerAwareInterface;
 
 /**
- * @TODO: CONTINUE BY MAKING WORK TRANSLATION SEEDER AND MODEL SEEDER WORK WITH THIS BASE SEEDER.
  * @TODO: add soft deletes to deleted methods.
  * @TODO: add possibility to use custom delete scopes.
  * @TODO: delete static::newModel call (this is not abstract function)
@@ -36,6 +35,11 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      * @var Reader
      */
     protected $reader;
+
+    /**
+     * The chunk size of the records.
+     */
+    protected $chunkSize = 1000;
 
     /**
      * Make a new seeder instance.
@@ -68,7 +72,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $this->getLogger()->info(sprintf('Start seeding records using: %s', get_class($this)));
 
-        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+        foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
             $this->query()->insert($chunk->all());
         }
 
@@ -83,7 +87,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         return new LazyCollection(function () {
             $this->loadResourcesBeforeMapping();
 
-            foreach ($this->getRecordsCollection()->chunk(1000) as $chunk) {
+            foreach ($this->getRecordsCollection()->chunk($this->chunkSize) as $chunk) {
                 $this->loadResourcesBeforeChunkMapping($chunk);
 
                 foreach ($this->mapRecords($chunk) as $record) {
@@ -168,7 +172,8 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     protected function map(array $record): array
     {
-        return static::newModel()
+        return static::query()
+            ->getModel()
             ->forceFill($this->mapAttributes($record))
             ->getAttributes();
     }
@@ -183,15 +188,19 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function sync(): void
     {
+        $this->getLogger()->info(sprintf('Start syncing records using: %s', get_class($this)));
+
         $this->resetSyncedModels();
 
         $updatable = $this->getUpdatableAttributes();
 
-        foreach ($this->getRecordsForSeeding()->chunk(1000) as $chunk) {
+        foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
             $this->query()->upsert($chunk->all(), [$this->getSyncKey()], $updatable);
         }
 
         $this->deleteUnsyncedModels();
+
+        $this->getLogger()->info(sprintf('Finish syncing records using: %s', get_class($this)));
     }
 
     /**
@@ -249,7 +258,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         while ($this->synced()->exists()) {
             $this->synced()
-                // ->toBase()
                 ->limit($chunk)
                 ->update(['updated_at' => null]);
         }
@@ -271,10 +279,12 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      * @TODO: add possibility to prevent models from being deleted... (probably use extended query with some scopes)
      * @TODO: integrate with soft delete.
      */
-    protected function deleteUnsyncedModels(): void
+    protected function deleteUnsyncedModels(int $chunk = 50000): void
     {
         while ($this->unsynced()->exists()) {
-            $this->unsynced()->delete();
+            $this->unsynced()
+                ->limit($chunk)
+                ->delete();
         }
     }
 
@@ -309,7 +319,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $updatable = $this->getUpdatableAttributes();
 
-        foreach ($this->getRecordsForDailyUpdate()->chunk(1000) as $chunk) {
+        foreach ($this->getRecordsForDailyUpdate()->chunk($this->chunkSize) as $chunk) {
             $this->query()->upsert($chunk->all(), [$this->getSyncKey()], $updatable);
         }
 
@@ -324,7 +334,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         return new LazyCollection(function () {
             $this->loadResourcesBeforeMapping();
 
-            foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
+            foreach ($this->getDailyModificationsCollection()->chunk($this->chunkSize) as $chunk) {
                 $this->resetSyncedModelsByRecords($chunk);
 
                 $this->loadResourcesBeforeChunkMapping($chunk);
@@ -410,7 +420,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $deleted = 0;
 
-        foreach ($this->getRecordsForDailyDelete()->chunk(1000) as $chunk) {
+        foreach ($this->getRecordsForDailyDelete()->chunk($this->chunkSize) as $chunk) {
             $deleted += $this->query()
                 ->whereIn($this->getSyncKey(), $this->getSyncKeysByRecords($chunk))
                 ->delete();
