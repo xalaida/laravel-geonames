@@ -19,8 +19,6 @@ use Psr\Log\NullLogger;
  */
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
-    use HasLogger;
-
     /**
      * The downloader instance.
      *
@@ -38,7 +36,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * The logger instance.
      *
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -54,6 +52,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $this->downloader = $downloader;
         $this->reader = $reader;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -80,25 +79,17 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     }
 
     /**
-     * Get the logger instance.
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger ?: new NullLogger();
-    }
-
-    /**
      * Seed records into database.
      */
     public function seed(): void
     {
-        $this->getLogger()->info(sprintf('Start seeding records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Start seeding records using: %s', get_class($this)));
 
         foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
             $this->query()->insert($chunk->all());
         }
 
-        $this->getLogger()->info(sprintf('Finish seeding records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Finish seeding records using: %s', get_class($this)));
     }
 
     /**
@@ -210,7 +201,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function sync(): void
     {
-        $this->getLogger()->info(sprintf('Start syncing records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Start syncing records using: %s', get_class($this)));
 
         $this->resetSyncedModels();
 
@@ -222,7 +213,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
         $this->deleteUnsyncedModels();
 
-        $this->getLogger()->info(sprintf('Finish syncing records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Finish syncing records using: %s', get_class($this)));
     }
 
     /**
@@ -325,12 +316,12 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function dailyUpdate(): void
     {
-        $this->getLogger()->info(sprintf('Start updating records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Start updating records using: %s', get_class($this)));
 
         $this->applyDailyModifications();
         $this->applyDailyDeletes();
 
-        $this->getLogger()->info(sprintf('Finish updating records using: %s', get_class($this)));
+        $this->logger->info(sprintf('Finish updating records using: %s', get_class($this)));
     }
 
     /**
@@ -453,6 +444,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $this->query()->truncate();
 
-        $this->getLogger()->info(sprintf('Table has been truncated using %s', get_class($this)));
+        $this->logger->info(sprintf('Table has been truncated using %s', get_class($this)));
     }
 }
