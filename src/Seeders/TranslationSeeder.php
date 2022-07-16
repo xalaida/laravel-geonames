@@ -211,4 +211,21 @@ abstract class TranslationSeeder extends BaseSeeder
     {
         return $record['alternateNameId'];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function updatable(): array
+    {
+        return [
+            $this->getTranslationForeignKeyName(),
+            'name',
+            'is_preferred',
+            'is_short',
+            'is_colloquial',
+            'is_historic',
+            'locale',
+            'updated_at',
+        ];
+    }
 }
