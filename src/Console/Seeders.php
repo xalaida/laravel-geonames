@@ -42,7 +42,7 @@ trait Seeders
                     'reader' => $reader,
                 ]);
 
-                if ($logger instanceof LoggerAwareInterface) {
+                if ($seeder instanceof LoggerAwareInterface) {
                     $seeder->setLogger($logger);
                 }
 
