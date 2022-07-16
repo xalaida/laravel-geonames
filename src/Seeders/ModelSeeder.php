@@ -10,24 +10,16 @@ use Nevadskiy\Geonames\Services\DownloadService;
 use RuntimeException;
 
 /**
- * @TODO: add soft deletes to deleted methods.
  * @TODO: add possibility to use custom delete scopes (by overriding default seeders).
  */
 abstract class ModelSeeder extends BaseSeeder
 {
     /**
-     * The column name of the sync key.
-     *
-     * @var string
-     */
-    protected const SYNC_KEY = 'geoname_id';
-
-    /**
      * @inheritdoc
      */
-    public function getSyncKey(): string
+    public function getSyncKeyName(): string
     {
-        return static::SYNC_KEY;
+        return 'geoname_id';
     }
 
     /**
@@ -58,16 +50,6 @@ abstract class ModelSeeder extends BaseSeeder
     }
 
     /**
-     * Map the given record to the model attributes.
-     */
-    protected function map(array $record): array
-    {
-        return static::newModel()
-            ->forceFill($this->mapAttributes($record))
-            ->getAttributes();
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function getRecords(): iterable
@@ -95,5 +77,13 @@ abstract class ModelSeeder extends BaseSeeder
         return (new DeletesReader($this->reader))->getRecords(
             (new DownloadService($this->downloader))->downloadDailyDeletes()
         );
+    }
+
+    /**
+     * Get a sync key by the given record.
+     */
+    protected function getSyncKeyByRecord(array $record): int
+    {
+        return $record['geonameid'];
     }
 }

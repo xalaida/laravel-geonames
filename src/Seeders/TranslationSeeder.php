@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\AlternateNamesDeletesReader;
@@ -49,7 +48,7 @@ abstract class TranslationSeeder extends BaseSeeder
     /**
      * @inheritdoc
      */
-    public function getSyncKey(): string
+    public function getSyncKeyName(): string
     {
         return 'alternate_name_id';
     }
@@ -145,8 +144,6 @@ abstract class TranslationSeeder extends BaseSeeder
 
     /**
      * Determine if the given locale is supported.
-     *
-     * @TODO consider importing fallback locale... (what if fallback locale is custom, not english)
      */
     protected function isSupportedLocale(?string $locale): bool
     {
@@ -208,93 +205,10 @@ abstract class TranslationSeeder extends BaseSeeder
     }
 
     /**
-     * {@inheritdoc}
+     * Get a sync key by the given record.
      */
-    public function update(): void
+    protected function getSyncKeyByRecord(array $record): int
     {
-        $this->getLogger()->info(sprintf('Start updating records using %s.', get_class($this)));
-
-        $this->performDailyUpdate();
-        $this->performDailyDelete();
-
-        $this->getLogger()->info(sprintf('Records have been updated using %s.', get_class($this)));
+        return $record['alternateNameId'];
     }
-
-//    /**
-//     * Perform a daily update of the translation records.
-//     */
-//    protected function performDailyUpdate(): void
-//    {
-//        $updatable = $this->getUpdatableAttributes();
-//
-//        foreach ($this->getRecordsForDailyUpdate()->chunk(1000) as $chunk) {
-//            $this->query()->upsert($chunk->all(), [self::SYNC_KEY], $updatable);
-//        }
-//
-//        $this->deleteUnsyncedModels();
-//    }
-
-    /**
-     * Get mapped records for a daily update.
-     */
-    protected function getRecordsForDailyUpdate(): LazyCollection
-    {
-        return new LazyCollection(function () {
-            foreach ($this->getDailyModificationsCollection()->chunk(1000) as $chunk) {
-                $this->resetSyncedModelsByRecords($chunk);
-
-                $this->loadResourcesBeforeChunkMapping($chunk);
-
-                foreach ($this->mapRecords($chunk) as $record) {
-                    yield $record;
-                }
-
-                $this->unloadResourcesAfterChunkMapping($chunk);
-            }
-        });
-    }
-
-    /**
-     * Get collection of records for daily modifications.
-     */
-    protected function getDailyModificationsCollection(): LazyCollection
-    {
-        return new LazyCollection(function () {
-            foreach ($this->getDailyModificationRecords() as $record) {
-                yield $record;
-            }
-        });
-    }
-
-    /**
-     * Reset a "sync" state of models by the given records.
-     */
-    protected function resetSyncedModelsByRecords(iterable $records): void
-    {
-        $this->query()
-            ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($records))
-            ->update(['updated_at' => null]);
-    }
-
-    /**
-     * Get sync keys by the given records.
-     */
-    protected function getSyncKeysByRecords(iterable $records): Collection
-    {
-        return (new Collection($records))->map(function (array $record) {
-            return $record['alternateNameId'];
-        });
-    }
-
-//    /**
-//     * Perform a daily delete of the translation records.
-//     */
-//    protected function performDailyDelete(): void
-//    {
-//        foreach ($this->getRecordsForDailyDelete()->chunk(1000) as $chunk) {
-//            $this->query()
-//                ->whereIn(self::SYNC_KEY, $this->getSyncKeysByRecords($chunk))
-//                ->delete();
-//        }
-//    }
 }
