@@ -45,7 +45,7 @@ class HeadersReader implements Reader
         $values = [];
 
         foreach ($record as $key => $value) {
-            $values[$this->headers[$key] ?? $key] = $value;
+            $values[$this->headers[$key] ?? $key] = $value ?: null;
         }
 
         return $values;
