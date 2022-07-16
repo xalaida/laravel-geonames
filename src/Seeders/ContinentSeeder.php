@@ -86,4 +86,22 @@ class ContinentSeeder extends ModelSeeder
             'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date'])->startOfDay(),
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function updatable(): array
+    {
+        return [
+            'code',
+            'name',
+            'latitude',
+            'longitude',
+            'timezone_id',
+            'population',
+            'dem',
+            'feature_code',
+            'updated_at',
+        ];
+    }
 }

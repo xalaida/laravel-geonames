@@ -94,4 +94,24 @@ class DivisionSeeder extends ModelSeeder
             'updated_at' => Carbon::createFromFormat('Y-m-d', $record['modification date'])->startOfDay(),
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function updatable(): array
+    {
+        return [
+            'name',
+            'country_id',
+            'latitude',
+            'longitude',
+            'timezone_id',
+            'population',
+            'elevation',
+            'dem',
+            'code',
+            'feature_code',
+            'updated_at',
+        ];
+    }
 }

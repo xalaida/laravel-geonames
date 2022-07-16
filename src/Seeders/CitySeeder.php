@@ -168,4 +168,24 @@ class CitySeeder extends ModelSeeder
     {
         return $this->divisions[$this->getCountryId($record)][$record['admin1 code']][0]['id'] ?? null;
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function updatable(): array
+    {
+        return [
+            'name',
+            'country_id',
+            'division_id',
+            'latitude',
+            'longitude',
+            'timezone_id',
+            'population',
+            'elevation',
+            'dem',
+            'feature_code',
+            'updated_at',
+        ];
+    }
 }

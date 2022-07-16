@@ -168,4 +168,38 @@ class CountrySeeder extends ModelSeeder
             'fips' => $countryInfo['fips'],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function updatable(): array
+    {
+        return [
+            'code',
+            'iso',
+            'iso_numeric',
+            'name',
+            'name_official',
+            'latitude',
+            'longitude',
+            'timezone_id',
+            'continent_id',
+            'capital',
+            'currency_code',
+            'currency_name',
+            'tld',
+            'phone_code',
+            'postal_code_format',
+            'postal_code_regex',
+            'languages',
+            'neighbours',
+            'area',
+            'fips',
+            'population',
+            'elevation',
+            'dem',
+            'feature_code',
+            'updated_at',
+        ];
+    }
 }
