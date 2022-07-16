@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\Reader;
+use Psr\Log\LoggerAwareInterface;
 
 /**
  * @TODO: CONTINUE BY MAKING WORK TRANSLATION SEEDER AND MODEL SEEDER WORK WITH THIS BASE SEEDER.
@@ -18,7 +19,7 @@ use Nevadskiy\Geonames\Reader\Reader;
  * @TODO: rename methods that return collection (getCollection or something)
  * @TODO: add possibility to change chunk size
  */
-abstract class BaseSeeder implements Seeder
+abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
     use HasLogger;
 

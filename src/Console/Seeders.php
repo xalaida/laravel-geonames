@@ -12,6 +12,7 @@ use Nevadskiy\Geonames\Downloader\Unzipper;
 use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,6 +29,7 @@ trait Seeders
     protected function seeders(): array
     {
         // TODO: allow to override existing files along with zip archive...
+        // TODO: add possibility to rerun with already downloaded files (without --force option) and with overriding (with --force) option... (also provide --clean/--keep option)
 
         $downloader = $this->getHistoryDownloader();
         $reader = $this->getReader();
@@ -40,8 +42,7 @@ trait Seeders
                     'reader' => $reader,
                 ]);
 
-                // TODO: use LoggerAwareInterface
-                if (method_exists($seeder, 'setLogger')) {
+                if ($logger instanceof LoggerAwareInterface) {
                     $seeder->setLogger($logger);
                 }
 
@@ -50,6 +51,10 @@ trait Seeders
             ->all();
     }
 
+    /**
+     * Get the history downloader.
+     * It allows to prevent de-syncs when new geonames file is uploaded between already running seeder processes.
+     */
     private function getHistoryDownloader(): Downloader
     {
         return new HistoryDownloader($this->getUnzipDownloader());
@@ -74,7 +79,9 @@ trait Seeders
     {
         $downloader = new CurlDownloader();
 
-        $downloader->overwrite(); // TODO: use this function with command option flag.
+        // $downloader->overwrite(); // TODO: use this function with command option flag.
+
+        $downloader->withoutClobbering();
 
         return $downloader;
     }
