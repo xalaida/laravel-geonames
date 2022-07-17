@@ -3,10 +3,10 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Support\Carbon;
-use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\Reader\Reader;
 use Nevadskiy\Geonames\Services\ContinentCodeGenerator;
+use Nevadskiy\Geonames\Services\DownloadService;
 
 class ContinentSeeder extends ModelSeeder
 {
@@ -36,9 +36,9 @@ class ContinentSeeder extends ModelSeeder
     /**
      * Make a new seeder instance.
      */
-    public function __construct(Downloader $downloader, Reader $reader, ContinentCodeGenerator $codeGenerator)
+    public function __construct(DownloadService $downloadService, Reader $reader, ContinentCodeGenerator $codeGenerator)
     {
-        parent::__construct($downloader, $reader);
+        parent::__construct($downloadService, $reader);
         $this->codeGenerator = $codeGenerator;
     }
 

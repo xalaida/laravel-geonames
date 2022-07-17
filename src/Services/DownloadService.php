@@ -4,8 +4,9 @@ namespace Nevadskiy\Geonames\Services;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
-use Nevadskiy\Geonames\Support\Downloader\Downloader;
+use Nevadskiy\Downloader\Downloader;
 
+// TODO: add possibility to configure service from constructor for automatic downloads
 class DownloadService
 {
     /**
@@ -56,6 +57,7 @@ class DownloadService
     public function __construct(Downloader $downloader)
     {
         $this->downloader = $downloader;
+        // TODO: inject "directory" from service provider
         $this->directory = config('geonames.directory');
     }
 
@@ -92,7 +94,9 @@ class DownloadService
      */
     public function downloadAlternateNames(): string
     {
-        return $this->download($this->getAllAlternateNamesUrl());
+        $directory = $this->download($this->getAllAlternateNamesUrl());
+
+        return $directory.DIRECTORY_SEPARATOR.'alternateNames.txt';
     }
 
     /**
@@ -116,6 +120,8 @@ class DownloadService
      */
     public function downloadDailyAlternateNamesModifications(): string
     {
+        // TODO: return correct file.
+
         return $this->download($this->getDailyAlternateNamesModificationsUrl());
     }
 
@@ -124,6 +130,8 @@ class DownloadService
      */
     public function downloadDailyAlternateNamesDeletes(): string
     {
+        // TODO: return correct file.
+
         return $this->download($this->getDailyAlternateNamesDeletesUrl());
     }
 
@@ -132,6 +140,8 @@ class DownloadService
      */
     public function downloadCountryInfo(): string
     {
+        // TODO: return correct file.
+
         return $this->download($this->getCountryInfoUrl());
     }
 
@@ -140,7 +150,11 @@ class DownloadService
      */
     public function downloadAllCountries(): string
     {
-        return $this->download($this->getAllCountriesUrl());
+        // TODO: consider unzipping files here (since the download service assume that file is going to be a ZIP archive)
+
+        $directory = $this->download($this->getAllCountriesUrl());
+
+        return $directory.DIRECTORY_SEPARATOR.'allCountries.txt';
     }
 
     /**

@@ -4,27 +4,23 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\LazyCollection;
-use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\Reader;
+use Nevadskiy\Geonames\Services\DownloadService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * @TODO: add soft deletes to deleted methods.
- * @TODO: add possibility to use custom delete scopes.
- * @TODO: delete static::newModel call (this is not abstract function)
  * @TODO: rename methods that return collection (getCollection or something)
- * @TODO: add possibility to change chunk size
  */
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
     /**
-     * The downloader instance.
+     * The download service instance.
      *
-     * @var Downloader
+     * @var DownloadService
      */
-    protected $downloader;
+    protected $downloadService;
 
     /**
      * The reader instance.
@@ -48,9 +44,9 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Make a new seeder instance.
      */
-    public function __construct(Downloader $downloader, Reader $reader)
+    public function __construct(DownloadService $downloadService, Reader $reader)
     {
-        $this->downloader = $downloader;
+        $this->downloadService = $downloadService;
         $this->reader = $reader;
         $this->logger = new NullLogger();
     }
@@ -161,15 +157,13 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Map records for seeding.
      */
-    protected function mapRecords(iterable $records): LazyCollection
+    protected function mapRecords(iterable $records): iterable
     {
-        return new LazyCollection(function () use ($records) {
-            foreach ($records as $record) {
-                if ($this->filter($record)) {
-                    yield $this->map($record);
-                }
+        foreach ($records as $record) {
+            if ($this->filter($record)) {
+                yield $this->map($record);
             }
-        });
+        }
     }
 
     /**

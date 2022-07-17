@@ -3,8 +3,8 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Support\Carbon;
-use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\Reader;
+use Nevadskiy\Geonames\Services\DownloadService;
 
 class CitySeeder extends ModelSeeder
 {
@@ -46,9 +46,9 @@ class CitySeeder extends ModelSeeder
     /**
      * Make a new seeder instance.
      */
-    public function __construct(Downloader $downloader, Reader $reader)
+    public function __construct(DownloadService $downloadService, Reader $reader)
     {
-        parent::__construct($downloader, $reader);
+        parent::__construct($downloadService, $reader);
         $this->featureCodes = config('geonames.filters.cities.feature_codes');
         $this->minPopulation = config('geonames.filters.cities.min_population');
     }

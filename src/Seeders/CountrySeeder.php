@@ -86,7 +86,7 @@ class CountrySeeder extends ModelSeeder
     protected function getCountryInfoRecords(): iterable
     {
         return (new CountryInfoReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadCountryInfo()
+            $this->downloadService->downloadCountryInfo()
         );
     }
 

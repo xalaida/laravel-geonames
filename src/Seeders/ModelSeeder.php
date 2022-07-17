@@ -55,7 +55,7 @@ abstract class ModelSeeder extends BaseSeeder
     protected function getRecords(): iterable
     {
         return (new GeonamesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadAllCountries()
+            $this->downloadService->downloadAllCountries()
         );
     }
 
@@ -65,7 +65,7 @@ abstract class ModelSeeder extends BaseSeeder
     protected function getDailyModificationRecords(): iterable
     {
         return (new GeonamesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadDailyModifications()
+            $this->downloadService->downloadDailyModifications()
         );
     }
 
@@ -75,7 +75,7 @@ abstract class ModelSeeder extends BaseSeeder
     protected function getDailyDeleteRecords(): iterable
     {
         return (new DeletesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadDailyDeletes()
+            $this->downloadService->downloadDailyDeletes()
         );
     }
 

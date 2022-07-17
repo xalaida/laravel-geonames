@@ -5,7 +5,6 @@ namespace Nevadskiy\Geonames\Seeders;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
-use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Reader\AlternateNamesDeletesReader;
 use Nevadskiy\Geonames\Reader\AlternateNamesReader;
 use Nevadskiy\Geonames\Reader\Reader;
@@ -38,9 +37,9 @@ abstract class TranslationSeeder extends BaseSeeder
     /**
      * Make a new seeder instance.
      */
-    public function __construct(Downloader $downloader, Reader $reader)
+    public function __construct(DownloadService $downloadService, Reader $reader)
     {
-        parent::__construct($downloader, $reader);
+        parent::__construct($downloadService, $reader);
         $this->locales = config('geonames.translations.locales');
         $this->nullableLocale = config('geonames.translations.nullable_locale');
     }
@@ -89,7 +88,7 @@ abstract class TranslationSeeder extends BaseSeeder
     protected function getRecords(): iterable
     {
         return (new AlternateNamesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadAlternateNames()
+            $this->downloadService->downloadAlternateNames()
         );
     }
 
@@ -99,7 +98,7 @@ abstract class TranslationSeeder extends BaseSeeder
     protected function getDailyModificationRecords(): iterable
     {
         return (new AlternateNamesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadDailyAlternateNamesModifications()
+            $this->downloadService->downloadDailyAlternateNamesModifications()
         );
     }
 
@@ -109,7 +108,7 @@ abstract class TranslationSeeder extends BaseSeeder
     protected function getDailyDeleteRecords(): iterable
     {
         return (new AlternateNamesDeletesReader($this->reader))->getRecords(
-            (new DownloadService($this->downloader))->downloadDailyAlternateNamesDeletes()
+            $this->downloadService->downloadDailyAlternateNamesDeletes()
         );
     }
 
