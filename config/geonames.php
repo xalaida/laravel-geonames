@@ -1,7 +1,5 @@
 <?php
 
-use Nevadskiy\Geonames\Definitions\FeatureCode;
-
 return [
 
     /*
@@ -29,38 +27,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Seeder filters
-    |--------------------------------------------------------------------------
-    |
-    | Specify filters for geonames data seeding.
-    |
-    */
-
-    'filters' => [
-
-        'cities' => [
-            'min_population' => 5000,
-
-            'feature_codes' => [
-                FeatureCode::PPL,
-                FeatureCode::PPLC,
-                FeatureCode::PPLA,
-                FeatureCode::PPLA2,
-                FeatureCode::PPLA3,
-                FeatureCode::PPLG,
-                FeatureCode::PPLS,
-                FeatureCode::PPLX,
-            ]
-        ],
-
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Translations
     |--------------------------------------------------------------------------
     |
-    | Translations are powered on the "nevadskiy/laravel-translatable" package.
+    | Translations are powered by the "nevadskiy/laravel-translatable" package.
     |
     */
 
@@ -73,7 +43,7 @@ return [
 
         /*
          * Indicates if translations with a nullable locale should be seeded.
-         * These type of translations cannot be used for display but can be used for searching.
+         * These type of translations can be useful for searching.
          */
         'nullable_locale' => true,
 
@@ -81,7 +51,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Geonames resources directory
+    | Geonames downloads directory
     |--------------------------------------------------------------------------
     |
     | A temporary directory for geonames meta files and downloads.

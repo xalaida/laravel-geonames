@@ -3,8 +3,7 @@
 namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Support\Carbon;
-use Nevadskiy\Geonames\Reader\Reader;
-use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\Definitions\FeatureCode;
 
 class CitySeeder extends ModelSeeder
 {
@@ -20,14 +19,23 @@ class CitySeeder extends ModelSeeder
      *
      * @var int|null
      */
-    protected $minPopulation;
+    protected $minPopulation = 5000;
 
     /**
      * The allowed feature codes.
      *
      * @var array
      */
-    protected $featureCodes = [];
+    protected $featureCodes = [
+        FeatureCode::PPL,
+        FeatureCode::PPLC,
+        FeatureCode::PPLA,
+        FeatureCode::PPLA2,
+        FeatureCode::PPLA3,
+        FeatureCode::PPLG,
+        FeatureCode::PPLS,
+        FeatureCode::PPLX,
+    ];
 
     /**
      * The country resources.
@@ -42,16 +50,6 @@ class CitySeeder extends ModelSeeder
      * @var array
      */
     protected $divisions;
-
-    /**
-     * Make a new seeder instance.
-     */
-    public function __construct(DownloadService $downloadService, Reader $reader)
-    {
-        parent::__construct($downloadService, $reader);
-        $this->featureCodes = config('geonames.filters.cities.feature_codes');
-        $this->minPopulation = config('geonames.filters.cities.min_population');
-    }
 
     /**
      * Use the given city model class.
@@ -116,19 +114,7 @@ class CitySeeder extends ModelSeeder
     protected function filter(array $record): bool
     {
         return in_array($record['feature code'], $this->featureCodes, true)
-            && $this->isPopulationAllowed($record);
-    }
-
-    /**
-     * Determine if the population of the record is allowed for seeding.
-     */
-    protected function isPopulationAllowed(array $record): bool
-    {
-        if (is_null($this->minPopulation)) {
-            return true;
-        }
-
-        return $record['population'] >= $this->minPopulation;
+            && $record['population'] >= $this->minPopulation;
     }
 
     /**
