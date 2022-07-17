@@ -9,6 +9,7 @@ use Nevadskiy\Geonames\Downloader\ConsoleProgressDownloader;
 use Nevadskiy\Geonames\Downloader\HistoryDownloader;
 use Nevadskiy\Geonames\Downloader\UnzipDownloader;
 use Nevadskiy\Geonames\Downloader\Unzipper;
+use Nevadskiy\Geonames\GeonamesSource;
 use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
@@ -20,6 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @mixin Command
+ * TODO: refactor
  */
 trait Seeders
 {
@@ -52,8 +54,11 @@ trait Seeders
         return collect(config('geonames.seeders'))
             ->map(function ($seeder) use ($downloader, $reader, $logger) {
                 $seeder = resolve($seeder, [
-                    'downloadService' => $this->downloadService($downloader),
-                    'reader' => $reader,
+                    // TODO: consider using classes instead of variable names if possible.
+                    'source' => resolve(GeonamesSource::class, [
+                        'downloadService' => $this->downloadService($downloader),
+                        'reader' => $reader,
+                    ]),
                 ]);
 
                 if ($seeder instanceof LoggerAwareInterface) {

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Reader\DeletesReader;
 use Nevadskiy\Geonames\Reader\GeonamesReader;
-use Nevadskiy\Geonames\Services\DownloadService;
 use RuntimeException;
 
 /**
@@ -54,9 +53,7 @@ abstract class ModelSeeder extends BaseSeeder
      */
     protected function getRecords(): iterable
     {
-        return (new GeonamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadAllCountries()
-        );
+        return $this->source->getRecords();
     }
 
     /**
@@ -64,9 +61,7 @@ abstract class ModelSeeder extends BaseSeeder
      */
     protected function getDailyModificationRecords(): iterable
     {
-        return (new GeonamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyModifications()
-        );
+        return $this->source->getDailyModificationRecords();
     }
 
     /**
@@ -74,9 +69,7 @@ abstract class ModelSeeder extends BaseSeeder
      */
     protected function getDailyDeleteRecords(): iterable
     {
-        return (new DeletesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyDeletes()
-        );
+        return $this->source->getDailyDeleteRecords();
     }
 
     /**

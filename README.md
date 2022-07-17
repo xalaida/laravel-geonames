@@ -233,6 +233,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [x] refactor seeders to use DI parser and downloader.
 - [x] remove wildcard updatable attributes syntax, need to specify them directly
 - [x] fix dailyUpdate process
+- [ ] refactor seeders trait (consider adding composite seeder or something)
 - [ ] add possibility to seed continents from `no-country.zip`
 - [ ] add index to `updated_at` column
 - [ ] feature fulltext search
@@ -253,3 +254,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] fix tests
 - [ ] use ukraine fixtures
 - [ ] set up directory cleaner to skip `.gitignore` file
+- [ ] consider adding generics to geonames source class that allow to build seeders more easily

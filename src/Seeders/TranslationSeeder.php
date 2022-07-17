@@ -5,10 +5,7 @@ namespace Nevadskiy\Geonames\Seeders;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
-use Nevadskiy\Geonames\Reader\AlternateNamesDeletesReader;
-use Nevadskiy\Geonames\Reader\AlternateNamesReader;
-use Nevadskiy\Geonames\Reader\Reader;
-use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\GeonamesSource;
 use RuntimeException;
 
 abstract class TranslationSeeder extends BaseSeeder
@@ -37,9 +34,9 @@ abstract class TranslationSeeder extends BaseSeeder
     /**
      * Make a new seeder instance.
      */
-    public function __construct(DownloadService $downloadService, Reader $reader)
+    public function __construct(GeonamesSource $source)
     {
-        parent::__construct($downloadService, $reader);
+        parent::__construct($source);
         $this->locales = config('geonames.translations.locales');
         $this->nullableLocale = config('geonames.translations.nullable_locale');
     }
@@ -87,9 +84,7 @@ abstract class TranslationSeeder extends BaseSeeder
      */
     protected function getRecords(): iterable
     {
-        return (new AlternateNamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadAlternateNames()
-        );
+        return $this->source->getAlternateNamesRecords();
     }
 
     /**
@@ -97,9 +92,7 @@ abstract class TranslationSeeder extends BaseSeeder
      */
     protected function getDailyModificationRecords(): iterable
     {
-        return (new AlternateNamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyAlternateNamesModifications()
-        );
+        return $this->source->getAlternateNamesDailyModificationRecords();
     }
 
     /**
@@ -107,9 +100,7 @@ abstract class TranslationSeeder extends BaseSeeder
      */
     protected function getDailyDeleteRecords(): iterable
     {
-        return (new AlternateNamesDeletesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyAlternateNamesDeletes()
-        );
+        return $this->source->getAlternateNamesDailyDeleteRecords();
     }
 
     /**

@@ -4,8 +4,7 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\LazyCollection;
-use Nevadskiy\Geonames\Reader\Reader;
-use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\GeonamesSource;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,18 +15,11 @@ use Psr\Log\NullLogger;
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
     /**
-     * The download service instance.
+     * The geonames source instance.
      *
-     * @var DownloadService
+     * @var GeonamesSource
      */
-    protected $downloadService;
-
-    /**
-     * The reader instance.
-     *
-     * @var Reader
-     */
-    protected $reader;
+    protected $source;
 
     /**
      * The logger instance.
@@ -44,10 +36,9 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Make a new seeder instance.
      */
-    public function __construct(DownloadService $downloadService, Reader $reader)
+    public function __construct(GeonamesSource $source)
     {
-        $this->downloadService = $downloadService;
-        $this->reader = $reader;
+        $this->source = $source;
         $this->logger = new NullLogger();
     }
 
