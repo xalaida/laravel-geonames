@@ -133,7 +133,7 @@ php artisan geonames:sync
 
 This command will create missing records, remove redundant ones, and updated modified ones according to the current dataset.
 
-> Note that the `synced_at` and `geoname_id` fields are required to synchronize data. For translation tables, these are the `is_synced` and `alternate_name_id` fields.
+> Note that the `geoname_id` and `alternate_name_id` fields is required to synchronize data.
 
 ### Customization
 
@@ -228,14 +228,15 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
-- [ ] refactor with base seeder.
-- [ ] remove wildcard updatable attributes syntax, need to specify them directly
-- [ ] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
-- [ ] refactor seeders to use DI parser and downloader.
+- [x] refactor with base seeder.
+- [x] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
+- [x] refactor seeders to use DI parser and downloader.
+- [x] remove wildcard updatable attributes syntax, need to specify them directly
+- [x] fix dailyUpdate process
 - [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
 - [ ] consider local seeding with testing data.
-- [ ] doc `updatable` attribute columns.
+- [ ] doc `updatable` attribute columns
 - [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API).
 - [ ] log total time of execution console commands in human friendly format.
-- [ ] fix tests.
 - [ ] remove doc blocks from models and resources to allow generating them locally using ide helper
+- [ ] fix tests
