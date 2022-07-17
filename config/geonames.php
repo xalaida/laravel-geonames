@@ -89,6 +89,6 @@ return [
     |
     */
 
-    'directory' => storage_path('meta/geonames'),
+    'directory' => storage_path('tmp'),
 
 ];
