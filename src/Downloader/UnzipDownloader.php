@@ -40,6 +40,8 @@ class UnzipDownloader implements Downloader
             return $destination;
         }
 
+        // TODO: add possibility to delete after unzipping...
+
         return $this->unzipper->unzip($destination);
     }
 }
