@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
-use Nevadskiy\Geonames\ValueObjects\Location;
 use Nevadskiy\Geonames\Translations\HasTranslations;
 
 /**
@@ -50,14 +49,6 @@ class City extends Model
     protected $translatable = [
         'name',
     ];
-
-    /**
-     * Get the location instance.
-     */
-    public function getLocation(): Location
-    {
-        return new Location($this->latitude, $this->longitude);
-    }
 
     /**
      * Get the timezone instance.

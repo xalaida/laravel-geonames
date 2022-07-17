@@ -1,29 +1,31 @@
 <?php
 
-namespace Nevadskiy\Geonames\Tests\Support\Models;
+namespace Nevadskiy\Geonames\Tests\Models;
 
 use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Translations\HasTranslations;
-use Nevadskiy\Geonames\ValueObjects\Location;
 
 /**
  * @property int id
- * @property string code
  * @property string name
+ * @property int country_id
  * @property float latitude
  * @property float longitude
- * @property string timezone_id
- * @property int population
+ * @property string|null timezone_id
+ * @property int|null population
+ * @property int|null elevation
  * @property int|null dem
+ * @property string code
  * @property string feature_code
  * @property int geoname_id
  * @property Carbon created_at
  * @property Carbon updated_at
  */
-class Continent extends Model
+class Division extends Model
 {
     use HasTranslations;
 
@@ -47,26 +49,30 @@ class Continent extends Model
     ];
 
     /**
-     * Get a location instance.
+     * Get the timezone instance.
      */
-    public function getLocation(): Location
+    public function getTimezone(): ?CarbonTimeZone
     {
-        return new Location($this->latitude, $this->longitude);
-    }
+        if (! $this->timezone_id) {
+            return null;
+        }
 
-    /**
-     * Get a timezone instance.
-     */
-    public function getTimezone(): CarbonTimeZone
-    {
         return new CarbonTimeZone($this->timezone_id);
     }
 
     /**
-     * Get a relationship with countries.
+     * Get a relationship with a country.
      */
-    public function countries(): HasMany
+    public function country(): BelongsTo
     {
-        return $this->hasMany(Country::class);
+        return $this->belongsTo(Country::class);
+    }
+
+    /**
+     * Get a relationship with cities.
+     */
+    public function cities(): HasMany
+    {
+        return $this->hasMany(City::class);
     }
 }

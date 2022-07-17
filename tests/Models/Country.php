@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Geonames\Tests\Support\Models;
+namespace Nevadskiy\Geonames\Tests\Models;
 
 use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Translations\HasTranslations;
-use Nevadskiy\Geonames\ValueObjects\Location;
 
 /**
  * @property int id
@@ -61,14 +60,6 @@ class Country extends Model
     protected $translatable = [
         'name',
     ];
-
-    /**
-     * Get the location instance.
-     */
-    public function getLocation(): Location
-    {
-        return new Location($this->latitude, $this->longitude);
-    }
 
     /**
      * Get the timezone instance.

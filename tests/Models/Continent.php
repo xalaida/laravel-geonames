@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Geo;
+namespace Nevadskiy\Geonames\Tests\Models;
 
 use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Model;
