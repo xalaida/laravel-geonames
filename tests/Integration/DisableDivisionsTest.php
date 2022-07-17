@@ -7,9 +7,9 @@ use Nevadskiy\Geonames\Models\City;
 use Nevadskiy\Geonames\Models\Continent;
 use Nevadskiy\Geonames\Models\Country;
 use Nevadskiy\Geonames\Models\Division;
-use Nevadskiy\Geonames\Tests\DatabaseTestCase;
+use Nevadskiy\Geonames\Tests\TestCase;
 
-class DisableDivisionsTest extends DatabaseTestCase
+class DisableDivisionsTest extends TestCase
 {
     /**
      * Default configurations.

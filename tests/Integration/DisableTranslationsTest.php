@@ -3,10 +3,10 @@
 namespace Nevadskiy\Geonames\Tests\Integration;
 
 use Illuminate\Support\Facades\Schema;
-use Nevadskiy\Geonames\Tests\DatabaseTestCase;
+use Nevadskiy\Geonames\Tests\TestCase;
 use Nevadskiy\Translatable\Models\Translation;
 
-class DisableTranslationsTest extends DatabaseTestCase
+class DisableTranslationsTest extends TestCase
 {
     /**
      * Default configurations.
