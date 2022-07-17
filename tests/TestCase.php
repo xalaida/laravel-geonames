@@ -6,14 +6,11 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
 use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
-use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
 use Nevadskiy\Geonames\Tests\Support\Assert\DirectoryIsEmpty;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use PHPUnit\Framework\ExpectationFailedException;
-use Psr\Log\NullLogger;
 use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class TestCase extends OrchestraTestCase
@@ -34,7 +31,9 @@ class TestCase extends OrchestraTestCase
 
         $this->app->setLocale('en');
 
-        $this->fakeLogger();
+        $this->bootMigrations();
+
+        $this->migrate();
     }
 
     /**
@@ -60,7 +59,6 @@ class TestCase extends OrchestraTestCase
         $config = $app['config'];
 
         $this->configureDatabase($config);
-        $this->configurePackage($config);
     }
 
     /**
@@ -77,14 +75,9 @@ class TestCase extends OrchestraTestCase
         ]);
     }
 
-    /**
-     * Configure the package.
-     */
-    protected function configurePackage(Repository $config): void
+    private function bootMigrations(): void
     {
-        foreach ($this->config as $key => $value) {
-            $config->set($key, $value);
-        }
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }
 
     /**
@@ -100,33 +93,33 @@ class TestCase extends OrchestraTestCase
      */
     protected function fixture(string $path): string
     {
-        return __DIR__."/Support/fixtures/{$path}";
+        return __DIR__."/fixtures/{$path}";
     }
 
-    /**
-     * Fake the logger.
-     */
-    protected function fakeLogger(): void
-    {
-        $this->app->instance(ConsoleLogger::class, new NullLogger());
-    }
+//    /**
+//     * Fake the logger.
+//     */
+//    protected function fakeLogger(): void
+//    {
+//        $this->app->instance(ConsoleLogger::class, new NullLogger());
+//    }
 
-    /**
-     * Fake the directory cleaner.
-     */
-    protected function fakeDirectoryCleaner(): void
-    {
-        $directoryCleaner = $this->mock(DirectoryCleaner::class);
-
-        $directoryCleaner->shouldReceive('keepGitignore')
-            ->once()
-            ->withNoArgs()
-            ->andReturnSelf();
-
-        $directoryCleaner->shouldReceive('clean')
-            ->once()
-            ->with(config('geonames.directory'));
-    }
+//    /**
+//     * Fake the directory cleaner.
+//     */
+//    protected function fakeDirectoryCleaner(): void
+//    {
+//        $directoryCleaner = $this->mock(DirectoryCleaner::class);
+//
+//        $directoryCleaner->shouldReceive('keepGitignore')
+//            ->once()
+//            ->withNoArgs()
+//            ->andReturnSelf();
+//
+//        $directoryCleaner->shouldReceive('clean')
+//            ->once()
+//            ->with(config('geonames.directory'));
+//    }
 
     /**
      * Fake download service.
