@@ -23,7 +23,7 @@ class UpdateTest extends TestCase
      * @var array
      */
     protected $config = [
-        'geonames.source' => DownloadService::SOURCE_SINGLE_COUNTRY,
+        // 'geonames.source' => DownloadService::SOURCE_SINGLE_COUNTRY,
         'geonames.filters.population' => 500,
         'geonames.filters.countries' => ['TS'],
         'geonames.translations' => true,

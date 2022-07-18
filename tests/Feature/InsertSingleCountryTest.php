@@ -21,7 +21,7 @@ class InsertSingleCountryTest extends TestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app['config']->set('geonames.source', DownloadService::SOURCE_SINGLE_COUNTRY);
+        // $app['config']->set('geonames.source', DownloadService::SOURCE_SINGLE_COUNTRY);
         $app['config']->set('geonames.filters.population', 500);
         $app['config']->set('geonames.filters.countries', ['AE']);
         $app['config']->set('geonames.translations', true);
