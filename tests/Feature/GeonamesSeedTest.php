@@ -18,6 +18,8 @@ class GeonamesSeedTest extends TestCase
     /** @test */
     public function it_seeds_geonames_dataset_into_database(): void
     {
+        // TODO: add seeding alternate names...
+
         config(['geonames.seeders' => [
             ContinentSeeder::class,
             CountrySeeder::class,

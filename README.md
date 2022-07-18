@@ -236,6 +236,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [x] add possibility to seed continents from `no-country.zip`
 - [x] add possibility download multiple sources by country codes
 - [x] add possibility to define download sources (only cities, no-countries or archive for specific countries)
+- [ ] update fixture for alternate names (UA, PL and common (all))
 - [ ] refactor seeders trait (consider adding composite seeder or something)
 - [ ] add index to `updated_at` column
 - [ ] feature fulltext search
