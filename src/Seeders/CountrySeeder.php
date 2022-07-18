@@ -80,13 +80,11 @@ class CountrySeeder extends ModelSeeder
     }
 
     /**
-     * Get the country info records.
+     * Get country info records.
      */
     protected function getCountryInfoRecords(): iterable
     {
-        return (new CountryInfoReader($this->reader))->getRecords(
-            $this->downloadService->downloadCountryInfo()
-        );
+        return $this->source->getCountryInfoRecords();
     }
 
     /**

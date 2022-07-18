@@ -30,21 +30,22 @@ class GeonamesSeedTest extends TestCase
         DivisionSeeder::useModel(Division::class);
         CitySeeder::useModel(City::class);
 
-        $this->mock(DownloadService::class)
-            ->shouldReceive('downloadAllCountries')
-            ->andReturn($this->fixture('allCountries.txt'))
-            ->getMock()
-            ->shouldReceive('downloadCountryInfo')
-            ->andReturn($this->fixture('countryInfo.txt'))
-            ->getMock()
-            ->shouldReceive('downloadAlternateNames')
+        $service = $this->mock(DownloadService::class);
+
+        $service->shouldReceive('downloadCountryInfo')
+            ->andReturn($this->fixture('countryInfo.txt'));
+
+        $service->shouldReceive('downloadAllCountries')
+            ->andReturn($this->fixture('allCountries.txt'));
+
+        $service->shouldReceive('downloadAlternateNames')
             ->andReturn($this->fixture('alternateNames.txt'));
 
         $this->artisan('geonames:seed');
 
-        self::assertCount(3, Continent::all());
-        self::assertCount(1, Country::all());
-        self::assertCount(1, Division::all());
-        self::assertCount(1, City::all());
+        $this->assertDatabaseCount(Continent::class, 1);
+        $this->assertDatabaseCount(Country::class, 2);
+        $this->assertDatabaseCount(Division::class, 8);
+        $this->assertDatabaseCount(City::class, 9);
     }
 }

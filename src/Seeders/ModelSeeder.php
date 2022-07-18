@@ -4,8 +4,6 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Geonames\Reader\DeletesReader;
-use Nevadskiy\Geonames\Reader\GeonamesReader;
 use RuntimeException;
 
 /**

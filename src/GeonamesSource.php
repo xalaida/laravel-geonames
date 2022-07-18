@@ -4,6 +4,7 @@ namespace Nevadskiy\Geonames;
 
 use Nevadskiy\Geonames\Reader\AlternateNamesDeletesReader;
 use Nevadskiy\Geonames\Reader\AlternateNamesReader;
+use Nevadskiy\Geonames\Reader\CountryInfoReader;
 use Nevadskiy\Geonames\Reader\DeletesReader;
 use Nevadskiy\Geonames\Reader\GeonamesReader;
 use Nevadskiy\Geonames\Reader\Reader;
@@ -35,18 +36,28 @@ class GeonamesSource
     }
 
     /**
+     * Get country info records.
+     */
+    public function getCountryInfoRecords(): iterable
+    {
+        return (new CountryInfoReader($this->reader))->getRecords(
+            $this->downloadService->downloadCountryInfo()
+        );
+    }
+
+    /**
      * Get geonames records.
      */
     public function getRecords(array $countries = ['*']): iterable
     {
         $reader = new GeonamesReader($this->reader);
 
-        if ($this->isWildcard($countries)) {
-            return $reader->getRecords($this->downloadService->downloadAllCountries());
-        }
-
-        foreach ($countries as $country) {
-            yield from $reader->getRecords($this->downloadService->downloadSingleCountry($country));
+        if (! $this->isWildcard($countries)) {
+            foreach ($countries as $country) {
+                yield from $reader->getRecords($this->downloadService->downloadSingleCountry($country));
+            }
+        } else {
+            yield from $reader->getRecords($this->downloadService->downloadAllCountries());
         }
     }
 
@@ -77,12 +88,12 @@ class GeonamesSource
     {
         $reader = new AlternateNamesReader($this->reader);
 
-        if ($this->isWildcard($countries)) {
-            return $reader->getRecords($this->downloadService->downloadAlternateNames());
-        }
-
-        foreach ($countries as $country) {
-            yield from $reader->getRecords($this->downloadService->downloadSingleCountryAlternateNames($country));
+        if (! $this->isWildcard($countries)) {
+            foreach ($countries as $country) {
+                yield from $reader->getRecords($this->downloadService->downloadSingleCountryAlternateNames($country));
+            }
+        } else {
+            yield from $reader->getRecords($this->downloadService->downloadAlternateNames());
         }
     }
 

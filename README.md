@@ -233,20 +233,19 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [x] refactor seeders to use DI parser and downloader.
 - [x] remove wildcard updatable attributes syntax, need to specify them directly
 - [x] fix dailyUpdate process
+- [x] add possibility to seed continents from `no-country.zip`
+- [x] add possibility download multiple sources by country codes
+- [x] add possibility to define download sources (only cities, no-countries or archive for specific countries)
 - [ ] refactor seeders trait (consider adding composite seeder or something)
-- [ ] add possibility to seed continents from `no-country.zip`
 - [ ] add index to `updated_at` column
 - [ ] feature fulltext search
 - [ ] check if `noCountry.zip` is covered by `allCountries.zip` source (at least continents are)
-- [ ] add possibility download multiple sources by country codes 
-- [ ] configure project as library composer type
 - [ ] add github action to test on postgres and mysql databases
 - [ ] set up github action to schedule weekly check
-- [ ] add doc info that if source is different from filters, dailyUpdate can add unwanted values 
+- [ ] add doc info that if source is different from filters, dailyUpdate can add unwanted values
 - [ ] switch to alternate names V2
-- [ ] add classic structure (2 models: Country and Location, 4 tables: countries, country_translations, location, location_translations)
-- [ ] add possibility to define download sources (only cities, no-countries or archive for specific countries).
-- [ ] consider local seeding with testing data.
+- [ ] add classic structure (2 models: Country and Location, 4 tables: countries, country_translations (?), location, location_translations)
+- [ ] consider local seeding with testing data
 - [ ] doc `updatable` attribute columns
 - [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API).
 - [ ] log total time of execution console commands in human friendly format.
