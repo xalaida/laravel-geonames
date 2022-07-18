@@ -252,6 +252,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] log total time of execution console commands in human friendly format.
 - [ ] remove doc blocks from models and resources to allow generating them locally using ide helper
 - [ ] fix tests
-- [ ] use ukraine fixtures
 - [ ] set up directory cleaner to skip `.gitignore` file
-- [ ] consider adding generics to geonames source class that allow to build seeders more easily
