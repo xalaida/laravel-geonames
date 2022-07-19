@@ -245,6 +245,7 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] set up github action to schedule weekly check
 - [ ] add doc info that if source is different from filters, dailyUpdate can add unwanted values
 - [ ] switch to alternate names V2
+- [ ] download alternate names into directory (to not override single country archives)
 - [ ] add classic structure (2 models: Country and Location, 4 tables: countries, country_translations (?), location, location_translations)
 - [ ] consider local seeding with testing data
 - [ ] doc `updatable` attribute columns

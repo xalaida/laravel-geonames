@@ -3,9 +3,13 @@
 namespace Nevadskiy\Geonames\Tests\Feature;
 
 use Nevadskiy\Geonames\Seeders\CitySeeder;
+use Nevadskiy\Geonames\Seeders\CityTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\ContinentSeeder;
+use Nevadskiy\Geonames\Seeders\ContinentTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\CountrySeeder;
+use Nevadskiy\Geonames\Seeders\CountryTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\DivisionSeeder;
+use Nevadskiy\Geonames\Seeders\DivisionTranslationSeeder;
 use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Tests\Models\City;
 use Nevadskiy\Geonames\Tests\Models\Continent;
@@ -18,13 +22,15 @@ class GeonamesSeedTest extends TestCase
     /** @test */
     public function it_seeds_geonames_dataset_into_database(): void
     {
-        // TODO: add seeding alternate names...
-
         config(['geonames.seeders' => [
             ContinentSeeder::class,
+            ContinentTranslationSeeder::class,
             CountrySeeder::class,
+            CountryTranslationSeeder::class,
             DivisionSeeder::class,
+            DivisionTranslationSeeder::class,
             CitySeeder::class,
+            CityTranslationSeeder::class,
         ]]);
 
         ContinentSeeder::useModel(Continent::class);
@@ -45,9 +51,13 @@ class GeonamesSeedTest extends TestCase
 
         $this->artisan('geonames:seed');
 
-        $this->assertDatabaseCount(Continent::class, 1);
-        $this->assertDatabaseCount(Country::class, 2);
-        $this->assertDatabaseCount(Division::class, 8);
-        $this->assertDatabaseCount(City::class, 9);
+        $this->assertDatabaseCount('continents', 1);
+        $this->assertDatabaseCount('continent_translations', 3);
+        $this->assertDatabaseCount('countries', 2);
+        $this->assertDatabaseCount('country_translations', 6);
+        $this->assertDatabaseCount('divisions', 8);
+        $this->assertDatabaseCount('division_translations', 19);
+        $this->assertDatabaseCount('cities', 9);
+        $this->assertDatabaseCount('city_translations', 27);
     }
 }

@@ -1,7 +1,3 @@
-1626678	6255148	en	Europe	1
-2039205	6255148	pl	Europa
-7825137	6255148	uk	Європа
-
 1564424	690791	en	Ukraine	1
 1564467	690791	uk	Україна	1
 1564455	690791	pl	Ukraina	1
@@ -47,28 +43,3 @@
 1599433	698740	en	Odesa
 1599462	698740	uk	Одеса	1
 1599455	698740	pl	Odessa
-
-1557546	798544	en	Poland	1
-1557591	798544	uk	Польща	1
-490785	798544	pl	Rzeczpospolita Polska
-
-1988552	858787	en	Masovian Voivodeship
-1988550	858787	pl	Województwo mazowieckie
-
-1619065	756135	en	Warsaw
-1619111	756135	uk	Варшава
-462824	756135	pl	Warszawa	1	1
-
-1988595	858786	en	Lesser Poland Voivodeship
-1988594	858786	pl	Województwo małopolskie
-
-1620073	3094802	en	Krakow	1
-1620110	3094802	uk	Краків
-1620102	3094802	pl	Kraków	1
-
-1990272	3337493	en	Łódź Voivodeship
-16660441	3337493	pl	Województwo łódzkie	1
-
-1898579	3093133	en	Lodz	1
-1983888	3093133	uk	Лодзь
-1898580	3093133	pl	Łódź
