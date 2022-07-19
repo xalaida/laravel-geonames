@@ -9,9 +9,6 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-/**
- * @TODO: rename methods that return collection (getCollection or something)
- */
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
     /**
@@ -87,7 +84,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         return new LazyCollection(function () {
             $this->loadResourcesBeforeMapping();
 
-            foreach ($this->getRecordsCollection()->chunk($this->chunkSize) as $chunk) {
+            foreach ($this->getRecordsAsCollection()->chunk($this->chunkSize) as $chunk) {
                 $this->loadResourcesBeforeChunkMapping($chunk);
 
                 foreach ($this->mapRecords($chunk) as $record) {
@@ -104,7 +101,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Get a collection of records.
      */
-    protected function getRecordsCollection(): LazyCollection
+    protected function getRecordsAsCollection(): LazyCollection
     {
         return new LazyCollection(function () {
             foreach ($this->getRecords() as $record) {
@@ -330,7 +327,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         return new LazyCollection(function () {
             $this->loadResourcesBeforeMapping();
 
-            foreach ($this->getDailyModificationsCollection()->chunk($this->chunkSize) as $chunk) {
+            foreach ($this->getDailyModificationCollection()->chunk($this->chunkSize) as $chunk) {
                 $this->resetSyncedModelsByRecords($chunk);
 
                 $this->loadResourcesBeforeChunkMapping($chunk);
@@ -349,7 +346,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     /**
      * Get collection of records for daily modifications.
      */
-    protected function getDailyModificationsCollection(): LazyCollection
+    protected function getDailyModificationCollection(): LazyCollection
     {
         return new LazyCollection(function () {
             foreach ($this->getDailyModificationRecords() as $record) {
