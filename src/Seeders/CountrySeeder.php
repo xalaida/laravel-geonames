@@ -4,7 +4,6 @@ namespace Nevadskiy\Geonames\Seeders;
 
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
-use Nevadskiy\Geonames\Reader\CountryInfoReader;
 
 class CountrySeeder extends ModelSeeder
 {
