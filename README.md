@@ -228,15 +228,6 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🔨 To Do
 
-- [x] refactor with base seeder.
-- [x] add downloader decorator that uses already downloaded files instead of updating them even if size is changed (prevent de-sync at UTC 00:00 when new file is uploaded during seed process). 
-- [x] refactor seeders to use DI parser and downloader.
-- [x] remove wildcard updatable attributes syntax, need to specify them directly
-- [x] fix dailyUpdate process
-- [x] add possibility to seed continents from `no-country.zip`
-- [x] add possibility download multiple sources by country codes
-- [x] add possibility to define download sources (only cities, no-countries or archive for specific countries)
-- [ ] update fixture for alternate names (UA, PL and common (all))
 - [ ] refactor seeders trait (consider adding composite seeder or something)
 - [ ] add index to `updated_at` column
 - [ ] feature fulltext search
@@ -244,8 +235,6 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] add github action to test on postgres and mysql databases
 - [ ] set up github action to schedule weekly check
 - [ ] add doc info that if source is different from filters, dailyUpdate can add unwanted values
-- [ ] switch to alternate names V2
-- [ ] download alternate names into directory (to not override single country archives)
 - [ ] add classic structure (2 models: Country and Location, 4 tables: countries, country_translations (?), location, location_translations)
 - [ ] consider local seeding with testing data
 - [ ] doc `updatable` attribute columns
