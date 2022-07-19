@@ -93,7 +93,7 @@ class GeonamesSource
                 yield from $reader->getRecords($this->downloadService->downloadSingleCountryAlternateNames($country));
             }
         } else {
-            yield from $reader->getRecords($this->downloadService->downloadAlternateNames());
+            yield from $reader->getRecords($this->downloadService->downloadAlternateNamesV2());
         }
     }
 

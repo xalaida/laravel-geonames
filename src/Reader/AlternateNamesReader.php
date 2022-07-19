@@ -25,6 +25,8 @@ class AlternateNamesReader implements Reader
         'isShortName',
         'isColloquial',
         'isHistoric',
+        'from',
+        'to',
     ];
 
     /**

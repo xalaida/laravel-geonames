@@ -46,8 +46,8 @@ class GeonamesSeedTest extends TestCase
         $service->shouldReceive('downloadAllCountries')
             ->andReturn($this->fixture('allCountries.txt'));
 
-        $service->shouldReceive('downloadAlternateNames')
-            ->andReturn($this->fixture('alternateNames.txt'));
+        $service->shouldReceive('downloadAlternateNamesV2')
+            ->andReturn($this->fixture('alternateNamesV2.txt'));
 
         $this->artisan('geonames:seed');
 

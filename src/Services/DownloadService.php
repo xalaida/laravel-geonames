@@ -93,6 +93,14 @@ class DownloadService
     }
 
     /**
+     * Download an alternate names version 2 file.
+     */
+    public function downloadAlternateNamesV2(): string
+    {
+        return $this->downloadZip("{$this->getBaseUrl()}alternateNamesV2.zip");
+    }
+
+    /**
      * Download an alternate names file of a single country by the given country code.
      */
     public function downloadSingleCountryAlternateNames(string $country): string
