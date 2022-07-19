@@ -9,14 +9,14 @@ class HeadersReader implements Reader
      *
      * @var Reader
      */
-    private $reader;
+    protected $reader;
 
     /**
      * The record headers.
      *
      * @var array
      */
-    private $headers;
+    protected $headers;
 
     /**
      * Make a new reader instance.
@@ -44,10 +44,28 @@ class HeadersReader implements Reader
     {
         $values = [];
 
-        foreach ($record as $key => $value) {
-            $values[$this->headers[$key] ?? $key] = $value !== '' ? $value : null;
+        foreach ($this->headers as $index => $header) {
+            $values[$header] = $this->getRecordValue($record, $index);
         }
 
         return $values;
+    }
+
+    /**
+     * Get the record value at the given index.
+     */
+    protected function getRecordValue(array $record, int $index)
+    {
+        if (! isset($record[$index])) {
+            return null;
+        }
+
+        $value = $record[$index];
+
+        if ($value === '') {
+            return null;
+        }
+
+        return $value;
     }
 }
