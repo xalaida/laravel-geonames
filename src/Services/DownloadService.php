@@ -7,7 +7,6 @@ use InvalidArgumentException;
 use Nevadskiy\Downloader\Downloader;
 
 /**
- * TODO: add alternateNamesV2
  * TODO: rename
  */
 class DownloadService
@@ -47,17 +46,20 @@ class DownloadService
     /**
      * Perform the download process.
      */
-    public function download(string $url): string
+    public function download(string $path): string
     {
-        return $this->downloader->download($url, $this->directory);
-    }
+        $path = trim($path, '/');
 
-    /**
-     * Download a ZIP archive and return the main file from the archive.
-     */
-    public function downloadZip(string $url): string
-    {
-        return $this->download($url).DIRECTORY_SEPARATOR.pathinfo($url, PATHINFO_FILENAME);
+        $destination = $this->downloader->download(
+            $this->getBaseUrl().$path,
+            trim($this->directory.DIRECTORY_SEPARATOR.trim(dirname($path), '.'), DIRECTORY_SEPARATOR)
+        );
+
+        if (substr($path, -4) === '.zip') {
+            return $destination.DIRECTORY_SEPARATOR.pathinfo($path, PATHINFO_FILENAME).'.txt';
+        }
+
+        return $destination;
     }
 
     /**
@@ -65,7 +67,7 @@ class DownloadService
      */
     public function downloadCountryInfo(): string
     {
-        return $this->download("{$this->getBaseUrl()}countryInfo.txt");
+        return $this->download('countryInfo.txt');
     }
 
     /**
@@ -73,7 +75,7 @@ class DownloadService
      */
     public function downloadAllCountries(): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}allCountries.zip");
+        return $this->download('allCountries.zip');
     }
 
     /**
@@ -81,7 +83,7 @@ class DownloadService
      */
     public function downloadSingleCountry(string $country): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}{$country}.zip");
+        return $this->download("{$country}.zip");
     }
 
     /**
@@ -89,7 +91,7 @@ class DownloadService
      */
     public function downloadAlternateNames(): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}alternateNames.zip");
+        return $this->download('alternateNames.zip');
     }
 
     /**
@@ -97,7 +99,7 @@ class DownloadService
      */
     public function downloadAlternateNamesV2(): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}alternateNamesV2.zip");
+        return $this->download('alternateNamesV2.zip');
     }
 
     /**
@@ -105,7 +107,7 @@ class DownloadService
      */
     public function downloadSingleCountryAlternateNames(string $country): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}alternatenames/{$country}.zip");
+        return $this->download("alternatenames/{$country}.zip");
     }
 
     /**
@@ -113,7 +115,7 @@ class DownloadService
      */
     protected function getDailyUpdateUrlByType(string $type): string
     {
-        return "{$this->getBaseUrl()}{$type}-{$this->getGeonamesLastUpdateDate()->format('Y-m-d')}.txt";
+        return "{$type}-{$this->getGeonamesLastUpdateDate()->format('Y-m-d')}.txt";
     }
 
     /**
@@ -163,7 +165,7 @@ class DownloadService
     {
         $this->ensurePopulationAvailable($population);
 
-        return $this->downloadZip("{$this->getBaseUrl()}cities{$population}.zip");
+        return $this->download("cities{$population}.zip");
     }
 
     /**
@@ -171,7 +173,7 @@ class DownloadService
      */
     public function downloadNoCountry(): string
     {
-        return $this->downloadZip("{$this->getBaseUrl()}no-country.zip");
+        return $this->download('no-country.zip');
     }
 
     /**
