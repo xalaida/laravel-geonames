@@ -32,7 +32,6 @@ class GeonamesDailyUpdateTest extends TestCase
     public function it_updates_geonames_dataset_according_to_daily_modifications_and_deletes(): void
     {
         // Arrange
-
         config(['geonames.seeders' => [
             ContinentSeeder::class,
             ContinentTranslationSeeder::class,
@@ -240,11 +239,9 @@ class GeonamesDailyUpdateTest extends TestCase
             ->andReturn($this->fixture('alternateNamesDailyDeletes.txt'));
 
         // Act
-
         $this->artisan('geonames:daily-update');
 
         // Asserts
-
         $this->assertDatabaseCount('continents', 3);
 
         $this->assertModelMissing($invalidContinent);
