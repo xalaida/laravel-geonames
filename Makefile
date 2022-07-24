@@ -63,7 +63,3 @@ coverage: coverage.text
 # Set up ownership for the current user
 own:
 	sudo chown -R "$(shell id -u):$(shell id -g)" .
-
-# Run the testing server
-server:
-	docker-compose up -d server
