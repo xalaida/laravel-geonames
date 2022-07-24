@@ -285,6 +285,7 @@ class GeonamesDailyUpdateTest extends TestCase
             $newTranslationForOldContinent->getKeyName() => $newTranslationForOldContinent->getKey(),
             'alternate_name_id' => 1626678,
             'name' => 'Europe',
+            'locale' => 'en',
             'updated_at' => $yesterday
         ]);
 
@@ -319,7 +320,32 @@ class GeonamesDailyUpdateTest extends TestCase
             'updated_at' => $this->modificationDate('2022-04-06'),
         ]);
 
-        // TODO: add translation assertions
+        $this->assertDatabaseCount('country_translations', 3);
+
+        $this->assertModelMissing($invalidTranslationForOldCountry);
+
+        $this->assertDatabaseHas('country_translations', [
+            $oldTranslationForOldCountry->getKeyName() => $oldTranslationForOldCountry->getKey(),
+            'alternate_name_id' => 1564467,
+            'name' => 'Україна',
+            'locale' => 'uk',
+            'updated_at' => $today,
+        ]);
+
+        $this->assertDatabaseHas('country_translations', [
+            $newTranslationForOldCountry->getKeyName() => $newTranslationForOldCountry->getKey(),
+            'alternate_name_id' => 1564424,
+            'name' => 'Ukraine',
+            'locale' => 'en',
+            'updated_at' => $yesterday
+        ]);
+
+        $this->assertDatabaseHas('country_translations', [
+            'alternate_name_id' => 1564455,
+            'name' => 'Ukraina',
+            'locale' => 'pl',
+            'updated_at' => $today
+        ]);
 
         $this->assertDatabaseCount('divisions', 3);
 
@@ -345,6 +371,33 @@ class GeonamesDailyUpdateTest extends TestCase
             'updated_at' => $this->modificationDate('2022-03-09'),
         ]);
 
+        $this->assertDatabaseCount('division_translations', 3);
+
+        $this->assertModelMissing($invalidTranslationForOldDivision);
+
+        $this->assertDatabaseHas('division_translations', [
+            $oldTranslationForOldDivision->getKeyName() => $oldTranslationForOldDivision->getKey(),
+            'alternate_name_id' => 2432644,
+            'name' => 'Республіка Крим',
+            'locale' => 'uk',
+            'updated_at' => $today,
+        ]);
+
+        $this->assertDatabaseHas('division_translations', [
+            $newTranslationForOldDivision->getKeyName() => $newTranslationForOldDivision->getKey(),
+            'alternate_name_id' => 8791795,
+            'name' => 'Republic of Crimea',
+            'locale' => 'en',
+            'updated_at' => $yesterday
+        ]);
+
+        $this->assertDatabaseHas('division_translations', [
+            'alternate_name_id' => 13701145,
+            'name' => 'Republika Autonomiczna Krymu',
+            'locale' => 'pl',
+            'updated_at' => $today
+        ]);
+
         $this->assertDatabaseCount('cities', 3);
 
         $this->assertModelMissing($invalidCity);
@@ -367,6 +420,33 @@ class GeonamesDailyUpdateTest extends TestCase
             'geoname_id' => 4140963,
             'name' => 'Washington',
             'updated_at' => $this->modificationDate('2022-05-02'),
+        ]);
+
+        $this->assertDatabaseCount('city_translations', 3);
+
+        $this->assertModelMissing($invalidTranslationForOldCity);
+
+        $this->assertDatabaseHas('city_translations', [
+            $oldTranslationForOldCity->getKeyName() => $oldTranslationForOldCity->getKey(),
+            'alternate_name_id' => 1634381,
+            'name' => 'Севастополь',
+            'locale' => 'uk',
+            'updated_at' => $today,
+        ]);
+
+        $this->assertDatabaseHas('city_translations', [
+            $newTranslationForOldCity->getKeyName() => $newTranslationForOldCity->getKey(),
+            'alternate_name_id' => 1634357,
+            'name' => 'Sevastopol',
+            'locale' => 'en',
+            'updated_at' => $yesterday
+        ]);
+
+        $this->assertDatabaseHas('city_translations', [
+            'alternate_name_id' => 1634356,
+            'name' => 'Sewastopol',
+            'locale' => 'pl',
+            'updated_at' => $today
         ]);
     }
 
