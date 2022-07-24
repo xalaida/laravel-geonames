@@ -225,21 +225,3 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
-
-## 🔨 To Do
-
-- [ ] refactor seeders trait (consider adding composite seeder or something)
-- [ ] add index to `updated_at` column
-- [ ] feature fulltext search
-- [ ] check if `noCountry.zip` is covered by `allCountries.zip` source (at least continents are)
-- [ ] add github action to test on postgres and mysql databases
-- [ ] set up github action to schedule weekly check
-- [ ] add doc info that if source is different from filters, dailyUpdate can add unwanted values
-- [ ] add classic structure (2 models: Country and Location, 4 tables: countries, country_translations (?), location, location_translations)
-- [ ] consider local seeding with testing data
-- [ ] doc `updatable` attribute columns
-- [ ] add classic structure according to `https://www.oasis-open.org/committees/ciq/download.shtml` (similar to google places API).
-- [ ] log total time of execution console commands in human friendly format.
-- [ ] remove doc blocks from models and resources to allow generating them locally using ide helper
-- [ ] fix tests
-- [ ] set up directory cleaner to skip `.gitignore` file
