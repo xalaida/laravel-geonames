@@ -5,7 +5,6 @@ namespace Nevadskiy\Geonames\Tests;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
-use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Tests\Support\Assert\DirectoryIsEmpty;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
@@ -75,9 +74,12 @@ class TestCase extends OrchestraTestCase
         ]);
     }
 
+    /**
+     * Boot any testing migrations.
+     */
     private function bootMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/migrations');
     }
 
     /**
@@ -96,58 +98,13 @@ class TestCase extends OrchestraTestCase
         return __DIR__."/fixtures/{$path}";
     }
 
-//    /**
-//     * Fake the logger.
-//     */
-//    protected function fakeLogger(): void
-//    {
-//        $this->app->instance(ConsoleLogger::class, new NullLogger());
-//    }
-
-//    /**
-//     * Fake the directory cleaner.
-//     */
-//    protected function fakeDirectoryCleaner(): void
-//    {
-//        $directoryCleaner = $this->mock(DirectoryCleaner::class);
-//
-//        $directoryCleaner->shouldReceive('keepGitignore')
-//            ->once()
-//            ->withNoArgs()
-//            ->andReturnSelf();
-//
-//        $directoryCleaner->shouldReceive('clean')
-//            ->once()
-//            ->with(config('geonames.directory'));
-//    }
-
-    /**
-     * Fake download service.
-     */
-    protected function fakeDownloadService(): void
-    {
-        $downloadService = $this->mock(DownloadService::class);
-
-        $downloadService->shouldReceive('downloadCountryInfo')
-            ->withNoArgs()
-            ->andReturn($this->fixture('countryInfo.txt'));
-
-        $downloadService->shouldReceive('downloadSourceFiles')
-            ->withNoArgs()
-            ->andReturn([$this->fixture('allCountries.txt')]);
-
-        $downloadService->shouldReceive('downloaderAlternateNames')
-            ->withNoArgs()
-            ->andReturn([$this->fixture('alternateNames.txt')]);
-    }
-
     /**
      * Asserts that a directory exists.
      *
      * @throws InvalidArgumentException
      * @throws ExpectationFailedException
      */
-    public static function assertDirectoryIsEmpty(string $directory, string $message = ''): void
+    protected static function assertDirectoryIsEmpty(string $directory, string $message = ''): void
     {
         static::assertThat($directory, new DirectoryIsEmpty(), $message);
     }
@@ -158,7 +115,7 @@ class TestCase extends OrchestraTestCase
      * @throws InvalidArgumentException
      * @throws ExpectationFailedException
      */
-    public static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
+    protected static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
     {
         static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty()), $message);
     }
