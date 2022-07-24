@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('feature_code', 10)->nullable()->comment('See: https://www.geonames.org/export/codes.html.');
             $table->integer('geoname_id')->unsigned()->unique()->comment('Geonames database identifier.');
             $table->timestamps();
+
+            $table->index('updated_at');
         });
     }
 
