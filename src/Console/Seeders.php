@@ -21,7 +21,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @mixin Command
- * TODO: refactor
+ * TODO: refactor by extracting into factory (add feature tests to each console command before refactoring)
+ * TODO: add possibility to indicate seeders dynamically in console command
  */
 trait Seeders
 {
