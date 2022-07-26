@@ -16,7 +16,7 @@ class GeonamesSeedCommand extends Command
      */
     protected $signature = 'geonames:seed
                             {--truncate : Whether the table should be truncated before seeding}
-                            {--clean : Whether the directory with geonames downloads should be cleaned}';
+                            {--keep-downloads : Do not clean the directory with geonames downloads}';
 
     /**
      * The console command description.
@@ -44,7 +44,7 @@ class GeonamesSeedCommand extends Command
      *
      * TODO: add prod confirmation.
      */
-    private function truncate(array $seeders): void
+    protected function truncate(array $seeders): void
     {
         if ($this->option('truncate')) {
             foreach (array_reverse($seeders) as $seeder) {
@@ -56,7 +56,7 @@ class GeonamesSeedCommand extends Command
     /**
      * Seed the dataset using given seeders.
      */
-    private function seed(array $seeders): void
+    protected function seed(array $seeders): void
     {
         foreach ($seeders as $seeder) {
             $seeder->seed();
@@ -66,9 +66,9 @@ class GeonamesSeedCommand extends Command
     /**
      * Clean the geonames downloads directory.
      */
-    private function clean(): void
+    protected function clean(): void
     {
-        if ($this->option('clean')) {
+        if (! $this->option('keep-downloads')) {
             (new Filesystem)->cleanDirectory(config('geonames.directory'));
         }
     }

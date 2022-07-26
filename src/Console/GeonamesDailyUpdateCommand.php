@@ -14,7 +14,7 @@ class GeonamesDailyUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:daily-update {--clean : Whether the directory with geonames downloads should be cleaned}';
+    protected $signature = 'geonames:daily-update {--keep-downloads : Do not clean the directory with geonames downloads}';
 
     /**
      * The console command description.
@@ -46,9 +46,9 @@ class GeonamesDailyUpdateCommand extends Command
     /**
      * Clean the geonames downloads directory.
      */
-    private function clean(): void
+    protected function clean(): void
     {
-        if ($this->option('clean')) {
+        if (! $this->option('keep-downloads')) {
             (new Filesystem)->cleanDirectory(config('geonames.directory'));
         }
     }
