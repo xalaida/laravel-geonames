@@ -13,7 +13,7 @@
         "php": "^7.3|^8.0",
         "ext-zip": "*",
         "laravel/framework": "^8.0|^9.0",
-        "nevadskiy/downloader": "dev-master",
+        "nevadskiy/downloader": "0.2.0",
         "league/csv": "^9.7"
     },
     "require-dev": {

@@ -32,7 +32,7 @@ class UnzipDownloader implements Downloader
     /**
      * @inheritdoc
      */
-    public function download(string $url, string $destination): string
+    public function download(string $url, string $destination = null): string
     {
         $destination = $this->downloader->download($url, $destination);
 

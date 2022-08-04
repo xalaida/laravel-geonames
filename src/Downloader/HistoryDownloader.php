@@ -31,7 +31,7 @@ class HistoryDownloader implements Downloader
     /**
      * @inheritdoc
      */
-    public function download(string $url, string $destination): string
+    public function download(string $url, string $destination = null): string
     {
         if (! isset($this->history[$url])) {
             $this->history[$url] = $this->downloader->download($url, $destination);
