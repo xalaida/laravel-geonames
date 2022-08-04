@@ -108,13 +108,9 @@ trait Seeders
 
     private function curlDownloader(): CurlDownloader
     {
-        $downloader = new CurlDownloader();
-
-        // $downloader->overwrite(); // TODO: use this function with command option flag.
-
-        // $downloader->withoutClobbering();
-
-        return $downloader;
+        return (new CurlDownloader())
+            ->updateIfExists()
+            ->allowDirectoryCreation();
     }
 
     /**
