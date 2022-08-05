@@ -4,7 +4,7 @@ namespace Nevadskiy\Geonames\Tests\Support\Utils;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithContainer;
-use Nevadskiy\Geonames\Services\DownloadService;
+use Nevadskiy\Geonames\GeonamesDownloader;
 use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\CountryInfoFixture;
 use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\DailyDeletesFixture;
 use Nevadskiy\Geonames\Tests\Support\Utils\Fixtures\GeonamesFixture;
@@ -121,7 +121,7 @@ class FakeDownloadService
      */
     public function swap(): void
     {
-        $downloadService = $this->mock(DownloadService::class);
+        $downloadService = $this->mock(GeonamesDownloader::class);
 
         foreach ($this->paths as $method => $path) {
             $downloadService->shouldReceive($method)

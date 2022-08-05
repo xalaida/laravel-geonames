@@ -3,7 +3,6 @@
 namespace Nevadskiy\Geonames\Tests\Support\Fake;
 
 use Nevadskiy\Geonames\Geonames;
-use Nevadskiy\Geonames\Services\DownloadService;
 
 class FixtureGenerator
 {
