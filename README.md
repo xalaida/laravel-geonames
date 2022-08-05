@@ -37,7 +37,7 @@ composer require nevadskiy/laravel-translatable
 
 Publish geonames resources.
 
-```
+```bash
 php artisan vendor:publish --tag=geonames-migrations --tag=geonames-models
 ```
 
@@ -95,7 +95,7 @@ Update the `telescope.php` config file as following:
 ```php
 'ignore_commands' => [
     'geonames:seed',
-    'geonames:update',
+    'geonames:daily-update',
     'geonames:sync',
 ]
 ```
@@ -117,7 +117,7 @@ Geonames daily updates are published at 3:00 in the UTC time zone, so to be sure
 ```php
 protected function schedule(Schedule $schedule)
 {
-    $schedule->command('geonames:update')->dailyAt('4:00');
+    $schedule->command('geonames:daily-update')->dailyAt('4:00');
 }
 ```
 

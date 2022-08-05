@@ -93,6 +93,12 @@ class ConsoleProgressDownloader implements Downloader
             $this->progress->setFormat($this->format);
         }
 
+        // TODO: add static messages using default logger, not progress.
+        // $this->progress->setFormat(<<<FORMAT
+        //      %current%/%max% [%bar%] %percent:3s%%
+        //      Destination: $destination
+        // FORMAT);
+
         $this->progress->start();
 
         $destination = $this->downloader->download($url, $destination);

@@ -1,15 +1,12 @@
 <?php
 
-namespace Nevadskiy\Geonames\Services;
+namespace Nevadskiy\Geonames;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
 use Nevadskiy\Downloader\Downloader;
 
-/**
- * TODO: rename
- */
-class DownloadService
+class GeonamesDownloader
 {
     /**
      * The downloader instance.
@@ -26,21 +23,28 @@ class DownloadService
     protected $directory;
 
     /**
-     * DownloadService constructor.
+     * Make a new downloader instance.
      */
     public function __construct(Downloader $downloader, string $directory)
     {
         $this->downloader = $downloader;
-        // TODO: inject "directory" from service provider
-        $this->directory = $directory ?: config('geonames.directory');
+        $this->directory = rtrim($directory, DIRECTORY_SEPARATOR);
     }
 
     /**
      * Get the base URL for downloading geonames resources.
      */
-    protected function getBaseUrl(): string
+    protected function baseUrl(): string
     {
         return 'https://download.geonames.org/export/dump/';
+    }
+
+    /**
+     * Get the final URL to the given geonames resource path.
+     */
+    protected function url(string $path): string
+    {
+        return $this->baseUrl() . ltrim($path, '/');
     }
 
     /**
@@ -48,11 +52,11 @@ class DownloadService
      */
     public function download(string $path): string
     {
-        $path = trim($path, '/');
+        // TODO: improve readability
 
         $destination = $this->downloader->download(
-            $this->getBaseUrl().$path,
-            trim($this->directory.DIRECTORY_SEPARATOR.trim(dirname($path), '.'), DIRECTORY_SEPARATOR)
+            $this->url($path),
+            $this->directory.DIRECTORY_SEPARATOR.trim(dirname($path), '.'),
         );
 
         if (substr($path, -4) === '.zip') {

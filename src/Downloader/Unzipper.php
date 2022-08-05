@@ -8,6 +8,8 @@ use ZipArchive;
 /**
  * @TODO add possibility to unzip archives with password
  * @TODO add possibility to create destination directory
+ * @TODO add possibility to extract into separate directory or directly on the path
+ * @TODO add possibility to only update if file is modified older...
  */
 class Unzipper
 {
@@ -18,7 +20,7 @@ class Unzipper
         $this->clobber = false;
     }
 
-    public function skipWhenExists()
+    public function skipIfExists()
     {
         $this->withoutClobbering();
     }

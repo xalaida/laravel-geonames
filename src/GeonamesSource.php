@@ -8,16 +8,15 @@ use Nevadskiy\Geonames\Reader\CountryInfoReader;
 use Nevadskiy\Geonames\Reader\DeletesReader;
 use Nevadskiy\Geonames\Reader\GeonamesReader;
 use Nevadskiy\Geonames\Reader\Reader;
-use Nevadskiy\Geonames\Services\DownloadService;
 
 class GeonamesSource
 {
     /**
-     * The download service instance.
+     * The geonames downloader instance.
      *
-     * @var DownloadService
+     * @var GeonamesDownloader
      */
-    protected $downloadService;
+    protected $geonamesDownloader;
 
     /**
      * The reader instance.
@@ -29,9 +28,9 @@ class GeonamesSource
     /**
      * Make a new geonames source instance.
      */
-    public function __construct(DownloadService $downloadService, Reader $reader)
+    public function __construct(GeonamesDownloader $geonamesDownloader, Reader $reader)
     {
-        $this->downloadService = $downloadService;
+        $this->geonamesDownloader = $geonamesDownloader;
         $this->reader = $reader;
     }
 
@@ -41,7 +40,7 @@ class GeonamesSource
     public function getCountryInfoRecords(): iterable
     {
         return (new CountryInfoReader($this->reader))->getRecords(
-            $this->downloadService->downloadCountryInfo()
+            $this->geonamesDownloader->downloadCountryInfo()
         );
     }
 
@@ -54,10 +53,10 @@ class GeonamesSource
 
         if (! $this->isWildcard($countries)) {
             foreach ($countries as $country) {
-                yield from $reader->getRecords($this->downloadService->downloadSingleCountry($country));
+                yield from $reader->getRecords($this->geonamesDownloader->downloadSingleCountry($country));
             }
         } else {
-            yield from $reader->getRecords($this->downloadService->downloadAllCountries());
+            yield from $reader->getRecords($this->geonamesDownloader->downloadAllCountries());
         }
     }
 
@@ -67,7 +66,7 @@ class GeonamesSource
     public function getDailyModificationRecords(): iterable
     {
         return (new GeonamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyModifications()
+            $this->geonamesDownloader->downloadDailyModifications()
         );
     }
 
@@ -77,7 +76,7 @@ class GeonamesSource
     public function getDailyDeleteRecords(): iterable
     {
         return (new DeletesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyDeletes()
+            $this->geonamesDownloader->downloadDailyDeletes()
         );
     }
 
@@ -90,10 +89,10 @@ class GeonamesSource
 
         if (! $this->isWildcard($countries)) {
             foreach ($countries as $country) {
-                yield from $reader->getRecords($this->downloadService->downloadSingleCountryAlternateNames($country));
+                yield from $reader->getRecords($this->geonamesDownloader->downloadSingleCountryAlternateNames($country));
             }
         } else {
-            yield from $reader->getRecords($this->downloadService->downloadAlternateNamesV2());
+            yield from $reader->getRecords($this->geonamesDownloader->downloadAlternateNamesV2());
         }
     }
 
@@ -103,7 +102,7 @@ class GeonamesSource
     public function getAlternateNamesDailyModificationRecords(): iterable
     {
         return (new AlternateNamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyAlternateNamesModifications()
+            $this->geonamesDownloader->downloadDailyAlternateNamesModifications()
         );
     }
 
@@ -113,7 +112,7 @@ class GeonamesSource
     public function getAlternateNamesDailyDeleteRecords(): iterable
     {
         return (new AlternateNamesDeletesReader($this->reader))->getRecords(
-            $this->downloadService->downloadDailyAlternateNamesDeletes()
+            $this->geonamesDownloader->downloadDailyAlternateNamesDeletes()
         );
     }
 
@@ -123,7 +122,7 @@ class GeonamesSource
     public function getCitiesRecords(int $population): iterable
     {
         return (new GeonamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadCities($population)
+            $this->geonamesDownloader->downloadCities($population)
         );
     }
 
@@ -133,7 +132,7 @@ class GeonamesSource
     public function getNoCountryRecords(): iterable
     {
         return (new GeonamesReader($this->reader))->getRecords(
-            $this->downloadService->downloadNoCountry()
+            $this->geonamesDownloader->downloadNoCountry()
         );
     }
 

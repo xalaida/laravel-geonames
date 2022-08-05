@@ -3,6 +3,7 @@
 namespace Nevadskiy\Geonames\Tests\Feature;
 
 use Carbon\Carbon;
+use Nevadskiy\Geonames\GeonamesDownloader;
 use Nevadskiy\Geonames\Seeders\CitySeeder;
 use Nevadskiy\Geonames\Seeders\CityTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\ContinentSeeder;
@@ -11,7 +12,6 @@ use Nevadskiy\Geonames\Seeders\CountrySeeder;
 use Nevadskiy\Geonames\Seeders\CountryTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\DivisionSeeder;
 use Nevadskiy\Geonames\Seeders\DivisionTranslationSeeder;
-use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Tests\Factories\CityFactory;
 use Nevadskiy\Geonames\Tests\Factories\CityTranslationFactory;
 use Nevadskiy\Geonames\Tests\Factories\ContinentFactory;
@@ -160,7 +160,7 @@ class GeonamesSyncTest extends TestCase
             $today = now()->addDay()->startOfDay()
         );
 
-        $service = $this->mock(DownloadService::class);
+        $service = $this->mock(GeonamesDownloader::class);
 
         $service->shouldReceive('downloadCountryInfo')
             ->andReturn($this->fixture('countryInfo.txt'));

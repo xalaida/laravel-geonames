@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Tests\Feature;
 
+use Nevadskiy\Geonames\GeonamesDownloader;
 use Nevadskiy\Geonames\Seeders\CitySeeder;
 use Nevadskiy\Geonames\Seeders\CityTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\ContinentSeeder;
@@ -10,7 +11,6 @@ use Nevadskiy\Geonames\Seeders\CountrySeeder;
 use Nevadskiy\Geonames\Seeders\CountryTranslationSeeder;
 use Nevadskiy\Geonames\Seeders\DivisionSeeder;
 use Nevadskiy\Geonames\Seeders\DivisionTranslationSeeder;
-use Nevadskiy\Geonames\Services\DownloadService;
 use Nevadskiy\Geonames\Tests\Models\City;
 use Nevadskiy\Geonames\Tests\Models\Continent;
 use Nevadskiy\Geonames\Tests\Models\Country;
@@ -38,7 +38,7 @@ class GeonamesSeedTest extends TestCase
         DivisionSeeder::useModel(Division::class);
         CitySeeder::useModel(City::class);
 
-        $service = $this->mock(DownloadService::class);
+        $service = $this->mock(GeonamesDownloader::class);
 
         $service->shouldReceive('downloadCountryInfo')
             ->andReturn($this->fixture('countryInfo.txt'));
