@@ -30,12 +30,12 @@ final class DivisionFactory extends Factory
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'timezone_id' => $this->faker->timezone,
-            'population' => $this->faker->randomNumber(6),
+            'population' => $this->faker->numerify('######'),
             'elevation' => null,
             'dem' => null,
             'code' => $this->faker->randomNumber(2),
             'feature_code' => FeatureCode::ADM1,
-            'geoname_id' => $this->faker->unique()->randomNumber(6),
+            'geoname_id' => $this->faker->unique()->numerify('######'),
         ];
     }
 }

@@ -25,9 +25,9 @@ final class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $code = $this->faker->unique()->countryCode,
-            'iso' => $code.'C',
-            'iso_numeric' => $this->faker->unique()->randomNumber(3),
+            'code' => $code = $this->faker->unique()->asciify('**'),
+            'iso' => "{$code}C",
+            'iso_numeric' => $this->faker->unique()->numerify('###'),
             'name' => $name = $this->faker->country,
             'name_official' => $name,
             'latitude' => $this->faker->latitude,
@@ -43,10 +43,10 @@ final class CountryFactory extends Factory
             'neighbours' => null,
             'area' => $this->faker->randomFloat(),
             'fips' => null,
-            'population' => $this->faker->randomNumber(6),
+            'population' => $this->faker->numerify('######'),
             'dem' => null,
             'feature_code' => FeatureCode::PCLI,
-            'geoname_id' => $this->faker->unique()->randomNumber(6),
+            'geoname_id' => $this->faker->unique()->numerify('######'),
         ];
     }
 }

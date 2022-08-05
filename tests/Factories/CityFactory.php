@@ -31,11 +31,11 @@ final class CityFactory extends Factory
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'timezone_id' => $this->faker->timezone,
-            'population' => $this->faker->randomNumber(6),
+            'population' => $this->faker->numerify('######'),
             'elevation' => null,
             'dem' => null,
             'feature_code' => FeatureCode::PPL,
-            'geoname_id' => $this->faker->unique()->randomNumber(6),
+            'geoname_id' => $this->faker->unique()->numerify('######'),
         ];
     }
 }

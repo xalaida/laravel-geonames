@@ -12,7 +12,7 @@ class GeonamesFixture extends Fixture
     protected function defaults(): array
     {
         return [
-            'geonameid' => $this->faker->unique()->randomNumber(6),
+            'geonameid' => $this->faker->unique()->numerify('######'),
             'name' => $this->faker->word,
             'asciiname' => $this->faker->word,
             'alternatenames' => '',
@@ -26,7 +26,7 @@ class GeonamesFixture extends Fixture
             'admin2 code' => '',
             'admin3 code' => '',
             'admin4 code' => '',
-            'population' => $this->faker->randomNumber(6),
+            'population' => $this->faker->numerify('######'),
             'elevation' => '',
             'dem' => '',
             'timezone' => $this->faker->timezone,

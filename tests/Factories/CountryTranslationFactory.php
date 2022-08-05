@@ -37,7 +37,7 @@ final class CountryTranslationFactory extends Factory
             'is_colloquial' => $this->faker->boolean(),
             'is_historic' => $this->faker->boolean(),
             'locale' => $this->faker->locale(),
-            'alternate_name_id' => $this->faker->unique()->randomNumber(6),
+            'alternate_name_id' => $this->faker->unique()->numerify('######'),
         ];
     }
 }

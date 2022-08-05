@@ -10,7 +10,7 @@ class DailyDeletesFixture extends Fixture
     protected function defaults(): array
     {
         return [
-            'geonameid' => $this->faker->unique()->randomNumber(6),
+            'geonameid' => $this->faker->unique()->numerify('######'),
             'name' => $this->faker->word,
             'comment' => 'No longer exists',
         ];

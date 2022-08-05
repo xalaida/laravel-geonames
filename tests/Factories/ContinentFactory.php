@@ -25,15 +25,15 @@ final class ContinentFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $this->faker->unique()->countryCode, // TODO: provide array with real continent codes
-            'name' => $this->faker->word, // TODO: provide array with real continent names
+            'code' => $this->faker->unique()->asciify('**'),
+            'name' => $this->faker->word,
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'timezone_id' => $this->faker->timezone,
-            'population' => $this->faker->randomNumber(6),
+            'population' => $this->faker->numerify('######'),
             'dem' => null,
             'feature_code' => FeatureCode::CONT,
-            'geoname_id' => $this->faker->unique()->randomNumber(6),
+            'geoname_id' => $this->faker->unique()->numerify('######'),
         ];
     }
 }
