@@ -2,7 +2,9 @@
 
 namespace Nevadskiy\Geonames;
 
+use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Console\OutputStyle;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
@@ -16,7 +18,6 @@ use Nevadskiy\Geonames\Downloader\Unzipper;
 use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
-use Nevadskiy\Geonames\Support\OutputFactory;
 use Symfony\Component\Finder\SplFileInfo;
 
 class GeonamesServiceProvider extends ServiceProvider
@@ -38,6 +39,7 @@ class GeonamesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootCommands();
+        $this->swapConsoleOutput();
         $this->publishConfig();
         $this->publishMigrations();
         $this->publishModels();
@@ -59,14 +61,15 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->app->when(GeonamesDownloader::class)
             ->needs('$directory')
-            ->give(function () {
-                return config('geonames.directory');
-            });
+            ->giveConfig('geonames.directory');
     }
 
+    /**
+     * Register the file downloader.
+     */
     private function registerFileDownloader(): void
     {
-        $this->app->singleton(Downloader::class, function (Application $app) {
+        $this->app->singleton(Downloader::class, function () {
             $downloader = new CurlDownloader();
             $downloader->updateIfExists();
             $downloader->allowDirectoryCreation();
@@ -76,37 +79,33 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->app->extend(Downloader::class, function (CurlDownloader $downloader, Application $app) {
-                // TODO: consider tagging OutputAwareInterface and swap output in console command just by tag.
-                return new ConsoleProgressDownloader($downloader, $this->getOutput());
+                return new ConsoleProgressDownloader($downloader, $app[OutputStyle::class]);
             });
         }
 
-        $this->app->extend(Downloader::class, function (Downloader $downloader, Application $app) {
+        $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return new UnzipDownloader($downloader, new Unzipper());
         });
 
-        $this->app->extend(Downloader::class, function (Downloader $downloader, Application $app) {
+        $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return new HistoryDownloader($downloader);
         });
     }
 
+    /**
+     * Register the file reader.
+     */
     private function registerFileReader(): void
     {
-        $this->app->singleton(Reader::class, function (Application $app) {
+        $this->app->singleton(Reader::class, function () {
             return new FileReader();
         });
 
         if ($this->app->runningInConsole()) {
             $this->app->extend(Reader::class, function (Reader $reader, Application $app) {
-                // TODO: consider tagging OutputAwareInterface and swap output in console command just by tag.
-                return new ConsoleProgressReader($reader, $this->getOutput());
+                return new ConsoleProgressReader($reader, $app[OutputStyle::class]);
             });
         }
-    }
-
-    private function getOutput(): OutputStyle
-    {
-        return OutputFactory::make();
     }
 
     /**
@@ -120,6 +119,18 @@ class GeonamesServiceProvider extends ServiceProvider
                 Console\GeonamesSyncCommand::class,
                 Console\GeonamesDailyUpdateCommand::class,
             ]);
+        }
+    }
+
+    /**
+     * Swap the console output instance.
+     */
+    protected function swapConsoleOutput(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->app[Dispatcher::class]->listen(CommandStarting::class, function (CommandStarting $command) {
+                $this->app->instance(OutputStyle::class, new OutputStyle($command->input, $command->output));
+            });
         }
     }
 
