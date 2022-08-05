@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['continent_id', 'locale']);
+            $table->index('updated_at');
         });
     }
 
