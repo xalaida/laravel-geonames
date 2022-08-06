@@ -11,14 +11,14 @@ use Nevadskiy\Downloader\Downloader;
 class ConsoleProgressDownloader implements Downloader
 {
     /**
-     * The default downloader format name.
+     * The default progress format name of the downloader.
      */
-    protected const FORMAT_DOWNLOADER = 'downloader';
+    protected const PROGRESS_FORMAT = 'downloader';
 
     /**
-     * The downloader format name when maximum steps are not available.
+     * The progress format name of the downloader when maximum steps are not available.
      */
-    protected const FORMAT_DOWNLOADER_NOMAX = 'downloader_nomax';
+    protected const PROGRESS_FORMAT_NOMAX = 'downloader_nomax';
 
     /**
      * The cURL downloader instance.
@@ -39,7 +39,7 @@ class ConsoleProgressDownloader implements Downloader
      *
      * @var string|null
      */
-    protected $format = self::FORMAT_DOWNLOADER;
+    protected $format = self::PROGRESS_FORMAT;
 
     /**
      * Indicates if a new line should be printed when progress bar finishes.
@@ -97,12 +97,12 @@ class ConsoleProgressDownloader implements Downloader
     protected function setFormatDefinition(): void
     {
         ProgressBar::setFormatDefinition(
-            self::FORMAT_DOWNLOADER,
+            self::PROGRESS_FORMAT,
             ' %size_loaded%/%size_total% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%'
         );
 
         ProgressBar::setFormatDefinition(
-            self::FORMAT_DOWNLOADER_NOMAX,
+            self::PROGRESS_FORMAT_NOMAX,
             ' %size_loaded% [%bar%] %percent:3s%% %elapsed:6s%'
         );
 

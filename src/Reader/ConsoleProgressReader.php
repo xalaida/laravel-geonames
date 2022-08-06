@@ -3,9 +3,21 @@
 namespace Nevadskiy\Geonames\Reader;
 
 use Illuminate\Console\OutputStyle;
+use Symfony\Component\Console\Helper\Helper;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class ConsoleProgressReader implements Reader
 {
+    /**
+     * The default progress format name of the reader.
+     */
+    protected const PROGRESS_FORMAT = 'reader';
+
+    /**
+     * The progress format name of the reader when maximum steps are not available.
+     */
+    protected const PROGRESS_FORMAT_NOMAX = 'reader_nomax';
+
     /**
      * The reader instance.
      *
@@ -21,11 +33,18 @@ class ConsoleProgressReader implements Reader
     protected $output;
 
     /**
+     * A format of the progress bar.
+     *
+     * @var string|null
+     */
+    protected $format = self::PROGRESS_FORMAT;
+
+    /**
      * Indicates if a new line should be printed when progress bar finishes.
      *
      * @var string
      */
-    protected $printNewLine = true;
+    protected $printsNewLine = true;
 
     /**
      * Make a new progress parser instance.
@@ -34,6 +53,40 @@ class ConsoleProgressReader implements Reader
     {
         $this->reader = $reader;
         $this->output = $output;
+
+        $this->setFormatDefinition();
+    }
+
+    /**
+     * Set up a human-readable progress format.
+     */
+    protected function setFormatDefinition(): void
+    {
+        ProgressBar::setFormatDefinition(
+            self::PROGRESS_FORMAT,
+            ' %size_processed%/%size_total% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%'
+        );
+
+        ProgressBar::setFormatDefinition(
+            self::PROGRESS_FORMAT_NOMAX,
+            ' %size_processed% [%bar%] %percent:3s%% %elapsed:6s%'
+        );
+
+        ProgressBar::setPlaceholderFormatterDefinition('size_processed', function (ProgressBar $bar) {
+            return Helper::formatMemory($bar->getProgress());
+        });
+
+        ProgressBar::setPlaceholderFormatterDefinition('size_total', function (ProgressBar $bar) {
+            return Helper::formatMemory($bar->getMaxSteps());
+        });
+    }
+
+    /**
+     * Specify a format of the progress bar.
+     */
+    public function setFormat(string $format): void
+    {
+        $this->format = $format;
     }
 
     /**
@@ -42,6 +95,12 @@ class ConsoleProgressReader implements Reader
     public function getRecords(string $path): iterable
     {
         $progress = $this->output->createProgressBar($this->getFileSize($path));
+
+        if ($this->format) {
+            $progress->setFormat($this->format);
+        }
+
+        $progress->setMessage($path, 'path');
 
         $progress->start();
 
@@ -53,7 +112,7 @@ class ConsoleProgressReader implements Reader
 
         $progress->finish();
 
-        if ($this->printNewLine) {
+        if ($this->printsNewLine) {
             $this->output->newLine();
         }
     }
@@ -71,8 +130,6 @@ class ConsoleProgressReader implements Reader
      */
     protected function getFileSize(string $path): int
     {
-        // TODO: consider cleaning file stats
-
         return filesize($path);
     }
 }
