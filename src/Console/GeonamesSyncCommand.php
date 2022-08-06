@@ -4,11 +4,10 @@ namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Nevadskiy\Geonames\Seeders\CompositeSeeder;
 
 class GeonamesSyncCommand extends Command
 {
-    use Seeders;
-
     /**
      * The name and signature of the console command.
      *
@@ -26,21 +25,11 @@ class GeonamesSyncCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(CompositeSeeder $seeder): void
     {
-        $this->sync($this->seeders());
+        $seeder->sync();
 
         $this->clean();
-    }
-
-    /**
-     * Sync database using given seeders.
-     */
-    protected function sync(array $seeders): void
-    {
-        foreach ($seeders as $seeder) {
-            $seeder->sync();
-        }
     }
 
     /**

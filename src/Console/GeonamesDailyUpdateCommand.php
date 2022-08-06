@@ -4,11 +4,10 @@ namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Nevadskiy\Geonames\Seeders\CompositeSeeder;
 
 class GeonamesDailyUpdateCommand extends Command
 {
-    use Seeders;
-
     /**
      * The name and signature of the console command.
      *
@@ -26,21 +25,11 @@ class GeonamesDailyUpdateCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(CompositeSeeder $seeder): void
     {
-        $this->update($this->seeders());
+        $seeder->dailyUpdate();
 
         $this->clean();
-    }
-
-    /**
-     * Update database using given seeders.
-     */
-    protected function update(array $seeders): void
-    {
-        foreach ($seeders as $seeder) {
-            $seeder->dailyUpdate();
-        }
     }
 
     /**

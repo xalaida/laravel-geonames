@@ -4,11 +4,10 @@ namespace Nevadskiy\Geonames\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Nevadskiy\Geonames\Seeders\CompositeSeeder;
 
 class GeonamesSeedCommand extends Command
 {
-    use Seeders;
-
     /**
      * The name and signature of the console command.
      *
@@ -28,39 +27,16 @@ class GeonamesSeedCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(CompositeSeeder $seeder): void
     {
-        $seeders = $this->seeders();
+        // TODO: add prod confirmation.
+        if ($this->option('truncate')) {
+            $seeder->truncate();
+        }
 
-        $this->truncate($seeders);
-
-        $this->seed($seeders);
+        $seeder->seed();
 
         $this->clean();
-    }
-
-    /**
-     * Truncate tables using given seeders.
-     *
-     * TODO: add prod confirmation.
-     */
-    protected function truncate(array $seeders): void
-    {
-        if ($this->option('truncate')) {
-            foreach (array_reverse($seeders) as $seeder) {
-                $seeder->truncate();
-            }
-        }
-    }
-
-    /**
-     * Seed the dataset using given seeders.
-     */
-    protected function seed(array $seeders): void
-    {
-        foreach ($seeders as $seeder) {
-            $seeder->seed();
-        }
     }
 
     /**

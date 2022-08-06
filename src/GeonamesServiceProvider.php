@@ -18,6 +18,10 @@ use Nevadskiy\Geonames\Downloader\Unzipper;
 use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
+use Nevadskiy\Geonames\Seeders\CompositeSeeder;
+use Psr\Log\LogLevel;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
 class GeonamesServiceProvider extends ServiceProvider
@@ -31,6 +35,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerGeonamesDownloader();
         $this->registerFileDownloader();
         $this->registerFileReader();
+        $this->registerCompositeSeeder();
     }
 
     /**
@@ -51,13 +56,13 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', 'geonames');
+        $this->mergeConfigFrom(__DIR__ . '/../config/geonames.php', 'geonames');
     }
 
     /**
      * Register the geonames downloader instance.
      */
-    private function registerGeonamesDownloader(): void
+    protected function registerGeonamesDownloader(): void
     {
         $this->app->when(GeonamesDownloader::class)
             ->needs('$directory')
@@ -67,9 +72,9 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the file downloader.
      */
-    private function registerFileDownloader(): void
+    protected function registerFileDownloader(): void
     {
-        $this->app->singleton(Downloader::class, function () {
+        $this->app->bind(Downloader::class, function () {
             $downloader = new CurlDownloader();
             $downloader->updateIfExists();
             $downloader->allowDirectoryCreation();
@@ -79,7 +84,7 @@ class GeonamesServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->app->extend(Downloader::class, function (CurlDownloader $downloader, Application $app) {
-                return new ConsoleProgressDownloader($downloader, $app[OutputStyle::class]);
+                return new ConsoleProgressDownloader($downloader, $app->make(OutputStyle::class));
             });
         }
 
@@ -95,17 +100,42 @@ class GeonamesServiceProvider extends ServiceProvider
     /**
      * Register the file reader.
      */
-    private function registerFileReader(): void
+    protected function registerFileReader(): void
     {
-        $this->app->singleton(Reader::class, function () {
+        $this->app->bind(Reader::class, function () {
             return new FileReader();
         });
 
         if ($this->app->runningInConsole()) {
             $this->app->extend(Reader::class, function (Reader $reader, Application $app) {
-                return new ConsoleProgressReader($reader, $app[OutputStyle::class]);
+                return new ConsoleProgressReader($reader, $app->make(OutputStyle::class));
             });
         }
+    }
+
+    /**
+     * Register the composite seeder instance.
+     */
+    protected function registerCompositeSeeder(): void
+    {
+        $this->app->bind(CompositeSeeder::class, function (Application $app) {
+            $seeders = collect(config('geonames.seeders'))
+                ->map(function (string $seeder) use ($app) {
+                    return $app->make($seeder);
+                })
+                ->all();
+
+            $seeder = new CompositeSeeder(...$seeders);
+
+            if ($app->runningInConsole()) {
+                $seeder->setLogger(new ConsoleLogger($app->make(OutputStyle::class), [
+                    LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                    LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+                ]));
+            }
+
+            return $seeder;
+        });
     }
 
     /**
@@ -140,7 +170,7 @@ class GeonamesServiceProvider extends ServiceProvider
     protected function publishConfig(): void
     {
         $this->publishes([
-            __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
+            __DIR__ . '/../config/geonames.php' => config_path('geonames.php'),
         ], 'geonames-config');
     }
 
@@ -175,9 +205,9 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $path = trim($path, '/');
 
-        return collect((new Filesystem())->allFiles(__DIR__.'/../stubs/'.$path))
+        return collect((new Filesystem())->allFiles(__DIR__ . '/../stubs/' . $path))
             ->mapWithKeys(function (SplFileInfo $file) use ($path) {
-                return [$file->getPathname() => base_path($path.'/'.Str::replaceLast('.stub', '.php', $file->getFilename()))];
+                return [$file->getPathname() => base_path($path . '/' . Str::replaceLast('.stub', '.php', $file->getFilename()))];
             })
             ->all();
     }
