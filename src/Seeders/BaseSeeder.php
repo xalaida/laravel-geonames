@@ -67,13 +67,13 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function seed(): void
     {
-        $this->logger->info(sprintf('Start seeding records using: %s', get_class($this)));
+        $this->logger->info('Start seeding records using "{seeder}" class', ['seeder' => get_class($this)]);
 
         foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
             $this->query()->insert($chunk->all());
         }
 
-        $this->logger->info(sprintf('Finish seeding records using: %s', get_class($this)));
+        $this->logger->info('Finish seeding records using "{seeder}" class', ['seeder' => get_class($this)]);
     }
 
     /**
@@ -183,7 +183,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function sync(): void
     {
-        $this->logger->info(sprintf('Start syncing records using: %s', get_class($this)));
+        $this->logger->info('Start syncing records using "{seeder}" class', ['seeder' => get_class($this)]);
 
         $this->resetSyncedModels();
 
@@ -195,7 +195,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
         $this->deleteUnsyncedModels();
 
-        $this->logger->info(sprintf('Finish syncing records using: %s', get_class($this)));
+        $this->logger->info('Finish syncing records using "{seeder}" class', ['seeder' => get_class($this)]);
     }
 
     /**
@@ -297,12 +297,12 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function dailyUpdate(): void
     {
-        $this->logger->info(sprintf('Start updating records using: %s', get_class($this)));
+        $this->logger->info('Start updating records using "{seeder}" class', ['seeder' => get_class($this)]);
 
         $this->applyDailyModifications();
         $this->applyDailyDeletes();
 
-        $this->logger->info(sprintf('Finish updating records using: %s', get_class($this)));
+        $this->logger->info('Finish updating records using "{seeder}" class', ['seeder' => get_class($this)]);
     }
 
     /**
@@ -423,6 +423,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $this->query()->truncate();
 
-        $this->logger->info(sprintf('Table has been truncated using %s', get_class($this)));
+        $this->logger->info('Table has been truncated using "{seeder}" class', ['seeder' => get_class($this)]);
     }
 }
