@@ -70,7 +70,6 @@ class ConsoleProgressDownloader implements Downloader
         $this->downloader = $downloader;
         $this->output = $output;
 
-        $this->setUpCurlDownloader();
         $this->setFormatDefinition();
     }
 
@@ -80,49 +79,6 @@ class ConsoleProgressDownloader implements Downloader
     public function setFormat(string $format): void
     {
         $this->format = $format;
-    }
-
-    /**
-     * Set up the cURL downloader instance.
-     */
-    protected function setUpCurlDownloader(): void
-    {
-        $this->downloader->onProgress(function (int $total, int $loaded) {
-            if ($this->finished) {
-                return;
-            }
-
-            if (! $loaded) {
-                return;
-            }
-
-            if (! $this->progress) {
-                $this->progress = $this->output->createProgressBar();
-
-                if ($this->format) {
-                    $this->progress->setFormat($this->format);
-                }
-
-                $this->progress->start();
-            }
-
-            if ($total) {
-                $this->progress->setMaxSteps($total);
-            }
-
-            $this->progress->setProgress($loaded);
-
-            if ($loaded >= $total) {
-                $this->progress->finish();
-
-                if ($this->printsNewLine) {
-                    $this->output->newLine();
-                }
-
-                $this->finished = true;
-                $this->progress = null;
-            }
-        });
     }
 
     /**
@@ -154,8 +110,55 @@ class ConsoleProgressDownloader implements Downloader
      */
     public function download(string $url, string $destination = null): string
     {
-        $this->finished = false;
+        $this->setUpProgress($url);
 
         return $this->downloader->download($url, $destination);
+    }
+
+    /**
+     * Set up progress hook.
+     */
+    protected function setUpProgress(string $url): void
+    {
+        $this->finished = false;
+
+        $this->downloader->onProgress(function (int $total, int $loaded) use ($url) {
+            if ($this->finished) {
+                return;
+            }
+
+            if (! $loaded) {
+                return;
+            }
+
+            if (! $this->progress) {
+                $this->progress = $this->output->createProgressBar();
+
+                if ($this->format) {
+                    $this->progress->setFormat($this->format);
+                }
+
+                $this->progress->setMessage($url, 'url');
+
+                $this->progress->start();
+            }
+
+            if ($total) {
+                $this->progress->setMaxSteps($total);
+            }
+
+            $this->progress->setProgress($loaded);
+
+            if ($loaded >= $total) {
+                $this->progress->finish();
+
+                if ($this->printsNewLine) {
+                    $this->output->newLine();
+                }
+
+                $this->finished = true;
+                $this->progress = null;
+            }
+        });
     }
 }
