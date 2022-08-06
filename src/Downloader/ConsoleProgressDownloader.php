@@ -35,13 +35,6 @@ class ConsoleProgressDownloader implements Downloader
     protected $output;
 
     /**
-     * The progress bar instance.
-     *
-     * @var ProgressBar
-     */
-    protected $progress;
-
-    /**
      * A format of the progress bar.
      *
      * @var string|null
@@ -54,6 +47,13 @@ class ConsoleProgressDownloader implements Downloader
      * @var string
      */
     protected $printsNewLine = true;
+
+    /**
+     * The progress bar instance.
+     *
+     * @var ProgressBar
+     */
+    private $progress;
 
     /**
      * Make a new downloader instance.
