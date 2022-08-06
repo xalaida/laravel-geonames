@@ -8,10 +8,15 @@ use Psr\Log\LoggerInterface;
 class CompositeSeeder implements Seeder, LoggerAwareInterface
 {
     /**
+     * The seeder list.
+     *
      * @var array|Seeder[]
      */
     private $seeders;
 
+    /**
+     * Make a new seeder instance.
+     */
     public function __construct(Seeder ...$seeders)
     {
         $this->seeders = $seeders;
@@ -29,6 +34,9 @@ class CompositeSeeder implements Seeder, LoggerAwareInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function seed(): void
     {
         foreach ($this->seeders as $seeder) {
@@ -36,6 +44,9 @@ class CompositeSeeder implements Seeder, LoggerAwareInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function sync(): void
     {
         foreach ($this->seeders as $seeder) {
@@ -43,6 +54,9 @@ class CompositeSeeder implements Seeder, LoggerAwareInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function dailyUpdate(): void
     {
         foreach ($this->seeders as $seeder) {
@@ -50,10 +64,13 @@ class CompositeSeeder implements Seeder, LoggerAwareInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function truncate(): void
     {
         foreach (array_reverse($this->seeders) as $seeder) {
-            $seeder->dailyUpdate();
+            $seeder->truncate();
         }
     }
 }
