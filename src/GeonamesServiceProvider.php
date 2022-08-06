@@ -75,7 +75,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerFileDownloader(): void
     {
-        $this->app->bind(Downloader::class, function (Application $app) {
+        $this->app->singleton(Downloader::class, function (Application $app) {
             $downloader = new CurlDownloader();
             $downloader->updateIfExists();
             $downloader->allowDirectoryCreation();
