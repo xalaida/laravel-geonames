@@ -36,6 +36,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerFileDownloader();
         $this->registerFileReader();
         $this->registerCompositeSeeder();
+        $this->registerConsoleLogger();
     }
 
     /**
@@ -74,10 +75,14 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerFileDownloader(): void
     {
-        $this->app->bind(Downloader::class, function () {
+        $this->app->bind(Downloader::class, function (Application $app) {
             $downloader = new CurlDownloader();
             $downloader->updateIfExists();
             $downloader->allowDirectoryCreation();
+
+            if ($app->runningInConsole()) {
+                $downloader->setLogger($app->make('logger.console'));
+            }
 
             return $downloader;
         });
@@ -128,13 +133,23 @@ class GeonamesServiceProvider extends ServiceProvider
             $seeder = new CompositeSeeder(...$seeders);
 
             if ($app->runningInConsole()) {
-                $seeder->setLogger(new ConsoleLogger($app->make(OutputStyle::class), [
-                    LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-                    LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
-                ]));
+                $seeder->setLogger($app->make('logger.console'));
             }
 
             return $seeder;
+        });
+    }
+
+    /**
+     * Register the console logger instance.
+     */
+    protected function registerConsoleLogger(): void
+    {
+        $this->app->singletonIf('logger.console', function (Application $app) {
+            return new ConsoleLogger($app->make(OutputStyle::class), [
+                LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+            ]);
         });
     }
 
