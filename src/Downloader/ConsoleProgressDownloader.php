@@ -56,6 +56,13 @@ class ConsoleProgressDownloader implements Downloader
     private $progress;
 
     /**
+     * Indicates if the current downloading process is finished.
+     *
+     * @var bool
+     */
+    protected $finished = false;
+
+    /**
      * Make a new downloader instance.
      */
     public function __construct(CurlDownloader $downloader, OutputStyle $output)
@@ -81,12 +88,39 @@ class ConsoleProgressDownloader implements Downloader
     protected function setUpCurlDownloader(): void
     {
         $this->downloader->onProgress(function (int $total, int $loaded) {
+            if ($this->finished) {
+                return;
+            }
+
+            if (! $loaded) {
+                return;
+            }
+
+            if (! $this->progress) {
+                $this->progress = $this->output->createProgressBar();
+
+                if ($this->format) {
+                    $this->progress->setFormat($this->format);
+                }
+
+                $this->progress->start();
+            }
+
             if ($total) {
                 $this->progress->setMaxSteps($total);
             }
 
-            if ($loaded) {
-                $this->progress->setProgress($loaded);
+            $this->progress->setProgress($loaded);
+
+            if ($loaded >= $total) {
+                $this->progress->finish();
+
+                if ($this->printsNewLine) {
+                    $this->output->newLine();
+                }
+
+                $this->finished = true;
+                $this->progress = null;
             }
         });
     }
@@ -120,24 +154,8 @@ class ConsoleProgressDownloader implements Downloader
      */
     public function download(string $url, string $destination = null): string
     {
-        $this->progress = $this->output->createProgressBar();
+        $this->finished = false;
 
-        if ($this->format) {
-            $this->progress->setFormat($this->format);
-        }
-
-        $this->progress->setMessage($url, 'url');
-
-        $this->progress->start();
-
-        $destination = $this->downloader->download($url, $destination);
-
-        $this->progress->finish();
-
-        if ($this->printsNewLine) {
-            $this->output->newLine();
-        }
-
-        return $destination;
+        return $this->downloader->download($url, $destination);
     }
 }
