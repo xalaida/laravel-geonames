@@ -2,16 +2,24 @@
 
 namespace Nevadskiy\Geonames\Downloader;
 
+use Illuminate\Console\OutputStyle;
 use Nevadskiy\Downloader\CurlDownloader;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Style\OutputStyle;
 use Nevadskiy\Downloader\Downloader;
 
-/**
- * @todo use human readable scale
- */
 class ConsoleProgressDownloader implements Downloader
 {
+    /**
+     * The default downloader format name.
+     */
+    protected const FORMAT_DOWNLOADER = 'downloader';
+
+    /**
+     * The downloader format name when maximum steps are not available.
+     */
+    protected const FORMAT_DOWNLOADER_NOMAX = 'downloader_nomax';
+
     /**
      * The cURL downloader instance.
      *
@@ -38,14 +46,14 @@ class ConsoleProgressDownloader implements Downloader
      *
      * @var string|null
      */
-    protected $format;
+    protected $format = self::FORMAT_DOWNLOADER;
 
     /**
      * Indicates if a new line should be printed when progress bar finishes.
      *
      * @var string
      */
-    protected $printNewLine = true;
+    protected $printsNewLine = true;
 
     /**
      * Make a new downloader instance.
@@ -56,12 +64,13 @@ class ConsoleProgressDownloader implements Downloader
         $this->output = $output;
 
         $this->setUpCurlDownloader();
+        $this->setFormatDefinition();
     }
 
     /**
-     * Specify the format of the progress bar.
+     * Specify a format of the progress bar.
      */
-    public function setFormat(string $format)
+    public function setFormat(string $format): void
     {
         $this->format = $format;
     }
@@ -69,7 +78,7 @@ class ConsoleProgressDownloader implements Downloader
     /**
      * Set up the cURL downloader instance.
      */
-    protected function setUpCurlDownloader()
+    protected function setUpCurlDownloader(): void
     {
         $this->downloader->onProgress(function (int $total, int $loaded) {
             if ($total) {
@@ -79,6 +88,30 @@ class ConsoleProgressDownloader implements Downloader
             if ($loaded) {
                 $this->progress->setProgress($loaded);
             }
+        });
+    }
+
+    /**
+     * Set up a human-readable progress format.
+     */
+    protected function setFormatDefinition(): void
+    {
+        ProgressBar::setFormatDefinition(
+            self::FORMAT_DOWNLOADER,
+            ' %size_loaded%/%size_total% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%'
+        );
+
+        ProgressBar::setFormatDefinition(
+            self::FORMAT_DOWNLOADER_NOMAX,
+            ' %size_loaded% [%bar%] %percent:3s%% %elapsed:6s%'
+        );
+
+        ProgressBar::setPlaceholderFormatterDefinition('size_loaded', function (ProgressBar $bar) {
+            return Helper::formatMemory($bar->getProgress());
+        });
+
+        ProgressBar::setPlaceholderFormatterDefinition('size_total', function (ProgressBar $bar) {
+            return Helper::formatMemory($bar->getMaxSteps());
         });
     }
 
@@ -93,11 +126,7 @@ class ConsoleProgressDownloader implements Downloader
             $this->progress->setFormat($this->format);
         }
 
-        // TODO: add static messages using default logger, not progress.
-        // $this->progress->setFormat(<<<FORMAT
-        //      %current%/%max% [%bar%] %percent:3s%%
-        //      Destination: $destination
-        // FORMAT);
+        $this->progress->setMessage($url, 'url');
 
         $this->progress->start();
 
@@ -105,7 +134,7 @@ class ConsoleProgressDownloader implements Downloader
 
         $this->progress->finish();
 
-        if ($this->printNewLine) {
+        if ($this->printsNewLine) {
             $this->output->newLine();
         }
 
