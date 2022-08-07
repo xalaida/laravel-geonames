@@ -198,13 +198,13 @@ class CitySeeder extends Seeder
 
 To use translations you need to install the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-Read its documentation to learn more about how it works. You can also use it to handle translations of other models.
+Read its [documentation](https://github.com/nevadskiy/laravel-translatable/wiki) to learn more about how it works. You can also use it to handle translations of other models.
 
 Otherwise, you still can use the package without translations, just simply remove the following:
 
-- translation seeders from the config file
 - translation migrations
-- the `HasTranslations` trait from published models
+- translation seeders (from the `geonames` config file as well)
+- the `HasTranslations` trait and `translatable` prop from published models
 
 ## 📑 Changelog
 
