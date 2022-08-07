@@ -29,14 +29,33 @@ class GeonamesSeedCommand extends Command
      */
     public function handle(CompositeSeeder $seeder): void
     {
-        // TODO: add prod confirmation.
-        if ($this->option('truncate')) {
-            $seeder->truncate();
-        }
+        $this->truncate($seeder);
 
         $seeder->seed();
 
         $this->clean();
+    }
+
+    /**
+     * Truncate the database before seeding.
+     */
+    protected function truncate(CompositeSeeder $seeder): void
+    {
+        if (! $this->option('truncate')) {
+            return;
+        }
+
+        if (! $this->getLaravel()->environment('production')) {
+            $seeder->truncate();
+
+            return;
+        }
+
+        $this->alert('Application In Production!');
+
+        if ($this->confirm('Do you really wish to truncate database before seeding?')) {
+            $seeder->truncate();
+        }
     }
 
     /**
