@@ -17,6 +17,7 @@ use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
 use Nevadskiy\Geonames\Seeders\CompositeSeeder;
+use Nevadskiy\Geonames\Support\CompositeLogger;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,7 +35,7 @@ class GeonamesServiceProvider extends ServiceProvider
         $this->registerFileDownloader();
         $this->registerFileReader();
         $this->registerCompositeSeeder();
-        $this->registerConsoleLogger();
+        $this->registerGeonamesLogger();
     }
 
     /**
@@ -79,7 +80,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $downloader->allowDirectoryCreation();
 
             if ($app->runningInConsole()) {
-                $downloader->setLogger($app->make('logger.console'));
+                $downloader->setLogger($app->make('geonames.logger'));
             }
 
             return $downloader;
@@ -127,7 +128,7 @@ class GeonamesServiceProvider extends ServiceProvider
             $seeder = new CompositeSeeder(...$seeders);
 
             if ($app->runningInConsole()) {
-                $seeder->setLogger($app->make('logger.console'));
+                $seeder->setLogger($app->make('geonames.logger'));
             }
 
             return $seeder;
@@ -135,15 +136,18 @@ class GeonamesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the console logger instance.
+     * Register the geonames logger instance.
      */
-    protected function registerConsoleLogger(): void
+    protected function registerGeonamesLogger(): void
     {
-        $this->app->singletonIf('logger.console', function (Application $app) {
-            return new ConsoleLogger($app->make(OutputStyle::class), [
-                LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-                LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
-            ]);
+        $this->app->singletonIf('geonames.logger', function (Application $app) {
+            return new CompositeLogger(
+                new ConsoleLogger($app->make(OutputStyle::class), [
+                    LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                    LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+                ]),
+                $app->make('log')
+            );
         });
     }
 
