@@ -43,7 +43,7 @@ return [
 
         /*
          * Indicates if translations with a nullable locale should be seeded.
-         * These type of translations can be useful for searching.
+         * These type of translations can be useful for searching but take up more space.
          */
         'nullable_locale' => true,
 
