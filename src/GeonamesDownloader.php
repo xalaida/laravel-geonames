@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames;
 use Carbon\Carbon;
 use InvalidArgumentException;
 use Nevadskiy\Downloader\Downloader;
+use ZipArchive;
 
 class GeonamesDownloader
 {
@@ -32,35 +33,17 @@ class GeonamesDownloader
     }
 
     /**
-     * Get the base URL for downloading geonames resources.
-     */
-    protected function baseUrl(): string
-    {
-        return 'https://download.geonames.org/export/dump/';
-    }
-
-    /**
-     * Get the final URL to the given geonames resource path.
-     */
-    protected function url(string $path): string
-    {
-        return $this->baseUrl() . ltrim($path, '/');
-    }
-
-    /**
      * Perform the download process.
      */
     public function download(string $path): string
     {
-        // TODO: improve readability
-
         $destination = $this->downloader->download(
             $this->url($path),
-            $this->directory.DIRECTORY_SEPARATOR.trim(dirname($path), '.'),
+            $this->directory . DIRECTORY_SEPARATOR . trim(dirname($path), '.'),
         );
 
-        if (substr($path, -4) === '.zip') {
-            return $destination.DIRECTORY_SEPARATOR.pathinfo($path, PATHINFO_FILENAME).'.txt';
+        if (pathinfo($destination, PATHINFO_EXTENSION) === 'zip') {
+            return $this->extract($destination);
         }
 
         return $destination;
@@ -178,6 +161,45 @@ class GeonamesDownloader
     public function downloadNoCountry(): string
     {
         return $this->download('no-country.zip');
+    }
+
+    /**
+     * Get the base URL for downloading geonames resources.
+     */
+    protected function baseUrl(): string
+    {
+        return 'https://download.geonames.org/export/dump/';
+    }
+
+    /**
+     * Get the final URL to the given geonames resource path.
+     */
+    protected function url(string $path): string
+    {
+        return $this->baseUrl() . ltrim($path, '/');
+    }
+
+    /**
+     * Extract a file from an archive by the given path.
+     *
+     * @TODO consider extracting into separate `Extractor` class
+     */
+    protected function extract(string $path): string
+    {
+        $directory = pathinfo($path, PATHINFO_DIRNAME);
+
+        $file = pathinfo($path, PATHINFO_FILENAME) . '.txt';
+
+        $destination = $directory . DIRECTORY_SEPARATOR . $file;
+
+        if (! file_exists($destination)) {
+            $zip = new ZipArchive();
+            $zip->open($path);
+            $zip->extractTo($directory, $file);
+            $zip->close();
+        }
+
+        return $destination;
     }
 
     /**

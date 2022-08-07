@@ -13,8 +13,6 @@ use Nevadskiy\Downloader\CurlDownloader;
 use Nevadskiy\Downloader\Downloader;
 use Nevadskiy\Geonames\Downloader\ConsoleProgressDownloader;
 use Nevadskiy\Geonames\Downloader\HistoryDownloader;
-use Nevadskiy\Geonames\Downloader\UnzipDownloader;
-use Nevadskiy\Geonames\Downloader\Unzipper;
 use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
 use Nevadskiy\Geonames\Reader\FileReader;
 use Nevadskiy\Geonames\Reader\Reader;
@@ -77,7 +75,7 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Downloader::class, function (Application $app) {
             $downloader = new CurlDownloader();
-            $downloader->updateIfExists();
+            $downloader->skipIfExists();
             $downloader->allowDirectoryCreation();
 
             if ($app->runningInConsole()) {
@@ -94,10 +92,6 @@ class GeonamesServiceProvider extends ServiceProvider
         }
 
         $this->app->extend(Downloader::class, function (Downloader $downloader) {
-            return new UnzipDownloader($downloader, new Unzipper());
-        });
-
-        $this->app->extend(Downloader::class, function (Downloader $downloader) {
             return new HistoryDownloader($downloader);
         });
     }
@@ -107,7 +101,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerFileReader(): void
     {
-        $this->app->bind(Reader::class, function () {
+        $this->app->singleton(Reader::class, function () {
             return new FileReader();
         });
 
