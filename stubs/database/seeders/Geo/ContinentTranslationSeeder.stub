@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Seeders;
+namespace Database\Seeders\Geo;
 
-use Nevadskiy\Geonames\Seeders\CityTranslationSeeder as Seeder;
+use Nevadskiy\Geonames\Seeders\ContinentTranslationSeeder as Seeder;
 
-class CityTranslationSeeder extends Seeder
+class ContinentTranslationSeeder extends Seeder
 {
     /**
      * {@inheritdoc}

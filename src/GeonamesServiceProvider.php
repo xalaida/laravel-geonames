@@ -208,7 +208,7 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function publishSeeders(): void
     {
-        $this->publishes($this->stubPaths('app/Seeders'), 'geonames-seeders');
+        $this->publishes($this->stubPaths('database/seeders/Geo'), 'geonames-seeders');
     }
 
     /**

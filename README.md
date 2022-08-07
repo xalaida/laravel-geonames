@@ -137,7 +137,7 @@ For example, if you want to use UUIDs as primary keys, you can extend the origin
 ```php
 <?php
 
-namespace App\Seeders;
+namespace Database\Seeders\Geo;
 
 use App\Models\Geo\City;
 use Illuminate\Support\Str;use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;

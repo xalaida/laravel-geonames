@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Seeders;
+namespace Database\Seeders\Geo;
 
-use App\Models\Geo\Continent;
-use Nevadskiy\Geonames\Seeders\ContinentSeeder as Seeder;
+use App\Models\Geo\Division;
+use Nevadskiy\Geonames\Seeders\DivisionSeeder as Seeder;
 
-class ContinentSeeder extends Seeder
+class DivisionSeeder extends Seeder
 {
     /**
      * {@inheritdoc}
      */
-    protected static $model = Continent::class;
+    protected static $model = Division::class;
 
     /**
      * {@inheritdoc}
