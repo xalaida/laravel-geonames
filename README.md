@@ -1,7 +1,5 @@
 # 🌎 Laravel Geonames
 
-**Currently, the work in progress. It will receive updates with possible breaking changes. Not recommended using in production environments yet.**
-
 The package provides geonames seeders for a Laravel application.
 
 ## 🗒️ Description
@@ -106,8 +104,6 @@ To reduce the database size, you can set up filters for seeding only those geo d
 
 For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
 
-Filters can be set up in the config file by the `geonames.filters` path.
-
 ### Schedule updates
 
 Add the following code to the `app/Console/Kernel.php` file if you want to receive geonames daily updates.
@@ -151,7 +147,7 @@ Publish the package seeders.
 php artisan vendor:publish --tag=geonames-seeders
 ```
 
-After publishing the seeders, make sure that you have specified those classes in the config file by the `geonames.seeders` path.
+> After publishing the seeders, make sure that you have specified those classes in the "geonames" config file.
 
 #### Custom seeders
 
@@ -159,7 +155,7 @@ For a more significant change in the structure, you can add your own seeders or 
 
 Each seeder must implement the `Nevadskiy\Geonames\Seeders\Seeder` interface.
 
-All seeders that are specified in the config for the `geonames.seeders` path will be executed one after another in the specified order.
+All seeders that are specified in the config for the `geonames.seeders` path will be executed one by one in the specified order.
 
 #### Attributes mapping
 
@@ -214,10 +210,6 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
 
-## 🔓 Security
-
-If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
-
 ## 📜 License
 
-The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
