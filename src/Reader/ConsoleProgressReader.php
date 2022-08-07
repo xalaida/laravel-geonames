@@ -5,6 +5,7 @@ namespace Nevadskiy\Geonames\Reader;
 use Illuminate\Console\OutputStyle;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
+use function strlen;
 
 class ConsoleProgressReader implements Reader
 {

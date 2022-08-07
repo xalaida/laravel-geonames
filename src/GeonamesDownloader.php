@@ -6,6 +6,9 @@ use Carbon\Carbon;
 use InvalidArgumentException;
 use Nevadskiy\Downloader\Downloader;
 use ZipArchive;
+use function dirname;
+use function in_array;
+use const DIRECTORY_SEPARATOR;
 
 class GeonamesDownloader
 {
@@ -207,7 +210,7 @@ class GeonamesDownloader
      */
     protected function ensurePopulationAvailable(int $population): void
     {
-        if (! in_array($population, $this->getPopulations())) {
+        if (! in_array($population, $this->getPopulations(), true)) {
             throw new InvalidArgumentException(
                 vsprintf('There is no file with "%s" population. Specify one of: %s', [
                     $population,

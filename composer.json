@@ -41,9 +41,5 @@
     },
     "suggest": {
         "nevadskiy/laravel-translatable": "Required to use geonames translations."
-    },
-    "scripts": {
-        "test": "phpunit --colors=always",
-        "fix": "php-cs-fixer fix"
     }
 }

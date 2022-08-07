@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use Nevadskiy\Geonames\GeonamesSource;
 use Nevadskiy\Geonames\Support\ContinentCodeGenerator;
+use function in_array;
 
 class ContinentSeeder extends ModelSeeder
 {

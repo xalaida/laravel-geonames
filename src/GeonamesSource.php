@@ -8,6 +8,7 @@ use Nevadskiy\Geonames\Reader\CountryInfoReader;
 use Nevadskiy\Geonames\Reader\DeletesReader;
 use Nevadskiy\Geonames\Reader\GeonamesReader;
 use Nevadskiy\Geonames\Reader\Reader;
+use function count;
 
 class GeonamesSource
 {

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\GeonamesSource;
 use RuntimeException;
+use function in_array;
+use function count;
 
 abstract class TranslationSeeder extends BaseSeeder
 {
@@ -137,7 +139,7 @@ abstract class TranslationSeeder extends BaseSeeder
      */
     protected function isSupportedLocale(?string $locale): bool
     {
-        if (is_null($locale)) {
+        if (null === $locale) {
             return $this->nullableLocale;
         }
 

@@ -8,6 +8,7 @@ use Nevadskiy\Geonames\GeonamesSource;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use function count;
 
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
@@ -67,13 +68,13 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function seed(): void
     {
-        $this->logger->info('Start seeding records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Start seeding records using "{seeder}" class', ['seeder' => static::class]);
 
         foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
             $this->query()->insert($chunk->all());
         }
 
-        $this->logger->info('Finish seeding records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Finish seeding records using "{seeder}" class', ['seeder' => static::class]);
     }
 
     /**
@@ -183,7 +184,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function sync(): void
     {
-        $this->logger->info('Start syncing records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Start syncing records using "{seeder}" class', ['seeder' => static::class]);
 
         $this->resetSyncedModels();
 
@@ -195,7 +196,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
         $this->deleteUnsyncedModels();
 
-        $this->logger->info('Finish syncing records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Finish syncing records using "{seeder}" class', ['seeder' => static::class]);
     }
 
     /**
@@ -295,12 +296,12 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      */
     public function dailyUpdate(): void
     {
-        $this->logger->info('Start updating records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Start updating records using "{seeder}" class', ['seeder' => static::class]);
 
         $this->applyDailyModifications();
         $this->applyDailyDeletes();
 
-        $this->logger->info('Finish updating records using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Finish updating records using "{seeder}" class', ['seeder' => static::class]);
     }
 
     /**
@@ -419,6 +420,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
     {
         $this->query()->truncate();
 
-        $this->logger->info('Table has been truncated using "{seeder}" class', ['seeder' => get_class($this)]);
+        $this->logger->info('Table has been truncated using "{seeder}" class', ['seeder' => static::class]);
     }
 }
