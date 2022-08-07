@@ -125,7 +125,7 @@ protected function schedule(Schedule $schedule)
 
 ### Syncing
 
-If you missed some daily updates or just decided to change seeder filters, you can force the sync process.
+If you missed some daily updates or just decided to change seeder filters, you can sync your database records according to the current geonames dataset.
 
 ```bash
 php artisan geonames:sync
@@ -193,10 +193,6 @@ class CitySeeder extends Seeder
     }
 }
 ```
-
-### Nova resources
-
-...
 
 ### Translations
 

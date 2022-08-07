@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix migration fields
 
 ### Removed
+- Parser classes
 - `FileReader` class
 - `Downloader` class
 
