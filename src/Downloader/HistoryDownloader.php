@@ -39,4 +39,12 @@ class HistoryDownloader implements Downloader
 
         return $this->history[$url];
     }
+
+    /**
+     * Get a history of downloads.
+     */
+    public function getHistory(): array
+    {
+        return $this->history;
+    }
 }
