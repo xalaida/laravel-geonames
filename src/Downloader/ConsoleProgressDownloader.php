@@ -53,14 +53,14 @@ class ConsoleProgressDownloader implements Downloader
      *
      * @var ProgressBar
      */
-    private $progress;
+    protected $progress;
 
     /**
      * Indicates if the current downloading process is finished.
      *
      * @var bool
      */
-    protected $finished = false;
+    private $finished = false;
 
     /**
      * Make a new downloader instance.

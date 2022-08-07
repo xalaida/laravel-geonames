@@ -9,14 +9,14 @@ class CountryInfoReader implements Reader
      *
      * @var Reader
      */
-    private $reader;
+    protected $reader;
 
     /**
      * The record headers.
      *
      * @var array
      */
-    private $headers = [
+    protected $headers = [
         'ISO',
         'ISO3',
         'ISO-Numeric',

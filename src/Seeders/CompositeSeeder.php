@@ -12,7 +12,7 @@ class CompositeSeeder implements Seeder, LoggerAwareInterface
      *
      * @var array|Seeder[]
      */
-    private $seeders;
+    protected $seeders;
 
     /**
      * Make a new seeder instance.

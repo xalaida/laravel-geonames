@@ -105,9 +105,9 @@ class ConsoleProgressReader implements Reader
         $progress->start();
 
         foreach ($this->reader->getRecords($path) as $record) {
-            $progress->advance($this->getRecordSize($record));
-
             yield $record;
+
+            $progress->advance($this->getRecordSize($record));
         }
 
         $progress->finish();

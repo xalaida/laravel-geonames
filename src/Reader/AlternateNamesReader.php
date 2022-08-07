@@ -9,14 +9,14 @@ class AlternateNamesReader implements Reader
      *
      * @var Reader
      */
-    private $reader;
+    protected $reader;
 
     /**
      * The record headers.
      *
      * @var array
      */
-    private $headers = [
+    protected $headers = [
         'alternateNameId',
         'geonameid',
         'isolanguage',

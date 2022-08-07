@@ -77,7 +77,7 @@ class TestCase extends OrchestraTestCase
     /**
      * Boot any testing migrations.
      */
-    private function bootMigrations(): void
+    protected function bootMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/migrations');
     }
