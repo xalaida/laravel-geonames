@@ -59,50 +59,7 @@ It will download geonames resources and insert the dataset into your database.
 
 > Note that the seeding process may take some time. On average, it takes about 40 minutes (without downloading time) to seed the full dataset with translations.
 
-### Memory leaks
-
-One of the most popular errors associated with seeding large amounts of data is a memory leak.
-
-This package reads files using PHP generators and [lazy collections](https://laravel.com/docs/9.x/collections#lazy-collection-introduction) so as not to load the entire file into memory.
-
-However, there are packages that log database queries and model events during long-running commands to memory, which leads to memory leaks.
-
-There are instructions on how to avoid memory leaks when working with the following packages:
-
-- [Laravel Ignition](https://github.com/spatie/laravel-ignition)
-
-Publish flare config using `php artisan vendor:publish --tag=flare-config`.
-
-Set `report_query_bindings` to `false` in the `flare.php` config file as following:
-
-```php
-'flare_middleware' => [
-    ...
-    AddQueries::class => [
-        'maximum_number_of_collected_queries' => 200,
-        'report_query_bindings' => false,
-    ],
-    ...
-]
-```
-
-- [Laravel Telescope](https://github.com/laravel/telescope)
-
-Update the `telescope.php` config file as following:
-
-```php
-'ignore_commands' => [
-    'geonames:seed',
-    'geonames:daily-update',
-    'geonames:sync',
-]
-```
-
-### Filtering
-
-To reduce the database size, you can set up filters for seeding only those geo data that you really need in your application.
-
-For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
+> If you have issues with memory leaks during seeding, check out [this section](#memory-leaks).
 
 ### Schedule updates
 
@@ -133,29 +90,44 @@ This command will create missing records, remove redundant ones, and updated mod
 
 ### Customization
 
-If you want to customize migrations or data that should be imported, also publish seeders and the config file.
+If you want to customize migrations or data that should be imported, you can simply do this by overriding the default seeders.
 
-Publish the package config.
-
-```bash
-php artisan vendor:publish --tag=geonames-config
-```
-
-Publish the package seeders.
+To do that, publish the package seeders using command:
 
 ```bash
 php artisan vendor:publish --tag=geonames-seeders
 ```
 
-> After publishing the seeders, make sure that you have specified those classes in the "geonames" config file.
+Then publish the package config and specify those seeders there:
 
-#### Custom seeders
+```bash
+php artisan vendor:publish --tag=geonames-config 
+```
 
-For a more significant change in the structure, you can add your own seeders or extend existing ones.
+```php
+# config/geonames.php
 
-Each seeder must implement the `Nevadskiy\Geonames\Seeders\Seeder` interface.
+'seeders' => [
+    App\Seeders\ContinentSeeder::class,
+    App\Seeders\ContinentTranslationSeeder::class,
+    App\Seeders\CountrySeeder::class,
+    App\Seeders\CountryTranslationSeeder::class,
+    App\Seeders\DivisionSeeder::class,
+    App\Seeders\DivisionTranslationSeeder::class,
+    App\Seeders\CitySeeder::class,
+    App\Seeders\CityTranslationSeeder::class,
+]
+```
 
-All seeders that are specified in the config for the `geonames.seeders` path will be executed one by one in the specified order.
+### Filtering
+
+To reduce the database size, you can set up filters for seeding only those geo data that you really need in your application.
+
+For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
+
+To do that, override the `$minPopulation` property in the `CitySeeder` class.
+
+To have full control over this behaviour, override the `filter` method of the seeder.
 
 #### Attributes mapping
 
@@ -169,7 +141,7 @@ For example, if you want to use UUIDs as primary keys, you can extend the origin
 namespace App\Seeders;
 
 use App\Models\Geo\City;
-use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
+use Illuminate\Support\Str;use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
 
 class CitySeeder extends Seeder
 {
@@ -184,11 +156,24 @@ class CitySeeder extends Seeder
     protected function mapAttributes(array $record): array
     {
         return array_merge(parent::mapAttributes($record), [
-            'id' => City::generateUuid(),
+            'id' => (string) Str::uuid(),
         ]);
     }
 }
 ```
+
+> Note that model events will not be fired during seeding process because the package uses a bulk insert strategy.
+> However, all model casts and mutators will be applied as usual.
+
+#### Custom seeders
+
+For a more significant change in the structure, you can add your own seeders or extend existing ones.
+
+Each seeder must implement the `Nevadskiy\Geonames\Seeders\Seeder` interface.
+
+All seeders that are specified in the `geonames` config file will be executed one by one in the specified order.
+
+[//]: # (TODO: doc seeder hooks: `loadResourcesBeforeMapping`, `loadResourcesBeforeChunkMapping`)
 
 ### Translations
 
@@ -201,6 +186,45 @@ Otherwise, you still can use the package without translations, just simply remov
 - translation migrations
 - translation seeders (from the `geonames` config file as well)
 - the `HasTranslations` trait and `translatable` prop from published models
+
+### Memory leaks
+
+One of the most popular issues associated with seeding large amounts of data is a memory leak.
+
+This package reads files using PHP generators and [lazy collections](https://laravel.com/docs/9.x/collections#lazy-collection-introduction) to avoid loading the entire file into memory.
+
+However, there are packages that log database queries and model events during long-running commands to memory, which leads to memory leaks.
+
+There are instructions on how to avoid memory leaks when working with the following packages:
+
+#### [Laravel Ignition](https://github.com/spatie/laravel-ignition)
+
+Publish flare config using `php artisan vendor:publish --tag=flare-config`.
+
+Set `report_query_bindings` to `false` in the `flare.php` config file as following:
+
+```php
+'flare_middleware' => [
+    ...
+    AddQueries::class => [
+        'maximum_number_of_collected_queries' => 200,
+        'report_query_bindings' => false,
+    ],
+    ...
+]
+```
+
+#### [Laravel Telescope](https://github.com/laravel/telescope)
+
+Update the `telescope.php` config file as following:
+
+```php
+'ignore_commands' => [
+    'geonames:seed',
+    'geonames:daily-update',
+    'geonames:sync',
+]
+```
 
 ## 📑 Changelog
 
