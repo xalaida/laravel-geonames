@@ -19,25 +19,15 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property int|null population
  * @property int|null elevation
  * @property int|null dem
- * @property string code
- * @property string feature_code
- * @property int geoname_id
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property string|null code
+ * @property string|null feature_code
+ * @property int|null geoname_id
+ * @property Carbon|null created_at
+ * @property Carbon|null updated_at
  */
 class Division extends Model
 {
     use HasTranslations;
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'latitude' => 'float',
-        'longitude' => 'float',
-    ];
 
     /**
      * Attributes that are translatable.
@@ -47,18 +37,6 @@ class Division extends Model
     protected $translatable = [
         'name',
     ];
-
-    /**
-     * Get the timezone instance.
-     */
-    public function getTimezone(): ?CarbonTimeZone
-    {
-        if (! $this->timezone_id) {
-            return null;
-        }
-
-        return new CarbonTimeZone($this->timezone_id);
-    }
 
     /**
      * Get a relationship with a country.

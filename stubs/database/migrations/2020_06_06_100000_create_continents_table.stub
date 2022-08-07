@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('name', 50);
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->string('timezone_id', 32)->nullable()->index();
-            $table->bigInteger('population')->unsigned()->nullable();
+            $table->string('timezone_id', 32)->index();
+            $table->bigInteger('population')->unsigned();
             $table->smallInteger('dem')->nullable()->comment('Digital elevation model, srtm3 or gtopo30');
             $table->string('feature_code', 10)->nullable()->comment('See: https://www.geonames.org/export/codes.html');
             $table->integer('geoname_id')->unsigned()->nullable()->unique()->comment('Geonames database identifier');
