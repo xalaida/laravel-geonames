@@ -9,6 +9,10 @@ down:
 # Build docker containers
 install: build composer.install
 
+# Make a ".env" file based on the example file
+env:
+	cp .env.example .env
+
 # Build docker containers
 build:
 	docker-compose build
@@ -48,6 +52,14 @@ composer.outdated:
 # Dump composer autoload
 autoload:
 	docker-compose run --rm app composer dump-autoload
+
+# Reinstall using a new runtime
+reinstall: clean install
+
+# Clean installation for the current runtime
+clean:
+	sudo rm -rf vendor
+	sudo rm composer.lock
 
 # Generate a coverage report as html
 coverage.html:
