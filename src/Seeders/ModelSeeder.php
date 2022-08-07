@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 
-/**
- * @TODO: add possibility to use custom delete scopes (by overriding default seeders).
- */
 abstract class ModelSeeder extends BaseSeeder
 {
     /**

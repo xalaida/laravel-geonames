@@ -270,8 +270,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
     /**
      * Delete unsynced models from database and return its amount.
-     *
-     * @TODO: add possibility to use custom delete logic (for example mark as deleted only or update another model before deleting)
      */
     protected function deleteUnsyncedModels(int $chunk = 50000): void
     {
@@ -387,8 +385,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 
     /**
      * Delete records from database using the dataset of daily deletes.
-     *
-     * @TODO: add possibility to use custom delete logic (for example mark as deleted only or update another model before deleting)
      */
     protected function applyDailyDeletes(): void
     {

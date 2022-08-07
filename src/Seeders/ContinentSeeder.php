@@ -43,7 +43,6 @@ class ContinentSeeder extends ModelSeeder
 
     /**
      * Use the given continent model class.
-     * @TODO consider moving to parent class
      */
     public static function useModel(string $model): void
     {
