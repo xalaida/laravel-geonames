@@ -1,18 +1,16 @@
 # 🌎 Laravel Geonames
 
-The package provides geonames seeders for a Laravel application.
+The package allows you to populate the database using the [geonames](https://www.geonames.org/) dataset.
 
 ## 🗒️ Description
 
 The package is useful for applications that rely on the geo data.
 
-It allows seeding the database using the [geonames](https://www.geonames.org/) service.
+By default, it provides 4 models: `Continent`, `Country`, `Division`, `City` and translations for them.
 
-By default, it provides 4 models: `Continent`, `Country`, `Division`, `City` and also allows you to add translations for them.
+The translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
-
-The package also keeps the data **up-to-date** by fetching daily modifications provided by the [geonames](https://www.geonames.org/) service and using them to synchronize your own database.
+The package also keeps the data **up-to-date** by fetching daily modifications provided by the [geonames](https://www.geonames.org/) service and uses them to synchronize your own database.
 
 ## 🔌 Installation
 
@@ -33,13 +31,11 @@ composer require nevadskiy/laravel-translatable
 
 ## 🔨 Usage
 
-Publish geonames resources.
+Publish the package resources using the command:
 
 ```bash
 php artisan vendor:publish --tag=geonames-migrations --tag=geonames-models
 ```
-
-It will publish the package migrations and models.
 
 ### Seeding
 
@@ -133,6 +129,9 @@ To have full control over this behaviour, override the `filter` method of the se
 
 To add custom fields to the table, you also need to tell the seeder how to fill those fields using the `mapAttributes` method.
 
+The `mapAttributes` method should return all attributes of the database record, including timestamps, because model events will not be fired during seeding process since the package uses a bulk insert strategy.
+However, all model casts and mutators will be applied as usual.
+
 For example, if you want to use UUIDs as primary keys, you can extend the original seeder as following:
 
 ```php
@@ -162,8 +161,7 @@ class CitySeeder extends Seeder
 }
 ```
 
-> Note that model events will not be fired during seeding process because the package uses a bulk insert strategy.
-> However, all model casts and mutators will be applied as usual.
+[//]: # (TODO: doc `updatable` method)
 
 #### Custom seeders
 
