@@ -22,22 +22,22 @@ return new class extends Migration
             $table->decimal('longitude', 10, 7);
             $table->string('timezone_id', 32)->nullable()->index();
             $table->foreignId('continent_id')->index()->references('id')->on('continents')->cascadeOnDelete();
-            $table->string('capital')->nullable(); // Can be normalized using separate table.
-            $table->string('currency_code', 3)->nullable(); // Can be normalized using separate table.
-            $table->string('currency_name', 32)->nullable(); // Can be normalized using separate table.
+            $table->string('capital')->nullable();
+            $table->string('currency_code', 3)->nullable();
+            $table->string('currency_name', 32)->nullable();
             $table->string('tld', 3)->nullable();
             $table->string('phone_code', 24)->nullable();
             $table->string('postal_code_format', 100)->nullable();
             $table->string('postal_code_regex')->nullable();
-            $table->string('languages')->nullable(); // Can be normalized using separate table.
-            $table->string('neighbours')->nullable(); // Can be normalized using separate table.
-            $table->decimal('area', 10, 2)->nullable()->unsigned()->comment('In square kilometers.');
-            $table->string('fips', 2)->nullable()->comment('Subject to change to iso code.');
+            $table->string('languages')->nullable();
+            $table->string('neighbours')->nullable();
+            $table->decimal('area', 10, 2)->nullable()->unsigned()->comment('In square kilometers');
+            $table->string('fips', 2)->nullable()->comment('Subject to change to iso code');
             $table->bigInteger('population')->unsigned()->nullable();
-            $table->integer('elevation')->unsigned()->nullable()->comment('In meters.');
-            $table->smallInteger('dem')->nullable()->comment('Digital elevation model, srtm3 or gtopo30.');
-            $table->string('feature_code', 10)->nullable()->comment('See: https://www.geonames.org/export/codes.html.');
-            $table->integer('geoname_id')->unsigned()->unique()->comment('Geonames database identifier.');
+            $table->integer('elevation')->unsigned()->nullable()->comment('In meters');
+            $table->smallInteger('dem')->nullable()->comment('Digital elevation model, srtm3 or gtopo30');
+            $table->string('feature_code', 10)->nullable()->comment('See: https://www.geonames.org/export/codes.html');
+            $table->integer('geoname_id')->unsigned()->nullable()->unique()->comment('Geonames database identifier');
             $table->timestamps();
 
             $table->index('updated_at');
