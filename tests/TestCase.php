@@ -5,22 +5,11 @@ namespace Nevadskiy\Geonames\Tests;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
-use Nevadskiy\Geonames\Tests\Support\Assert\DirectoryIsEmpty;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use PHPUnit\Framework\Constraint\LogicalNot;
-use PHPUnit\Framework\ExpectationFailedException;
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class TestCase extends OrchestraTestCase
 {
-    /**
-     * Default configurations.
-     *
-     * @var array
-     */
-    protected $config = [];
-
     /**
      * Setup the test environment.
      */
@@ -55,7 +44,7 @@ class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $config = $app['config'];
+        $config = $app->make('config');
 
         $this->configureDatabase($config);
     }
@@ -96,27 +85,5 @@ class TestCase extends OrchestraTestCase
     protected function fixture(string $path): string
     {
         return __DIR__."/fixtures/{$path}";
-    }
-
-    /**
-     * Asserts that a directory exists.
-     *
-     * @throws InvalidArgumentException
-     * @throws ExpectationFailedException
-     */
-    protected static function assertDirectoryIsEmpty(string $directory, string $message = ''): void
-    {
-        static::assertThat($directory, new DirectoryIsEmpty(), $message);
-    }
-
-    /**
-     * Asserts that a directory does not exist.
-     *
-     * @throws InvalidArgumentException
-     * @throws ExpectationFailedException
-     */
-    protected static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
-    {
-        static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty()), $message);
     }
 }

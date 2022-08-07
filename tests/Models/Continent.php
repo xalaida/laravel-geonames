@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Geonames\Tests\Models;
 
-use Carbon\CarbonTimeZone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -27,16 +26,6 @@ class Continent extends Model
     use HasTranslations;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'latitude' => 'float',
-        'longitude' => 'float',
-    ];
-
-    /**
      * Attributes that are translatable.
      *
      * @var array
@@ -44,14 +33,6 @@ class Continent extends Model
     protected $translatable = [
         'name',
     ];
-
-    /**
-     * Get a timezone instance.
-     */
-    public function getTimezone(): CarbonTimeZone
-    {
-        return new CarbonTimeZone($this->timezone_id);
-    }
 
     /**
      * Get a relationship with countries.
