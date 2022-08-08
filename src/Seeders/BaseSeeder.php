@@ -6,25 +6,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\LazyCollection;
 use Nevadskiy\Geonames\GeonamesSource;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use function count;
 
 abstract class BaseSeeder implements Seeder, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * The geonames source instance.
      *
      * @var GeonamesSource
      */
     protected $source;
-
-    /**
-     * The logger instance.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
 
     /**
      * The chunk size of the records.
@@ -54,14 +49,6 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
      * Get the source records.
      */
     abstract protected function getRecords(): iterable;
-
-    /**
-     * Set the logger instance.
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
 
     /**
      * Seed records into database.
