@@ -101,15 +101,15 @@ To do that, publish the package seeders using command:
 php artisan vendor:publish --tag=geonames-seeders
 ```
 
-Then publish the package config and specify those seeders there:
+Publish the package config:
 
 ```bash
 php artisan vendor:publish --tag=geonames-config 
 ```
 
-```php
-# config/geonames.php
+Then, specify published seeders in the `config/geonames.php` file:
 
+```php
 'seeders' => [
     Database\Seeders\Geo\ContinentSeeder::class,
     Database\Seeders\Geo\ContinentTranslationSeeder::class,
