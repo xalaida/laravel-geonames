@@ -1,6 +1,13 @@
 # 🌎 Laravel Geonames
 
-The package allows you to populate the database using the [geonames](https://www.geonames.org/) dataset.
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
+
+[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-geonames/v)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Tests](https://img.shields.io/github/workflow/status/nevadskiy/laravel-geonames/Tests?label=tests)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-geonames/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![License](https://img.shields.io/packagist/l/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+
+The package allows you to populate your database using the [geonames](https://www.geonames.org/) dataset.
 
 ## 🗒️ Description
 
