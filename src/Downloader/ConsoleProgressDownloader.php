@@ -134,9 +134,7 @@ class ConsoleProgressDownloader implements Downloader
             if (! $this->progress) {
                 $this->progress = $this->output->createProgressBar();
 
-                if ($this->format) {
-                    $this->progress->setFormat($this->format);
-                }
+                $this->progress->setFormat($this->format);
 
                 $this->progress->setMessage($url, 'url');
 

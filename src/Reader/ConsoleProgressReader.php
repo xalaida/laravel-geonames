@@ -97,9 +97,7 @@ class ConsoleProgressReader implements Reader
     {
         $progress = $this->output->createProgressBar($this->getFileSize($path));
 
-        if ($this->format) {
-            $progress->setFormat($this->format);
-        }
+        $progress->setFormat($this->format);
 
         $progress->setMessage($path, 'path');
 
