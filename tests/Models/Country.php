@@ -28,14 +28,14 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property string|null postal_code_regex
  * @property string|null languages
  * @property string|null neighbours
- * @property float area
+ * @property float|null area
  * @property string|null fips
- * @property int population
- * @property int dem
- * @property string feature_code
- * @property int geoname_id
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property int|null population
+ * @property int|null dem
+ * @property string|null feature_code
+ * @property int|null geoname_id
+ * @property Carbon|null created_at
+ * @property Carbon|null updated_at
  */
 class Country extends Model
 {

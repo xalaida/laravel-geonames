@@ -18,11 +18,11 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property int|null population
  * @property int|null elevation
  * @property int|null dem
- * @property string code
- * @property string feature_code
- * @property int geoname_id
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property string|null code
+ * @property string|null feature_code
+ * @property int|null geoname_id
+ * @property Carbon|null created_at
+ * @property Carbon|null updated_at
  */
 class Division extends Model
 {

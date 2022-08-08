@@ -11,17 +11,17 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property int id
  * @property string name
  * @property int country_id
- * @property int division_id
+ * @property int|null division_id
  * @property float latitude
  * @property float longitude
  * @property string|null timezone_id
  * @property int|null population
  * @property int|null elevation
  * @property int|null dem
- * @property string feature_code
- * @property int geoname_id
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property string|null feature_code
+ * @property int|null geoname_id
+ * @property Carbon|null created_at
+ * @property Carbon|null updated_at
  */
 class City extends Model
 {

@@ -13,13 +13,13 @@ use Nevadskiy\Geonames\Translations\HasTranslations;
  * @property string name
  * @property float latitude
  * @property float longitude
- * @property string timezone_id
- * @property int population
+ * @property string|null timezone_id
+ * @property int|null population
  * @property int|null dem
- * @property string feature_code
- * @property int geoname_id
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property string|null feature_code
+ * @property int|null geoname_id
+ * @property Carbon|null created_at
+ * @property Carbon|null updated_at
  */
 class Continent extends Model
 {
