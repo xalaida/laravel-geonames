@@ -32,20 +32,6 @@ Run the installation command:
 make install
 ```
 
-## Usage
-
-To run the application, you need to start docker containers using the following command:
-
-```bash
-make up
-```
-
-When you have finished working with the application, stop the docker containers using the following command:
-
-```bash
-make down
-```
-
 ## Running Tests
 
 To run tests, execute the following command:
