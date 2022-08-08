@@ -7,7 +7,7 @@
 [![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-geonames/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 [![License](https://img.shields.io/packagist/l/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 
-The package allows you to populate your database using the [geonames](https://www.geonames.org/) dataset.
+The package allows you to populate your database using the [Geonames](https://www.geonames.org/) service.
 
 ## 🗒️ Description
 
