@@ -1,0 +1,5 @@
+# ================================
+
+UA	UKR	804	UP	Ukraine	Kyiv	603700	44622516	EU	.ua	UAH	Hryvnia	380	#####	^(\d{5})$	uk,ru-UA,rom,pl,hu	690791	PL,MD,HU,SK,BY,RO,RU
+PL	POL	616	PL	Poland	Warsaw	312685	37978548	EU	.pl	PLN	Zloty	48	##-###	^\d{2}-\d{3}$	pl	798544	DE,LT,SK,CZ,BY,UA,RU
+US	USA	840	US	United States	Washington	9629091	327167434	NA	.us	USD	Dollar	1	#####-####	^\d{5}(-\d{4})?$	en-US,es-US,haw,fr	6252001	CA,MX,CU

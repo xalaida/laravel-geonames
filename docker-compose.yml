@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: ./
+            dockerfile: ./runtimes/${APP_DOCKER_RUNTIME:-php7.3}/Dockerfile
+        volumes:
+            - ./:/app

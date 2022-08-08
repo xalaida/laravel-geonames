@@ -1,0 +1,22 @@
+<?php
+
+namespace Database\Seeders\Geo;
+
+use App\Models\Geo\Division;
+use Nevadskiy\Geonames\Seeders\DivisionSeeder as Seeder;
+
+class DivisionSeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected static $model = Division::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return parent::mapAttributes($record);
+    }
+}

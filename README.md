@@ -1,22 +1,23 @@
 # 🌎 Laravel Geonames
 
-**Currently, the work in progress. It will receive updates with possible breaking changes. Not recommended using in production environments yet.**
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
-The package allows integrating geonames database with a Laravel application.
+[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-geonames/v)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Tests](https://img.shields.io/github/workflow/status/nevadskiy/laravel-geonames/Tests?label=tests)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-geonames/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![License](https://img.shields.io/packagist/l/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 
+The package allows you to populate your database using the [geonames](https://www.geonames.org/) dataset.
 
 ## 🗒️ Description
 
-The package is very useful for applications that rely on the geo data.
+The package is useful for applications that rely on the geo data.
 
-By default, the package provides 5 tables: `continents`, `countries`, `divisions`, `cities` and `translations` and fills them with data from the [geonames](https://www.geonames.org/) service.
+By default, it provides 4 models: `Continent`, `Country`, `Division`, `City` and translations for them.
 
-It also allows to keep the data **up-to-date**, so the package fetches all daily modifications provided by the [geonames](https://www.geonames.org/) service and use them to synchronize your own database.
+The translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-You can also set up the package to seed only data that belongs to specific countries, disable unneeded tables, set up minimal population filter and use your own custom models.
-
-Translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable).
-
+The package also keeps the data **up-to-date** by fetching daily modifications provided by the [geonames](https://www.geonames.org/) service and uses them to synchronize your own database.
 
 ## 🔌 Installation
 
@@ -24,191 +25,220 @@ Translations are powered by the [nevadskiy/laravel-translatable](https://github.
 composer require nevadskiy/laravel-geonames
 ```
 
+If you are going to use translations, you also need to install an additional package.
+
+```bash
+composer require nevadskiy/laravel-translatable
+```
 
 ## ✅ Requirements
 
-- Laravel `7.0` or newer
-- PHP `7.2` or newer
-
+- Laravel `8.0` or newer
+- PHP `7.3` or newer
 
 ## 🔨 Usage
 
-### Default structure and behaviour
+Publish the package resources using the command:
 
-- Migrate the database
+```bash
+php artisan vendor:publish --tag=geonames-migrations --tag=geonames-models
+```
+
+### Seeding
+
+Before seeding, make sure you run the database migrations.
 
 ```bash
 php artisan migrate
 ```
 
-- Run insert process
+Then, run the seeding process.
 
 ```bash
-php artisan geonames:insert
+php artisan geonames:seed
 ```
 
-It will insert download and insert the geonames dataset into your database.
+It will download geonames resources and insert the dataset into your database.
 
-> Note that the insert process may take some time. On average, it is about 15 minutes (without downloading time). 
+> Note that the seeding process may take some time. On average, it takes about 40 minutes (without downloading time) to seed the full dataset with translations.
+
+> If you have issues with memory leaks during seeding, check out [this section](#memory-leaks).
 
 ### Schedule updates
 
-Add the following code to your console kernel (`app/Console/Kernel.php`) if you want to receive geonames daily updates.
+Add the following code to the `app/Console/Kernel.php` file if you want to receive geonames daily updates.
+
+Geonames daily updates are published at 3:00 in the UTC time zone, so to be sure that they are already available, it is recommended to run the command a bit later.
 
 ```php
 protected function schedule(Schedule $schedule)
 {
-    $schedule->command('geonames:update')->dailyAt('4:00');
+    $schedule->command('geonames:daily-update')->dailyAt('4:00');
 }
 ```
 
-> Note, that time is specified for the `UTC` timezone, so if you run server on another timezone, you need to convert time according to it. 
+> Note that time is specified for the `UTC` timezone.
 
-### Configure custom structure
+### Syncing
 
-If you want to configure package according to your needs, you need to publish the package configuration first.
+If you missed some daily updates or just decided to change seeder filters, you can sync your database records according to the current geonames dataset.
 
+```bash
+php artisan geonames:sync
 ```
-php artisan vendor:publish --tag=geonames-config
+
+This command will create missing records, remove redundant ones, and updated modified ones according to the current dataset.
+
+> Note that the `geoname_id` and `alternate_name_id` fields is required to synchronize data.
+
+### Customization
+
+If you want to customize migrations or data that should be imported, you can simply do this by overriding the default seeders.
+
+To do that, publish the package seeders using command:
+
+```bash
+php artisan vendor:publish --tag=geonames-seeders
 ```
 
-#### Specifying source
+Then publish the package config and specify those seeders there:
 
-You can choose appropriate data source for seeding as one of `SOURCE_ALL_COUNTRIES`, `SOURCE_SINGLE_COUNTRY` or `SOURCE_ONLY_CITIES`.
+```bash
+php artisan vendor:publish --tag=geonames-config 
+```
 
-The default is `SOURCE_ALL_COUNTRIES` that indicates to fetch data from the [allCountries.zip](http://download.geonames.org/export/dump/) file.
-It contains all 4 models (`continents`, `countries`, `divisions` and `cities`). 
-You can configure [filters](#specifying-filters)  in the `geonames` configuration file to specify [countries](#countries-filter) that is going to be seeded and [minimal population](#population-filter).
-
-The `SOURCE_SINGLE_COUNTRY` source is used to fetch data from country-based files (e.g. [US.zip](http://download.geonames.org/export/dump/)).
-The `continents` table will not be seeded with this source.
-You can specify which country (or countries) you are going to seed specifying [countries filter](#countries-filter) in the `geonames` configuration file.
-
-The `SOURCE_ONLY_CITIES` source is used to fetch data from city-based files (e.g. [cities500.zip](http://download.geonames.org/export/dump/)).
-There is only `cities` table available with this source type.
-You can specify [minimal population filter](#population-filter) to indicate which file it is going to fetch by population.
-It is also possible to use countries filter to seed cities that belongs only to specific countries.
-
-#### Specifying filters
-
-By default, there are two filters which you can use to filter data being seeded.
-
-#### Countries filter
-
-The `countries` filter is used to filter data that belongs only to specific country (or countries).
-If the `SOURCE_SINGLE_COUNTRY` [source](#specifying-source) is specified, this filter will be used to download a country-based data source.
-The default is `*` that indicates that all countries are allowed. Multiple countries can be specified as an array of ISO country codes.
-
-Example:
 ```php
-'filters' => [
-    'countries' => ['AU', 'US']
+# config/geonames.php
+
+'seeders' => [
+    Database\Seeders\Geo\ContinentSeeder::class,
+    Database\Seeders\Geo\ContinentTranslationSeeder::class,
+    Database\Seeders\Geo\CountrySeeder::class,
+    Database\Seeders\Geo\CountryTranslationSeeder::class,
+    Database\Seeders\Geo\DivisionSeeder::class,
+    Database\Seeders\Geo\DivisionTranslationSeeder::class,
+    Database\Seeders\Geo\CitySeeder::class,
+    Database\Seeders\Geo\CityTranslationSeeder::class,
 ]
 ```
 
-#### Population filter
+### Filtering
 
-The `population` filter is used to filter cities by the indicated minimal population.
-If the `SOURCE_ONLY_CITIES` [source](#specifying-source) is specified, this filter will be used to download a city-based data source.
-Any value from `0` and higher has be used, but in combination with the `SOURCE_ONLY_CITIES` source, available values are only `500`, `1000`, `5000` and `15000`.
+To reduce the database size, you can set up filters for seeding only those geo data that you really need in your application.
 
-Example:
+For example, you can set the minimum population for the city. All cities with smaller population will not be imported.
+
+To do that, override the `$minPopulation` property in the `CitySeeder` class.
+
+To have full control over this behaviour, override the `filter` method of the seeder.
+
+#### Attributes mapping
+
+To add custom fields to the table, you also need to tell the seeder how to fill those fields using the `mapAttributes` method.
+
+The `mapAttributes` method should return all attributes of the database record, including timestamps, because model events will not be fired during seeding process since the package uses a bulk insert strategy.
+However, all model casts and mutators will be applied as usual.
+
+For example, if you want to use UUIDs as primary keys, you can extend the original seeder as following:
 
 ```php
-'filters' => [
-    'population' => 15000
+<?php
+
+namespace Database\Seeders\Geo;
+
+use App\Models\Geo\City;
+use Illuminate\Support\Str;use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
+
+class CitySeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected static $model = City::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return array_merge(parent::mapAttributes($record), [
+            'id' => (string) Str::uuid(),
+        ]);
+    }
+}
+```
+
+[//]: # (TODO: doc `updatable` method)
+
+#### Custom seeders
+
+For a more significant change in the structure, you can add your own seeders or extend existing ones.
+
+Each seeder must implement the `Nevadskiy\Geonames\Seeders\Seeder` interface.
+
+All seeders that are specified in the `geonames` config file will be executed one by one in the specified order.
+
+[//]: # (TODO: doc seeder hooks: `loadResourcesBeforeMapping`, `loadResourcesBeforeChunkMapping`)
+
+### Translations
+
+To use translations you need to install the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
+
+Read its [documentation](https://github.com/nevadskiy/laravel-translatable/wiki) to learn more about how it works. You can also use it to handle translations of other models.
+
+Otherwise, you still can use the package without translations, just simply remove the following:
+
+- translation migrations
+- translation seeders (from the `geonames` config file as well)
+- the `HasTranslations` trait and `translatable` prop from published models
+
+### Memory leaks
+
+One of the most popular issues associated with seeding large amounts of data is a memory leak.
+
+This package reads files using PHP generators and [lazy collections](https://laravel.com/docs/9.x/collections#lazy-collection-introduction) to avoid loading the entire file into memory.
+
+However, there are packages that log database queries and model events during long-running commands to memory, which leads to memory leaks.
+
+There are instructions on how to avoid memory leaks when working with the following packages:
+
+#### [Laravel Ignition](https://github.com/spatie/laravel-ignition)
+
+Publish flare config using `php artisan vendor:publish --tag=flare-config`.
+
+Set `report_query_bindings` to `false` in the `flare.php` config file as following:
+
+```php
+'flare_middleware' => [
+    ...
+    AddQueries::class => [
+        'maximum_number_of_collected_queries' => 200,
+        'report_query_bindings' => false,
+    ],
+    ...
 ]
 ```
 
-#### Overriding models
+#### [Laravel Telescope](https://github.com/laravel/telescope)
 
-Most likely you will need your own models with their own behaviour and relations instead of provided ones by default.
-
-To override them, use `models` key in the `geonames` configuration file.
-
-If you are not going to use any model, you can switch the value to `false` and then corresponding tables will not be migrated at all.
-
-For example, most applications probably will not need continent model.
+Update the `telescope.php` config file as following:
 
 ```php
-'models' => [
-    'continent' => false,
-    'country' => App\Models\Country::class,
-    'division' => App\Models\Division::class,
-    'city' => App\Models\City::class,
-],
-```
-
-#### Overriding migrations
-
-To rename tables or remove unnecessary fields, you can publish migrations and edit them before execution migrations command.
-
-- To publish default migrations, use the following command:
-
-```
-php artisan vendor:publish --tag=geonames-migrations
-```
-
-- Then disable default migrations from being migrated, setting `default_migrations` to `false` in the `geonames` configuration file.
-
-```php
-'default_migrations' => false
-```
-
-#### Inserting custom structure
-
-- After configuring [source](#specifying-source) and [filters](#specifying-filters), you can execute migrations command.
-It will determine which tables should be migrated and create them in the database.
-
-```bash
-php artisan migrate
-```
-
-- Then you can run insert command.
-
-```bash
-php artisan geonames:insert
-```
-
-#### Reinserting dataset
-
-Sometimes you may need to delete all data and reinsert it again. To do it, pass the `--reset` option to `geonames:insert` command.
-
-```bash
-php artisan geonames:insert --reset
+'ignore_commands' => [
+    'geonames:seed',
+    'geonames:daily-update',
+    'geonames:sync',
+]
 ```
 
 ## 📑 Changelog
 
-Please see [CHANGELOG](.github/CHANGELOG.md) for more information what has changed recently.
-
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
 ## ☕ Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
-
-
-## 🔓 Security
-
-If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
-
+Please see [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## 📜 License
 
-The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
-
-## 🔨 To Do
-
-- [ ] add possibility to seed default structure (using same tables and models) as a separate strategy
-- [ ] provide basic kit for local seeding and testing
-- [ ] feature model deleting (cities, divisions, countries, continents)
-- [ ] add GeonamesServiceProvider to publish and register there models and other set up
-- [ ] think about timestamps for syncing and daily updates
-- [ ] use minimal set up (no morph map, no nova resources, no uuid)
-- [ ] add doc how to avoid memory leaks (ignition, telescope, etc.)
-  - [ ] for flare disable query report: report_query_bindings 
-- [ ] add possibility to store country capitals separately (probably use PCL code for capitals from cities table)
-- [ ] specify correct translations version
-- [ ] move nova resources into stubs
-- [ ] add possibility to customize models (probably also use them as stubs)
-- [ ] remove UUID
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.

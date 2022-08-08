@@ -1,0 +1,74 @@
+1626678	6255148	en	Europe	1
+7825137	6255148	uk	Європа
+2039205	6255148	pl	Europa
+
+1564424	690791	en	Ukraine	1
+1564467	690791	uk	Україна	1
+1564455	690791	pl	Ukraina	1
+
+6582529	703448	en	Kyiv	1
+1894926	703448	uk	Київ
+1894879	703448	pl	Kijów
+
+8791795	703883	en	Republic of Crimea			1
+2432644	703883	uk	Республіка Крим
+13701145	703883	pl	Republika Autonomiczna Krymu
+
+1634357	694423	en	Sevastopol
+1634381	694423	uk	Севастополь
+1634356	694423	pl	Sewastopol
+
+16868880	702549	en	Lviv Oblast
+7825118	702549	uk	Львівська область
+17408847	702549	pl	Obwód lwowski	1
+
+1649871	702550	en	Lviv
+1649896	702550	uk	Львів	1
+417975	702550	pl	Lwów	1
+
+16868885	706482	en	Kharkiv Oblast
+2432647	706482	uk	Харківська область
+
+1598517	706483	en	Kharkiv
+1598537	706483	uk	Харків
+1598533	706483	pl	Charków
+
+16868886	709716	en	Donetsk Oblast
+2432649	709716	uk	Донецька область
+
+2417761	709717	en	Donetsk
+2432941	709717	uk	Донецьк	1
+9330468	709717	pl	Donieck
+
+5650364	698738	en	Odes’ka Oblast’
+9411627	698738	uk	Одеська Область	1
+1902792	698738	pl	Obwód odeski
+
+1599433	698740	en	Odesa
+1599462	698740	uk	Одеса	1
+1599455	698740	pl	Odessa
+
+1557546	798544	en	Poland	1
+1557591	798544	uk	Польща	1
+490785	798544	pl	Rzeczpospolita Polska
+
+1988552	858787	en	Masovian Voivodeship
+1988550	858787	pl	Województwo mazowieckie
+
+1619065	756135	en	Warsaw
+1619111	756135	uk	Варшава
+462824	756135	pl	Warszawa	1	1
+
+1988595	858786	en	Lesser Poland Voivodeship
+1988594	858786	pl	Województwo małopolskie
+
+1620073	3094802	en	Krakow	1
+1620110	3094802	uk	Краків
+1620102	3094802	pl	Kraków	1
+
+1990272	3337493	en	Łódź Voivodeship
+16660441	3337493	pl	Województwo łódzkie	1
+
+1898579	3093133	en	Lodz	1
+1983888	3093133	uk	Лодзь
+1898580	3093133	pl	Łódź

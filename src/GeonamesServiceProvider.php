@@ -2,51 +2,40 @@
 
 namespace Nevadskiy\Geonames;
 
-use Facade\Ignition\QueryRecorder\QueryRecorder;
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Nova\Nova;
-use Nevadskiy\Geonames\Events\GeonamesCommandReady;
-use Nevadskiy\Geonames\Listeners\DisableIgnitionBindings;
-use Nevadskiy\Geonames\Nova as Resources;
-use Nevadskiy\Geonames\Parsers\FileParser;
-use Nevadskiy\Geonames\Parsers\Parser;
-use Nevadskiy\Geonames\Parsers\ProgressParser;
-use Nevadskiy\Geonames\Services\SupplyService;
-use Nevadskiy\Geonames\Suppliers\Translations\CompositeTranslationMapper;
-use Nevadskiy\Geonames\Suppliers\Translations\TranslationMapper;
-use Nevadskiy\Geonames\Support\Downloader\BaseDownloader;
-use Nevadskiy\Geonames\Support\Downloader\ConsoleDownloader;
-use Nevadskiy\Geonames\Support\Downloader\Downloader;
-use Nevadskiy\Geonames\Support\Downloader\UnzipperDownloader;
-use Nevadskiy\Geonames\Support\FileReader\BaseFileReader;
-use Nevadskiy\Geonames\Support\FileReader\FileReader;
-use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
-use Nevadskiy\Geonames\Support\Output\OutputFactory;
-use Nevadskiy\Translatable\Translatable;
-use Psr\Log\LoggerInterface;
+use Illuminate\Support\Str;
+use Nevadskiy\Downloader\CurlDownloader;
+use Nevadskiy\Downloader\Downloader;
+use Nevadskiy\Geonames\Downloader\ConsoleProgressDownloader;
+use Nevadskiy\Geonames\Downloader\HistoryDownloader;
+use Nevadskiy\Geonames\Reader\ConsoleProgressReader;
+use Nevadskiy\Geonames\Reader\FileReader;
+use Nevadskiy\Geonames\Reader\Reader;
+use Nevadskiy\Geonames\Seeders\CompositeSeeder;
+use Nevadskiy\Geonames\Support\CompositeLogger;
+use Psr\Log\LogLevel;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class GeonamesServiceProvider extends ServiceProvider
 {
-    /**
-     * The package's name.
-     */
-    protected const PACKAGE = 'geonames';
-
     /**
      * Register any package services.
      */
     public function register(): void
     {
         $this->registerConfig();
-        $this->registerGeonames();
-        $this->registerLogger();
-        $this->registerDownloader();
+        $this->registerGeonamesDownloader();
+        $this->registerFileDownloader();
         $this->registerFileReader();
-        $this->registerParser();
-        $this->registerSuppliers();
-        $this->registerTranslationMapper();
-        $this->registerIgnitionFixer();
+        $this->registerCompositeSeeder();
+        $this->registerGeonamesLogger();
     }
 
     /**
@@ -55,11 +44,11 @@ class GeonamesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootCommands();
-        $this->bootMigrations();
-        $this->bootTranslatableMigrations();
-        $this->bootNovaResources();
+        $this->swapConsoleOutput();
         $this->publishConfig();
         $this->publishMigrations();
+        $this->publishModels();
+        $this->publishSeeders();
     }
 
     /**
@@ -67,117 +56,99 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/geonames.php', self::PACKAGE);
+        $this->mergeConfigFrom(__DIR__ . '/../config/geonames.php', 'geonames');
     }
 
     /**
-     * Register the geonames.
+     * Register the geonames downloader instance.
      */
-    protected function registerGeonames(): void
+    protected function registerGeonamesDownloader(): void
     {
-        $this->app->singleton(Geonames::class);
+        $this->app->when(GeonamesDownloader::class)
+            ->needs('$directory')
+            ->giveConfig('geonames.directory');
     }
 
     /**
-     * Register any package logger.
+     * Register the file downloader.
      */
-    protected function registerLogger(): void
+    protected function registerFileDownloader(): void
     {
-        $this->app->singleton(ConsoleLogger::class, function () {
-            return new ConsoleLogger(OutputFactory::make());
+        $this->app->singleton(Downloader::class, function (Application $app) {
+            $downloader = new CurlDownloader();
+            $downloader->skipIfExists();
+            $downloader->allowDirectoryCreation();
+
+            if ($app->runningInConsole()) {
+                $downloader->setLogger($app->make('geonames.logger'));
+            }
+
+            return $downloader;
         });
 
         if ($this->app->runningInConsole()) {
-            $this->app->when(BaseDownloader::class)
-                ->needs(LoggerInterface::class)
-                ->give(ConsoleLogger::class);
-
-            $this->app->when(SupplyService::class)
-                ->needs(LoggerInterface::class)
-                ->give(ConsoleLogger::class);
-        }
-    }
-
-    /**
-     * Register any package downloader.
-     */
-    protected function registerDownloader(): void
-    {
-        $this->app->bind(Downloader::class, BaseDownloader::class);
-
-        $this->app->extend(Downloader::class, function (Downloader $downloader) {
-            return $this->app->make(UnzipperDownloader::class, ['downloader' => $downloader]);
-        });
-
-        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
-            $this->app->extend(Downloader::class, function (Downloader $downloader) {
-                return new ConsoleDownloader($downloader, OutputFactory::make());
+            $this->app->extend(Downloader::class, function (CurlDownloader $downloader, Application $app) {
+                return new ConsoleProgressDownloader($downloader, $app->make(OutputStyle::class));
             });
         }
+
+        $this->app->extend(Downloader::class, function (Downloader $downloader) {
+            return new HistoryDownloader($downloader);
+        });
     }
 
     /**
-     * Register any package file reader.
+     * Register the file reader.
      */
     protected function registerFileReader(): void
     {
-        $this->app->bind(FileReader::class, BaseFileReader::class);
-    }
+        $this->app->singleton(Reader::class, function () {
+            return new FileReader();
+        });
 
-    /**
-     * Register any package resource parser.
-     */
-    protected function registerParser(): void
-    {
-        $this->app->bind(Parser::class, FileParser::class);
-
-        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
-            $this->app->extend(Parser::class, function (Parser $parser) {
-                return new ProgressParser($parser, OutputFactory::make());
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(Reader::class, function (Reader $reader, Application $app) {
+                return new ConsoleProgressReader($reader, $app->make(OutputStyle::class));
             });
         }
     }
 
     /**
-     * Register any package suppliers.
+     * Register the composite seeder instance.
      */
-    protected function registerSuppliers(): void
+    protected function registerCompositeSeeder(): void
     {
-        foreach ($this->app['config']['geonames']['suppliers'] as $supplier => $implementation) {
-            $this->app->bind($supplier, $implementation);
-        }
-    }
-
-    /**
-     * Register any package translation mapper.
-     */
-    protected function registerTranslationMapper(): void
-    {
-        $this->app->bind(TranslationMapper::class, function () {
-            $mappers = collect([
-                'continent' => Suppliers\Translations\ContinentTranslationMapper::class,
-                'country' => Suppliers\Translations\CountryTranslationMapper::class,
-                'division' => Suppliers\Translations\DivisionTranslationMapper::class,
-                'city' => Suppliers\Translations\CityTranslationMapper::class,
-            ])
-                ->only(array_keys($this->app->make(Geonames::class)->modelClasses()))
-                ->map(function (string $mapper) {
-                    return $this->app->make($mapper);
+        $this->app->bind(CompositeSeeder::class, function (Application $app) {
+            $seeders = collect(config('geonames.seeders'))
+                ->map(function (string $seeder) use ($app) {
+                    return $app->make($seeder);
                 })
-                ->toArray();
+                ->all();
 
-            return new CompositeTranslationMapper($mappers);
+            $seeder = new CompositeSeeder(...$seeders);
+
+            if ($app->runningInConsole()) {
+                $seeder->setLogger($app->make('geonames.logger'));
+            }
+
+            return $seeder;
         });
     }
 
     /**
-     * Register ignition memory limit fixer.
+     * Register the geonames logger instance.
      */
-    protected function registerIgnitionFixer(): void
+    protected function registerGeonamesLogger(): void
     {
-        if (class_exists(QueryRecorder::class)) {
-            $this->app[Dispatcher::class]->listen(GeonamesCommandReady::class, DisableIgnitionBindings::class);
-        }
+        $this->app->singletonIf('geonames.logger', function (Application $app) {
+            return new CompositeLogger(
+                new ConsoleLogger($app->make(OutputStyle::class), [
+                    LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                    LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+                ]),
+                $app->make('log')
+            );
+        });
     }
 
     /**
@@ -187,66 +158,22 @@ class GeonamesServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\Seed\GeonamesSeedCommand::class,
-
-                Console\Insert\InsertCommand::class,
-                Console\Insert\InsertTranslationsCommand::class,
-                Console\Update\UpdateCommand::class,
-                Console\Update\UpdateTranslationsCommand::class,
+                Console\GeonamesSeedCommand::class,
+                Console\GeonamesSyncCommand::class,
+                Console\GeonamesDailyUpdateCommand::class,
             ]);
         }
     }
 
     /**
-     * Boot any package migrations.
+     * Swap the console output instance.
      */
-    protected function bootMigrations(): void
+    protected function swapConsoleOutput(): void
     {
-        $geonames = $this->app[Geonames::class];
-
-        if ($this->app->runningInConsole() && $geonames->shouldUseDefaultMigrations()) {
-            if ($geonames->shouldSupplyContinents()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_100000_create_continents_table.php'));
-            }
-
-            if ($geonames->shouldSupplyCountries()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_200000_create_countries_table.php'));
-            }
-
-            if ($geonames->shouldSupplyDivisions()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_300000_create_divisions_table.php'));
-            }
-
-            if ($geonames->shouldSupplyCities()) {
-                $this->loadMigrationsFrom($this->migration('2020_06_06_400000_create_cities_table.php'));
-            }
-        }
-    }
-
-    /**
-     * Boot any translatable migrations.
-     */
-    public function bootTranslatableMigrations(): void
-    {
-        $this->callAfterResolving(Translatable::class, function (Translatable $translatable) {
-            if (! $this->app[Geonames::class]->shouldSupplyTranslations()) {
-                $translatable->ignoreMigrations();
-            }
-        });
-    }
-
-    /**
-     * Boot any package nova resources.
-     */
-    protected function bootNovaResources(): void
-    {
-        if ($this->app[Geonames::class]->shouldBootNovaResources()) {
-            Nova::resources([
-                Resources\Continent::class,
-                Resources\Country::class,
-                Resources\Division::class,
-                Resources\City::class,
-            ]);
+        if ($this->app->runningInConsole()) {
+            $this->app[Dispatcher::class]->listen(CommandStarting::class, function (CommandStarting $command) {
+                $this->app->instance(OutputStyle::class, new OutputStyle($command->input, $command->output));
+            });
         }
     }
 
@@ -256,8 +183,8 @@ class GeonamesServiceProvider extends ServiceProvider
     protected function publishConfig(): void
     {
         $this->publishes([
-            __DIR__.'/../config/geonames.php' => config_path('geonames.php'),
-        ], self::PACKAGE.'-config');
+            __DIR__ . '/../config/geonames.php' => config_path('geonames.php'),
+        ], 'geonames-config');
     }
 
     /**
@@ -265,16 +192,36 @@ class GeonamesServiceProvider extends ServiceProvider
      */
     protected function publishMigrations(): void
     {
-        $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], self::PACKAGE.'-migrations');
+        $this->publishes($this->stubPaths('database/migrations'), 'geonames-migrations');
     }
 
     /**
-     * Get the migration file with the given file name.
+     * Publish any package models.
      */
-    protected function migration(string $file): string
+    protected function publishModels(): void
     {
-        return __DIR__."/../database/migrations/{$file}";
+        $this->publishes($this->stubPaths('app/Models/Geo'), 'geonames-models');
+    }
+
+    /**
+     * Publish any package seeders.
+     */
+    protected function publishSeeders(): void
+    {
+        $this->publishes($this->stubPaths('database/seeders/Geo'), 'geonames-seeders');
+    }
+
+    /**
+     * Get the stub paths for publishing by the given path.
+     */
+    protected function stubPaths(string $path): array
+    {
+        $path = trim($path, '/');
+
+        return collect((new Filesystem())->allFiles(__DIR__ . '/../stubs/' . $path))
+            ->mapWithKeys(function (SplFileInfo $file) use ($path) {
+                return [$file->getPathname() => base_path($path . '/' . Str::replaceLast('.stub', '.php', $file->getFilename()))];
+            })
+            ->all();
     }
 }

@@ -1,8 +1,8 @@
-# Run command from app
-alias app='docker run --rm -it -v ${PWD}:/app app'
+# Run command from the app container
+alias app='docker-compose run --rm app'
 
-# Test by filter alias
-alias tf='docker run --rm -it -v ${PWD}:/app app vendor/bin/phpunit --filter'
+# Run the testsuite with a filter option
+alias tf='docker-compose run --rm app vendor/bin/phpunit --filter'
 
-# Test by filter with coverage report
-alias tfc='docker run --rm -it -v ${PWD}:/app app vendor/bin/phpunit --coverage-text --filter'
+# Run the testsuite with a filter option and coverage enabled
+alias tfc='docker-compose run --rm app vendor/bin/phpunit --coverage-text --filter'

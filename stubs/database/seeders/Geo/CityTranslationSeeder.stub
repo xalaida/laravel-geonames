@@ -1,0 +1,16 @@
+<?php
+
+namespace Database\Seeders\Geo;
+
+use Nevadskiy\Geonames\Seeders\CityTranslationSeeder as Seeder;
+
+class CityTranslationSeeder extends Seeder
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected function mapAttributes(array $record): array
+    {
+        return parent::mapAttributes($record);
+    }
+}

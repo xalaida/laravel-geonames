@@ -5,26 +5,11 @@ namespace Nevadskiy\Geonames\Tests;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Nevadskiy\Geonames\GeonamesServiceProvider;
-use Nevadskiy\Geonames\Services\DownloadService;
-use Nevadskiy\Geonames\Support\Cleaner\DirectoryCleaner;
-use Nevadskiy\Geonames\Support\Logger\ConsoleLogger;
-use Nevadskiy\Geonames\Tests\Support\Assert\DirectoryIsEmpty;
 use Nevadskiy\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use PHPUnit\Framework\Constraint\LogicalNot;
-use PHPUnit\Framework\ExpectationFailedException;
-use Psr\Log\NullLogger;
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class TestCase extends OrchestraTestCase
 {
-    /**
-     * Default configurations.
-     *
-     * @var array
-     */
-    protected $config = [];
-
     /**
      * Setup the test environment.
      */
@@ -34,7 +19,9 @@ class TestCase extends OrchestraTestCase
 
         $this->app->setLocale('en');
 
-        $this->fakeLogger();
+        $this->bootMigrations();
+
+        $this->migrate();
     }
 
     /**
@@ -57,10 +44,9 @@ class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $config = $app['config'];
+        $config = $app->make('config');
 
         $this->configureDatabase($config);
-        $this->configurePackage($config);
     }
 
     /**
@@ -78,13 +64,11 @@ class TestCase extends OrchestraTestCase
     }
 
     /**
-     * Configure the package.
+     * Boot any testing migrations.
      */
-    protected function configurePackage(Repository $config): void
+    protected function bootMigrations(): void
     {
-        foreach ($this->config as $key => $value) {
-            $config->set($key, $value);
-        }
+        $this->loadMigrationsFrom(__DIR__.'/migrations');
     }
 
     /**
@@ -100,73 +84,6 @@ class TestCase extends OrchestraTestCase
      */
     protected function fixture(string $path): string
     {
-        return __DIR__."/Support/fixtures/{$path}";
-    }
-
-    /**
-     * Fake the logger.
-     */
-    protected function fakeLogger(): void
-    {
-        $this->app->instance(ConsoleLogger::class, new NullLogger());
-    }
-
-    /**
-     * Fake the directory cleaner.
-     */
-    protected function fakeDirectoryCleaner(): void
-    {
-        $directoryCleaner = $this->mock(DirectoryCleaner::class);
-
-        $directoryCleaner->shouldReceive('keepGitignore')
-            ->once()
-            ->withNoArgs()
-            ->andReturnSelf();
-
-        $directoryCleaner->shouldReceive('clean')
-            ->once()
-            ->with(config('geonames.directory'));
-    }
-
-    /**
-     * Fake download service.
-     */
-    protected function fakeDownloadService(): void
-    {
-        $downloadService = $this->mock(DownloadService::class);
-
-        $downloadService->shouldReceive('downloadCountryInfo')
-            ->withNoArgs()
-            ->andReturn($this->fixture('countryInfo.txt'));
-
-        $downloadService->shouldReceive('downloadSourceFiles')
-            ->withNoArgs()
-            ->andReturn([$this->fixture('allCountries.txt')]);
-
-        $downloadService->shouldReceive('downloaderAlternateNames')
-            ->withNoArgs()
-            ->andReturn([$this->fixture('alternateNames.txt')]);
-    }
-
-    /**
-     * Asserts that a directory exists.
-     *
-     * @throws InvalidArgumentException
-     * @throws ExpectationFailedException
-     */
-    public static function assertDirectoryIsEmpty(string $directory, string $message = ''): void
-    {
-        static::assertThat($directory, new DirectoryIsEmpty(), $message);
-    }
-
-    /**
-     * Asserts that a directory does not exist.
-     *
-     * @throws InvalidArgumentException
-     * @throws ExpectationFailedException
-     */
-    public static function assertDirectoryIsNotEmpty(string $directory, string $message = ''): void
-    {
-        static::assertThat($directory, new LogicalNot(new DirectoryIsEmpty()), $message);
+        return __DIR__."/fixtures/{$path}";
     }
 }
