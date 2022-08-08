@@ -13,7 +13,7 @@ class GeonamesDailyUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'geonames:daily-update {--keep-downloads : Do not clean the directory with geonames downloads}';
+    protected $signature = 'geonames:daily-update {--keep-downloads : Do not clean directory with geonames downloads}';
 
     /**
      * The console command description.

@@ -15,7 +15,7 @@ class GeonamesSeedCommand extends Command
      */
     protected $signature = 'geonames:seed
                             {--truncate : Whether the table should be truncated before seeding}
-                            {--keep-downloads : Do not clean the directory with geonames downloads}';
+                            {--keep-downloads : Do not clean directory with geonames downloads}';
 
     /**
      * The console command description.
