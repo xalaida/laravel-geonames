@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('postal_code_regex')->nullable();
             $table->string('languages')->nullable();
             $table->string('neighbours')->nullable();
-            $table->float('area', 10, 2)->nullable()->unsigned()->comment('In square kilometers');
+            $table->float('area', 12, 2)->nullable()->unsigned()->comment('In square kilometers');
             $table->string('fips', 2)->nullable()->comment('Subject to change to iso code');
             $table->bigInteger('population')->unsigned()->nullable();
             $table->integer('elevation')->unsigned()->nullable()->comment('In meters');
