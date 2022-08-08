@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "967eb8846373ff503de2fbc00dcb7ea8",
+    "content-hash": "72bf87723e76cddb9f07543bd3b0d075",
     "packages": [
         {
             "name": "brick/math",
@@ -1087,16 +1087,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.60.0",
+            "version": "2.61.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "00a259ae02b003c563158b54fb6743252b638ea6"
+                "reference": "bdf4f4fe3a3eac4de84dbec0738082a862c68ba6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/00a259ae02b003c563158b54fb6743252b638ea6",
-                "reference": "00a259ae02b003c563158b54fb6743252b638ea6",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/bdf4f4fe3a3eac4de84dbec0738082a862c68ba6",
+                "reference": "bdf4f4fe3a3eac4de84dbec0738082a862c68ba6",
                 "shasum": ""
             },
             "require": {
@@ -1185,25 +1185,26 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-27T15:57:48+00:00"
+            "time": "2022-08-06T12:41:24+00:00"
         },
         {
             "name": "nevadskiy/downloader",
-            "version": "0.2.0",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nevadskiy/downloader.git",
-                "reference": "474bb2ae623b937397d74bb15c4e90acf18e9a94"
+                "reference": "ece9c99c435b040cfbb8d97473ff81fcbddfecbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nevadskiy/downloader/zipball/474bb2ae623b937397d74bb15c4e90acf18e9a94",
-                "reference": "474bb2ae623b937397d74bb15c4e90acf18e9a94",
+                "url": "https://api.github.com/repos/nevadskiy/downloader/zipball/ece9c99c435b040cfbb8d97473ff81fcbddfecbc",
+                "reference": "ece9c99c435b040cfbb8d97473ff81fcbddfecbc",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "php": "^7.0|^8.0"
+                "php": "^7.0|^8.0",
+                "psr/log": "^1.1"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.19",
@@ -1234,9 +1235,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nevadskiy/downloader/issues",
-                "source": "https://github.com/nevadskiy/downloader/tree/0.2.0"
+                "source": "https://github.com/nevadskiy/downloader/tree/0.3.0"
             },
-            "time": "2022-08-04T18:59:09+00:00"
+            "time": "2022-08-07T22:08:36+00:00"
         },
         {
             "name": "opis/closure",
