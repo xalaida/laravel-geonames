@@ -104,14 +104,14 @@ php artisan vendor:publish --tag=geonames-config
 # config/geonames.php
 
 'seeders' => [
-    App\Seeders\ContinentSeeder::class,
-    App\Seeders\ContinentTranslationSeeder::class,
-    App\Seeders\CountrySeeder::class,
-    App\Seeders\CountryTranslationSeeder::class,
-    App\Seeders\DivisionSeeder::class,
-    App\Seeders\DivisionTranslationSeeder::class,
-    App\Seeders\CitySeeder::class,
-    App\Seeders\CityTranslationSeeder::class,
+    Database\Seeders\Geo\ContinentSeeder::class,
+    Database\Seeders\Geo\ContinentTranslationSeeder::class,
+    Database\Seeders\Geo\CountrySeeder::class,
+    Database\Seeders\Geo\CountryTranslationSeeder::class,
+    Database\Seeders\Geo\DivisionSeeder::class,
+    Database\Seeders\Geo\DivisionTranslationSeeder::class,
+    Database\Seeders\Geo\CitySeeder::class,
+    Database\Seeders\Geo\CityTranslationSeeder::class,
 ]
 ```
 
@@ -230,7 +230,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## ☕ Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
+Please see [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## 📜 License
 
