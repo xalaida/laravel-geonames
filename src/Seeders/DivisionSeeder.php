@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use function in_array;
@@ -52,10 +53,18 @@ class DivisionSeeder extends ModelSeeder
      */
     protected function loadResourcesBeforeMapping(): void
     {
-        $this->countries = CountrySeeder::newModel()
+        $this->countries = $this->newCountryModel()
             ->newQuery()
             ->pluck('id', 'code')
             ->all();
+    }
+
+    /**
+     * Get a new country model instance.
+     */
+    protected function newCountryModel(): Model
+    {
+        return CountrySeeder::newModel();
     }
 
     /**

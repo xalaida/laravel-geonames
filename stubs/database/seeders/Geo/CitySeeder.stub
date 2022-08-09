@@ -3,6 +3,7 @@
 namespace Database\Seeders\Geo;
 
 use App\Models\Geo\City;
+use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Seeders\CitySeeder as Seeder;
 
 class CitySeeder extends Seeder
@@ -11,4 +12,20 @@ class CitySeeder extends Seeder
      * {@inheritdoc}
      */
     protected static $model = City::class;
+
+    /**
+     * Get a new country model instance.
+     */
+    protected function newCountryModel(): Model
+    {
+        return CountrySeeder::newModel();
+    }
+
+    /**
+     * Get a new division model instance.
+     */
+    protected function newDivisionModel(): Model
+    {
+        return DivisionSeeder::newModel();
+    }
 }

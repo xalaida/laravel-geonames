@@ -3,6 +3,7 @@
 namespace Database\Seeders\Geo;
 
 use App\Models\Geo\Division;
+use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Seeders\DivisionSeeder as Seeder;
 
 class DivisionSeeder extends Seeder
@@ -11,4 +12,12 @@ class DivisionSeeder extends Seeder
      * {@inheritdoc}
      */
     protected static $model = Division::class;
+
+    /**
+     * Get a new country model instance.
+     */
+    protected function newCountryModel(): Model
+    {
+        return CountrySeeder::newModel();
+    }
 }

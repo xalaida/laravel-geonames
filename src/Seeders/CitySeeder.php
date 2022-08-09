@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use function in_array;
@@ -82,10 +83,18 @@ class CitySeeder extends ModelSeeder
      */
     protected function loadCountries(): void
     {
-        $this->countries = CountrySeeder::newModel()
+        $this->countries = $this->newCountryModel()
             ->newQuery()
             ->pluck('id', 'code')
             ->all();
+    }
+
+    /**
+     * Get a new country model instance.
+     */
+    protected function newCountryModel(): Model
+    {
+        return CountrySeeder::newModel();
     }
 
     /**
@@ -93,11 +102,19 @@ class CitySeeder extends ModelSeeder
      */
     protected function loadDivisions(): void
     {
-        $this->divisions = DivisionSeeder::newModel()
+        $this->divisions = $this->newDivisionModel()
             ->newQuery()
             ->get(['id', 'country_id', 'code'])
             ->groupBy(['country_id', 'code'])
             ->toArray();
+    }
+
+    /**
+     * Get a new division model instance.
+     */
+    protected function newDivisionModel(): Model
+    {
+        return DivisionSeeder::newModel();
     }
 
     /**
