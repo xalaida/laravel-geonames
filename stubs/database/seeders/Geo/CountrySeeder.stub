@@ -3,6 +3,7 @@
 namespace Database\Seeders\Geo;
 
 use App\Models\Geo\Country;
+use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Geonames\Seeders\CountrySeeder as Seeder;
 
 class CountrySeeder extends Seeder
@@ -11,4 +12,12 @@ class CountrySeeder extends Seeder
      * {@inheritdoc}
      */
     protected static $model = Country::class;
+
+    /**
+     * Get the new continent model instance.
+     */
+    protected function newContinentModel(): Model
+    {
+        return ContinentSeeder::newModel();
+    }
 }

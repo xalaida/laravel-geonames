@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Geonames\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Nevadskiy\Geonames\Definitions\FeatureCode;
 use function in_array;
@@ -92,10 +93,18 @@ class CountrySeeder extends ModelSeeder
      */
     protected function loadContinents(): void
     {
-        $this->continents = ContinentSeeder::newModel()
+        $this->continents = $this->newContinentModel()
             ->newQuery()
             ->pluck('id', 'code')
             ->all();
+    }
+
+    /**
+     * Get the new continent model instance.
+     */
+    protected function newContinentModel(): Model
+    {
+        return ContinentSeeder::newModel();
     }
 
     /**
