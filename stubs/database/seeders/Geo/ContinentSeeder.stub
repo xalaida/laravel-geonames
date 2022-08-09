@@ -11,12 +11,4 @@ class ContinentSeeder extends Seeder
      * {@inheritdoc}
      */
     protected static $model = Continent::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function mapAttributes(array $record): array
-    {
-        return parent::mapAttributes($record);
-    }
 }

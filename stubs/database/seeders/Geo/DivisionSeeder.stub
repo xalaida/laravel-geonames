@@ -11,12 +11,4 @@ class DivisionSeeder extends Seeder
      * {@inheritdoc}
      */
     protected static $model = Division::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function mapAttributes(array $record): array
-    {
-        return parent::mapAttributes($record);
-    }
 }

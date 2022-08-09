@@ -7,7 +7,7 @@
 [![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-geonames/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 [![License](https://img.shields.io/packagist/l/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 
-The package allows you to populate your database using the [geonames](https://www.geonames.org/) dataset.
+The package allows you to populate your database using the [GeoNames](https://www.geonames.org/) service.
 
 ## 🗒️ Description
 
@@ -17,7 +17,7 @@ By default, it provides 4 models: `Continent`, `Country`, `Division`, `City` and
 
 The translations are powered by the [nevadskiy/laravel-translatable](https://github.com/nevadskiy/laravel-translatable) package.
 
-The package also keeps the data **up-to-date** by fetching daily modifications provided by the [geonames](https://www.geonames.org/) service and uses them to synchronize your own database.
+The package also keeps the data **up-to-date** by fetching daily modifications provided by the [GeoNames](https://www.geonames.org/) service and uses them to synchronize your own database.
 
 ## 🔌 Installation
 
@@ -101,15 +101,15 @@ To do that, publish the package seeders using command:
 php artisan vendor:publish --tag=geonames-seeders
 ```
 
-Then publish the package config and specify those seeders there:
+Publish the package config:
 
 ```bash
 php artisan vendor:publish --tag=geonames-config 
 ```
 
-```php
-# config/geonames.php
+Then, specify published seeders in the `config/geonames.php` file:
 
+```php
 'seeders' => [
     Database\Seeders\Geo\ContinentSeeder::class,
     Database\Seeders\Geo\ContinentTranslationSeeder::class,
