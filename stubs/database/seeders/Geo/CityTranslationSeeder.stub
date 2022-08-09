@@ -2,15 +2,15 @@
 
 namespace Database\Seeders\Geo;
 
-use Nevadskiy\Geonames\Seeders\CityTranslationSeeder as Seeder;
+use Nevadskiy\Geonames\Seeders\TranslationSeeder as Seeder;
 
 class CityTranslationSeeder extends Seeder
 {
     /**
      * {@inheritdoc}
      */
-    protected function mapAttributes(array $record): array
+    public static function translatableModel(): string
     {
-        return parent::mapAttributes($record);
+        return CitySeeder::model();
     }
 }
