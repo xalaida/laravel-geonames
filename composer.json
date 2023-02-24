@@ -1,6 +1,6 @@
 {
     "name": "nevadskiy/laravel-geonames",
-    "description": "The package provides geonames seeders for a Laravel application.",
+    "description": "Populate your database using the GeoNames service.",
     "license": "MIT",
     "keywords": ["geonames", "geo", "country", "city", "location", "address", "laravel", "database"],
     "authors": [
