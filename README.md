@@ -1,9 +1,9 @@
 # 🌎 Populate your database using the [GeoNames](https://www.geonames.org/) service
 
-[![PHPUnit](https://github.com/nevadskiy/laravel-geonames/workflows/phpunit/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-geonames)
-[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-geonames/branch/master/graphs/badge.svg?branch=master)]
-[![License](http://poser.pugx.org/nevadskiy/laravel-geonames/license)](https://packagist.org/packages/nevadskiy/laravel-geonames)
-[![Latest Stable Version](http://poser.pugx.org/nevadskiy/laravel-geonames/v)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![PHPUnit](https://img.shields.io/github/actions/workflow/status/nevadskiy/laravel-geonames/phpunit.yml?branch=master)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Code Coverage](https://img.shields.io/codecov/c/github/nevadskiy/laravel-geonames?token=9X6AQQYCPA)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![Latest Stable Version](https://img.shields.io/packagist/v/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
+[![License](https://img.shields.io/github/license/nevadskiy/laravel-geonames)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
