@@ -19,5 +19,5 @@ RUN apt-get update \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Set up default directory
+# Specify the working directory
 WORKDIR /app

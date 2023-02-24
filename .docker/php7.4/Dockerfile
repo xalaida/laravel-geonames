@@ -1,5 +1,5 @@
 # Specify the image
-FROM php:8.0-cli
+FROM php:7.4-cli
 
 # Update dependencies
 RUN apt-get update \
