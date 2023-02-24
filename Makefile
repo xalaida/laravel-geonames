@@ -1,77 +1,65 @@
+# Install the app
+install: build composer.install
+
 # Start docker containers
 up:
-	docker-compose up -d
+	docker compose up -d
 
 # Stop docker containers
 down:
-	docker-compose down
-
-# Build docker containers
-install: build composer.install
-
-# Make a ".env" file based on the example file
-env:
-	cp .env.example .env
+	docker compose down --remove-orphans
 
 # Build docker containers
 build:
-	docker-compose build
+	docker compose build
 
-# Restart docker containers
-restart:
-	docker-compose restart
-
-# Show status of docker containers
-ps:
-	docker-compose ps
-
-# Run the testsuite
-test:
-	docker-compose run --rm app vendor/bin/phpunit
-
-# Fix the code style
-fix:
-	docker-compose run --rm app vendor/bin/php-cs-fixer fix
-
-# Check the code style
-check:
-	docker-compose run --rm app vendor/bin/php-cs-fixer fix --dry-run --diff-format udiff
-
-# Install app dependencies
+# Install composer dependencies
 composer.install:
-	docker-compose run --rm app composer install
+	docker compose run --rm composer install
 
-# Update app dependencies
+# Update composer dependencies
 composer.update:
-	docker-compose run --rm app composer update
+	docker compose run --rm composer update
 
-# Show outdated dependencies
-composer.outdated:
-	docker-compose run --rm app composer outdated
+# Downgrade composer dependencies to lowest versions
+composer.lowest:
+	docker compose run --rm composer update --prefer-lowest --prefer-stable
 
-# Dump composer autoload
-autoload:
-	docker-compose run --rm app composer dump-autoload
-
-# Reinstall using a new runtime
-reinstall: clean install
-
-# Clean installation for the current runtime
-clean:
+# Uninstall composer dependencies
+composer.uninstall:
 	sudo rm -rf vendor
 	sudo rm composer.lock
+	sudo rm -rf .cache
 
-# Generate a coverage report as html
-coverage.html:
-	docker-compose run --rm app vendor/bin/phpunit --coverage-html tests/report
+# Run PHPUnit
+phpunit:
+	docker compose run --rm phpunit --stop-on-failure
 
-# Generate a coverage report as text
-coverage.text:
-	docker-compose run --rm app vendor/bin/phpunit --coverage-text
+# Alias to run PHPUnit
+test: phpunit
 
-# Coverage text alias
-coverage: coverage.text
+# Run PHPUnit with a coverage analysis using an HTML output
+phpunit.coverage.html:
+	docker compose run --rm phpunit --coverage-html tests/.report
 
-# Set up ownership for the current user
-own:
-	sudo chown -R "$(shell id -u):$(shell id -g)" .
+# Run PHPUnit with a coverage analysis using a plain text output
+phpunit.coverage.text:
+	docker compose run --rm phpunit --coverage-text
+
+# Run PHPUnit with a coverage analysis using a Clover's XML output
+phpunit.coverage.clover:
+	docker compose run --rm phpunit --coverage-clover tests/.report/clover.xml
+
+# Run PHPUnit with a coverage analysis
+phpunit.coverage: phpunit.coverage.text
+
+# Fix the code style
+php.cs.fix:
+	docker compose run --rm php-cs-fixer fix
+
+# Check the code style
+php.cs.check:
+	docker compose run --rm php-cs-fixer fix --dry-run
+
+# Remove installation files
+uninstall: down composer.uninstall

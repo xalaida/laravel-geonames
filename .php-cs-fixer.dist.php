@@ -3,7 +3,7 @@
 $config = new PhpCsFixer\Config();
 
 $config->setRules([
-    '@PhpCsFixer:risky' => true,
+    '@PSR12' => true,
     'global_namespace_import' => [
         'import_classes' => true,
         'import_constants' => true,
@@ -12,11 +12,17 @@ $config->setRules([
     'php_unit_test_annotation' => [
         'style' => 'annotation',
     ],
+    'php_unit_test_class_requires_covers' => false,
+    'php_unit_internal_class' => false,
     'no_unused_imports' => true,
 ]);
 
 $config->setRiskyAllowed(true);
 
-return $config->setFinder(
+$config->setCacheFile(__DIR__.'/.cache/.php-cs-fixer.cache');
+
+$config->setFinder(
     PhpCsFixer\Finder::create()->in(__DIR__)
 );
+
+return $config;

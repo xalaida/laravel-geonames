@@ -1,9 +1,25 @@
 version: '3.8'
 
 services:
-    app:
-        build:
-            context: ./
-            dockerfile: ./runtimes/${APP_DOCKER_RUNTIME:-php7.3}/Dockerfile
-        volumes:
-            - ./:/app
+  composer:
+    build:
+      dockerfile: .docker/php${PHP_VERSION:-7.3}/Dockerfile
+    environment:
+      COMPOSER_CACHE_DIR: /app/.cache/composer
+    volumes:
+      - ./:/app
+    entrypoint: composer
+
+  phpunit:
+    build:
+      dockerfile: .docker/php${PHP_VERSION:-7.3}/Dockerfile
+    volumes:
+      - ./:/app
+    entrypoint: vendor/bin/phpunit
+
+  php-cs-fixer:
+    build:
+      dockerfile: .docker/php${PHP_VERSION:-7.3}/Dockerfile
+    volumes:
+      - ./:/app
+    entrypoint: vendor/bin/php-cs-fixer

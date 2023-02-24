@@ -10,15 +10,17 @@ We accept contributions via Pull Requests.
 
 - **Consider our release cycle** - We try to follow [SemVer v2.0.0](http://semver.org/).
 
-- **Document any change in behaviour** - Make sure the [README.md](README.md) and any other relevant documentation are kept up-to-date.
+- **Document any change in behaviour** - Make sure the [README.md](../README.md) and any other relevant documentation are kept up-to-date.
 
 - **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
 
-## Installation
+## Setup
 
 The project setup is based upon [docker](https://docs.docker.com/engine/install).
 
-For convenience, common tasks are wrapped up in the [Makefile](Makefile) for usage with [GNU make](https://www.gnu.org/software/make/).
+For convenience, common tasks are wrapped up in the [Makefile](../Makefile) for usage with [GNU make](https://www.gnu.org/software/make/).
+
+## Installation
 
 Fork and clone the project:
 
@@ -26,10 +28,16 @@ Fork and clone the project:
 git clone https://github.com/nevadskiy/laravel-geonames.git
 ```
 
-Run the installation command:
+Build docker containers:
 
 ```bash
-make install
+docker compose build
+```
+
+Install the composer dependencies:
+
+```bash
+docker compose run --rm composer install
 ```
 
 ## Running Tests
@@ -37,7 +45,7 @@ make install
 To run tests, execute the following command:
 
 ```bash
-make test
+docker compose run --rm phpunit
 ```
 
 ## Code Style
@@ -45,7 +53,7 @@ make test
 Formatting is automated through [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
 
 ```bash
-make fix
+docker compose run --rm php-cs-fixer fix
 ```
 
 **Happy coding**!

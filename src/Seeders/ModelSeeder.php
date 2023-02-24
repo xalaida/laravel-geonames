@@ -32,7 +32,7 @@ abstract class ModelSeeder extends BaseSeeder
             throw new RuntimeException(sprintf('The seeder model "%s" is not an Eloquent model.', $model));
         }
 
-        return new $model;
+        return new $model();
     }
 
     /**

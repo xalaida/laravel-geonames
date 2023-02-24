@@ -1,8 +1,18 @@
 {
     "name": "nevadskiy/laravel-geonames",
-    "description": "The package provides geonames seeders for a Laravel application.",
+    "description": "Populate your database using the GeoNames service.",
     "license": "MIT",
-    "keywords": ["geonames", "geo", "country", "city", "location", "address", "laravel", "database"],
+    "keywords": [
+        "geonames",
+        "geo",
+        "country",
+        "city",
+        "location",
+        "address",
+        "laravel",
+        "database"
+    ],
+    "homepage": "https://github.com/nevadskiy/laravel-geonames",
     "authors": [
         {
             "name": "Nevadskiy",
@@ -12,15 +22,15 @@
     "require": {
         "php": "^7.3|^8.0",
         "ext-zip": "*",
-        "laravel/framework": "^8.0|^9.0",
+        "laravel/framework": "^8.0|^9.0|^10.0",
         "nevadskiy/downloader": "0.4.0",
         "league/csv": "^9.7"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
-        "orchestra/testbench": "^6.0|^7.0",
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "nevadskiy/laravel-translatable": "^0.8.0"
+        "orchestra/testbench": "^6.0|^7.0|^8.0",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "nevadskiy/laravel-translatable": "^0.8"
     },
     "autoload": {
         "psr-4": {

@@ -1,7 +1,9 @@
+/.cache
 /.idea
+/.vscode
 /vendor
-/tests/report
+/tests/.report
 .env
-.php_cs.cache
-.phpunit.result.cache
-TODO.md
+.php-cs-fixer.php
+composer.lock
+phpunit.xml

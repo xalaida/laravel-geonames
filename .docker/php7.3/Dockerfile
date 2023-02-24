@@ -1,12 +1,13 @@
-# Image
-FROM php:8.0-cli
+# Specify the image
+FROM php:7.3-cli
 
 # Update dependencies
 RUN apt-get update \
 # Install Zip
     && apt-get install -y libzip-dev zip \
+    && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install zip \
-# Install Git
+ # Install Git
     && apt-get install -y git \
 # Install Curl
     && apt-get install -y libcurl3-dev curl \
@@ -15,10 +16,8 @@ RUN apt-get update \
     && pecl install pcov \
     && docker-php-ext-enable pcov
 
-# Install composer
-ENV COMPOSER_ALLOW_SUPERUSER 1
-RUN php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
-RUN chmod 0755 /usr/bin/composer
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Set up default directory
+# Specify the working directory
 WORKDIR /app

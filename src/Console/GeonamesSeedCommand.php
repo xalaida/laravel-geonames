@@ -64,7 +64,7 @@ class GeonamesSeedCommand extends Command
     protected function clean(): void
     {
         if (! $this->option('keep-downloads')) {
-            (new Filesystem)->cleanDirectory(config('geonames.directory'));
+            (new Filesystem())->cleanDirectory(config('geonames.directory'));
         }
     }
 }
