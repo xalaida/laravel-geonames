@@ -2,7 +2,17 @@
     "name": "nevadskiy/laravel-geonames",
     "description": "Populate your database using the GeoNames service.",
     "license": "MIT",
-    "keywords": ["geonames", "geo", "country", "city", "location", "address", "laravel", "database"],
+    "keywords": [
+        "geonames",
+        "geo",
+        "country",
+        "city",
+        "location",
+        "address",
+        "laravel",
+        "database"
+    ],
+    "homepage": "https://github.com/nevadskiy/laravel-geonames",
     "authors": [
         {
             "name": "Nevadskiy",
