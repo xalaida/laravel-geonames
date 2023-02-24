@@ -1,4 +1,4 @@
-# 🌎 Populate your database using the [GeoNames](https://www.geonames.org/) service.
+# 🌎 Populate your database using the [GeoNames](https://www.geonames.org/) service
 
 [![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-geonames/v)](https://packagist.org/packages/nevadskiy/laravel-geonames)
 [![Tests](https://img.shields.io/github/workflow/status/nevadskiy/laravel-geonames/Tests?label=tests)](https://packagist.org/packages/nevadskiy/laravel-geonames)
@@ -235,7 +235,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## ☕ Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for more information.
+Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
 
 ## 📜 License
 
