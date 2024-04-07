@@ -1,39 +1,48 @@
 name: PHPUnit
 
-on: [ push, pull_request ]
+on:
+  - pull_request
 
 jobs:
   test:
-    name: Run PHPUnit on PHP ${{ matrix.php }} with ${{ matrix.dependencies }} dependencies
+    strategy:
+      matrix:
+        include:
+          - php: 7.3
+            dependencies: laravel/framework:^8.0
+            prefer_lowest: 0
+
+          - php: 8.0
+            dependencies: laravel/framework:^9.0
+            prefer_lowest: 0
+
+          - php: 8.1
+            dependencies: laravel/framework:^10.0
+            prefer_lowest: 0
+
+          - php: 8.2
+            dependencies: laravel/framework:^11.0
+            prefer_lowest: 0
 
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        php: [ '7.3', '7.4', '8.0', '8.1', '8.2' ]
-        dependencies: [ 'highest' ]
-
     env:
-      PHP_VERSION: ${{ matrix.php }}
+      COMPOSER_PREFER_STABLE: 1
+      COMPOSER_PREFER_LOWEST: ${{ matrix.prefer_lowest }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Build containers
-        run: docker compose build
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
 
-      - name: Install Composer dependencies with the highest version
-        if: matrix.dependencies == 'highest'
-        run: docker compose run composer update --no-interaction --no-progress
+      - run: composer require ${{ matrix.dependencies }} --no-update --no-interaction --no-progress
 
-      - name: Install Composer dependencies with the lowest stable version
-        if: matrix.dependencies == 'lowest'
-        run: docker compose run composer update --no-interaction --no-progress --prefer-lowest --prefer-stable
+      - run: composer update --no-interaction --no-progress
 
-      - name: Run PHPUnit
-        run: docker compose run phpunit
+      - run: vendor/bin/phpunit
 
   coverage:
     name: Analyze code coverage
