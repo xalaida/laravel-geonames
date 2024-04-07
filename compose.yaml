@@ -1,0 +1,10 @@
+services:
+  workspace:
+    build:
+      context: .
+      args:
+        PHP_VERSION: 8.3
+    environment:
+      COMPOSER_CACHE_DIR: /app/.cache/composer
+    volumes:
+      - .:/workspace
