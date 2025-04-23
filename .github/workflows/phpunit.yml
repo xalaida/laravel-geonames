@@ -24,6 +24,10 @@ jobs:
             dependencies: laravel/framework:^11.0
             prefer_lowest: 0
 
+          - php: 8.2
+            dependencies: laravel/framework:^12.0
+            prefer_lowest: 0
+
     runs-on: ubuntu-latest
 
     env:
