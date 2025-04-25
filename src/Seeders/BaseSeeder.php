@@ -58,7 +58,7 @@ abstract class BaseSeeder implements Seeder, LoggerAwareInterface
         $this->logger->info('Start seeding records using "{seeder}" class', ['seeder' => static::class]);
 
         foreach ($this->getRecordsForSeeding()->chunk($this->chunkSize) as $chunk) {
-            $this->query()->insert($chunk->all());
+            $this->query()->insertOrIgnore($chunk->all());
         }
 
         $this->logger->info('Finish seeding records using "{seeder}" class', ['seeder' => static::class]);
